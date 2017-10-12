@@ -8,7 +8,7 @@ We will be discussing how to use the State monad to help print a binary search t
 That is, we will be printing the root at the top of the tree and the tree grows downward. The following is an example output
 for the binary search tree for the sentence "haskell is a cool language but state monads are hard" (inserted in the order of the sentence):
 
-``` haskell
+```
                                 haskell
   a                                       is
 _                 cool                  _      language
@@ -27,6 +27,97 @@ data Tree a = Node a (Tree a) (Tree a) | Empty
 ```
 
 This data type defines either a node containing a value of type `a` and two children also of type `Tree a`, or it defines an empty node.
+
+For simplicity of exposition, let's just manually define the instance of our tree:
+
+``` haskell
+let exampleTree = Node "haskell"
+                       (Node "a"
+                             Empty
+                             (Node "cool"
+                                    (Node "but"
+                                          (Node "are"
+                                                Empty
+                                                Empty
+                                          ) 
+                                          Empty
+                                    ) 
+                                    (Node "hard"
+                                          Empty
+                                          Empty
+                                    )
+                             ) 
+                       ) 
+                       (Node "is"
+                             Empty
+                             (Node "language"
+                                   Empty
+                                   (Node "state"
+                                         (Node "monads"
+                                               Empty
+                                               Empty
+                                         ) 
+                                         Empty
+                                   )
+                             )
+                       )
+```
+
+## Simple Left to Right Printing
+
+For starters and debugging purposes, let's write a function for printing our
+tree in a left to right manner. That is, the root will be at the left and the leaf nodes will be on the right. This function will be much more simple than what we will need to print the tree in a top to bottom manner.
+To do this, we will traverse the tree in a depth first manner and use the `State` monad to keep track of the indentation level as we go. Note, we write this function for type `Tree a` where `a` is any type for which `show :: a -> String` is defined. 
+
+``` haskell
+-- Simple left / right print.
+
+simpleShow :: (Show a) => Tree a -> State Position String 
+simpleShow Empty = do
+    indent <- get
+    let padding = replicate indent ' '
+    return $ padding ++ "Empty\n"
+simpleShow (Node x lChild rChild) = do
+    indent <- get
+    let padding = replicate indent ' '
+        xString = padding ++ "Node " ++ (show x) ++ "\n"
+    put $ indent + 5
+    lString <- simpleShow lChild
+    put $ indent + 5
+    rString <- simpleShow rChild
+    return $ xString ++ lString ++ rString
+
+```
+Now let's test our simple left to right print function on our example tree to make sure it is constructed properly. We run 
+``` haskell
+putStrLn . fst $ runState (simpleShow exampleTree) 0 
+```
+and get output
+```
+Node "haskell"
+     Node "a"
+          Empty
+          Node "cool"
+               Node "but"
+                    Node "are"
+                         Empty
+                         Empty
+                    Empty
+               Node "hard"
+                    Empty
+                    Empty
+     Node "is"
+          Empty
+          Node "language"
+               Empty
+               Node "state"
+                    Node "monads"
+                         Empty
+                         Empty
+                    Empty
+```
+
+## Strategy for Top to Bottom Printing
 
 Now, our strategy will be to do two passes of traversing the tree in the following order: 
 
