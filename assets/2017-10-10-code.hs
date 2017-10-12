@@ -35,12 +35,12 @@ main = do
                                )
                          )
   putStrLn . fst $ runState (simpleShow exampleTree) 0 
-  putStrLn $ showTree 40 exampleTree
+  putStrLn $ showTree exampleTree
 
 data Tree a = Node a (Tree a) (Tree a) | Empty
     deriving (Show)
 
--- Simple print.
+-- Simple left / right print.
 
 simpleShow :: (Show a) => Tree a -> State Position String 
 simpleShow Empty = do
@@ -97,6 +97,7 @@ computeNodePositions (Node width lChild rChild) = do
     rChild' <- computeNodePositions rChild
     return $ Node myPos lChild' rChild'
 
+-- Function to combine two trees.
 combine :: Tree a -> Tree b -> Tree (a, b)
 combine Empty _ = Empty
 combine _ Empty = Empty
@@ -160,10 +161,12 @@ convertEmpty (Node x lChild rChild) = Node x lChild' rChild'
     where lChild' = convertEmpty lChild
           rChild' = convertEmpty rChild
 
--- First argument is the position of the root node.
-showTree :: Position -> Tree String -> String
-showTree rootPos x = showTreeWPositions mixedTree
+showTree :: Tree String -> String
+showTree x = showTreeWPositions mixedTree
     where mixedTree = combine x' posTree
           posTree = fst $ runState (computeNodePositions widthTree) rootPos 
+          rootPos = case widthTree of 
+                Empty -> 0
+                (Node w _ _) -> (leftWidth w) + 1
           widthTree = computeWidths x'
           x' = convertEmpty x

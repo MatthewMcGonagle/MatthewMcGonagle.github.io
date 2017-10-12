@@ -184,7 +184,7 @@ computeNodePositions (Node width lChild rChild) = do
     myPos <- get
     let lPos = case lChild of 
             Empty -> myPos
-            (Node w _ _) -> myPos + 1 + (rightWidth w) 
+            (Node w _ _) -> myPos - 1 - (rightWidth w) - (nodeWidth w) 
         rPos = case rChild of 
             Empty -> myPos
             (Node w _ _) -> myPos + 1 + (leftWidth w) + (nodeWidth width) 
@@ -246,7 +246,6 @@ reformatTree x = fst $ runState (reformatSubLevels [x]) []
 After we have reformatted our tree into lists of levels of type `[[(String, Position)]]`, we need to convert each level into a string. For this we will need to use the `State` monad to keep track of the last Position.
 
 ``` haskell
-
 addNodeString :: String -> (String, Position) -> State Position String
 addNodeString acc (str, pos) = do
     lastPos <- get
@@ -255,21 +254,47 @@ addNodeString acc (str, pos) = do
             True -> nSpaces 
             False -> 0
         spacing = replicate nSpaces' ' '
-    put pos
-    return $ str ++ spacing ++ acc 
+    put $ pos + (length str) - 1
+    return $ (reverse str) ++ spacing ++ acc 
 
 showLevel :: [(String, Position)] -> String
 showLevel nodes = fst $ runState strState (-1) 
     where strState = foldM addNodeString "" nodes
 ```
 
-So, now we can show the entire tree. As a first argument, the function takes the position of the root node.
+So now we can show entire tree where each node holds the string and its horizontal position.
 
 ``` haskell
--- First argument is the position of the root node.
-showTree :: Position -> Tree String -> String
-showTree rootPos x = showTreeWPositions mixedTree
-    where mixedTree = combine x posTree
+showTreeWPositions :: Tree (String, Position) -> String
+showTreeWPositions x = concat levelStrings
+    where levelStrings = map (reverse . combineLevel) levels
+          levels = reformatTree x
+          combineLevel y = (++ "\n") . fst $ runState (foldM addNodeString "" y) (-1) 
+```
+Finally, before we can work on showing the entire original tree, we first need to convert the original empty nodes to nodes holding strings "_" representing them.
+
+``` haskell
+convertEmpty :: Tree String -> Tree String
+convertEmpty Empty = Node "_" Empty Empty
+convertEmpty (Node x lChild rChild) = Node x lChild' rChild'
+    where lChild' = convertEmpty lChild
+          rChild' = convertEmpty rChild
+```
+So, now we can show the entire tree. We compute the position of the root node based on the first node of the tree of width information. 
+
+``` haskell
+showTree :: Tree String -> String
+showTree x = showTreeWPositions mixedTree
+    where mixedTree = combine x' posTree
           posTree = fst $ runState (computeNodePositions widthTree) rootPos 
-          widthTree = computeWidths x
+          rootPos = case widthTree of 
+                Empty -> 0
+                (Node w _ _) -> (leftWidth w) + 1
+          widthTree = computeWidths x'
+          x' = convertEmpty x
+```
+
+To get the example given at the beginning of this post, we simply run
+``` haskell
+putStrLn $ showTree exampleTree
 ```
