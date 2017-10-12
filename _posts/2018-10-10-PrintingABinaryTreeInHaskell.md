@@ -5,18 +5,20 @@ date: 2017-10-10
 ---
 
 We will be discussing how to use the State monad to help print a binary search tree in a top down manner.
-That is, we will be printing the root at the top of the tree and the tree grows downward. An example output
-of our printing is the following binary search tree for the sentence "haskell is a cool language but state monads are hard":
+That is, we will be printing the root at the top of the tree and the tree grows downward. The following is an example output
+for the binary search tree for the sentence "haskell is a cool language but state monads are hard" (inserted in the order of the sentence):
 
-```
+``` haskell
                                 haskell
-               a                          is
-        cool       are                  _      language
-  but        _   _       hard                _                     state
-_     _                _      _                           monads         _
-                                                        _        _
+  a                                       is
+_                 cool                  _      language
+            but          hard                _                     state
+      are       _      _      _                           monads         _
+    _     _                                             _        _
 ```
 Here, each `_` represents an empty node in our tree.
+
+## Our Tree Data Type
 
 First, we will be using the following recursively defined tree data type:
 

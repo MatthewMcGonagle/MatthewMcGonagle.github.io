@@ -6,15 +6,15 @@ main :: IO ()
 main = do
   let exampleTree = Node "haskell"
                          (Node "a"
+                               Empty
                                (Node "cool"
-                                     (Node "but"
-                                           Empty
-                                           Empty
-                                     )
-                                     Empty
-                               )
-                               (Node "are"
-                                      Empty
+                                      (Node "but"
+                                            (Node "are"
+                                                  Empty
+                                                  Empty
+                                            ) 
+                                            Empty
+                                      ) 
                                       (Node "hard"
                                             Empty
                                             Empty
