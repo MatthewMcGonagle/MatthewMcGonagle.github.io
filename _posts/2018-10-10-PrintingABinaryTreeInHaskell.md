@@ -6,15 +6,15 @@ date: 2017-10-10
 
 We will be discussing how to use the State monad to help print a binary search tree in a top down manner.
 That is, we will be printing the root at the top of the tree and the tree grows downward. An example output
-of our printing is the following unbalanced tree:
+of our printing is the following binary search tree for the sentence "haskell is a cool language but state monads are hard":
 
 ```
-          6
-        _                48
-              12                               162
-            _       24               96                       180
-                 _     _       90          138            174          _
-                           _     _     _      _      _      _
+                                haskell
+               a                          is
+        cool       are                  _      language
+  but        _   _       hard                _                     state
+_     _                _      _                           monads         _
+                                                        _        _
 ```
 Here, each `_` represents an empty node in our tree.
 
@@ -67,10 +67,12 @@ computeWidths (Node str lChild rChild) = Node widths lChild' rChild'
                              , leftWidth = lWidth
                              , rightWidth = rWidth
                              }
-          lWidth = case lChild' of Empty -> 0
-                                   (Node w _ _) -> 1 + (nodeWidth w) + (leftWidth w) + (rightWidth w)
-          rWidth = case rChild' of Empty -> 0  
-                                   (Node w _ _) -> 1 + (nodeWidth w) + (leftWidth w) + (rightWidth w)
+          lWidth = case lChild' of 
+                Empty -> 0
+                (Node w _ _) -> 1 + (nodeWidth w) + (leftWidth w) + (rightWidth w)
+          rWidth = case rChild' of 
+                Empty -> 0  
+                (Node w _ _) -> 1 + (nodeWidth w) + (leftWidth w) + (rightWidth w)
 ```
  
 ## Calculating the Positions of the Nodes 
@@ -84,13 +86,15 @@ For this calculation, we will use the `State` monad; the state will keep track o
 
 ``` haskell
 computeNodePositions :: Tree WidthInfo -> State Position (Tree Position)
-computeNodePositions Empty -> return Empty
+computeNodePositions Empty = return Empty
 computeNodePositions (Node width lChild rChild) = do
     myPos <- get
-    let lPos = case lChild of Empty -> myPos
-                              (Node w _ _) -> myPos + 1 + (rightWidth w) 
-        rPos = case rChild of Empty -> myPos
-                              (Node w_ _) -> myPos + 1 + (leftWidth w) + (nodeWidth width) 
+    let lPos = case lChild of 
+            Empty -> myPos
+            (Node w _ _) -> myPos + 1 + (rightWidth w) 
+        rPos = case rChild of 
+            Empty -> myPos
+            (Node w _ _) -> myPos + 1 + (leftWidth w) + (nodeWidth width) 
     put lPos
     lChild' <- computeNodePositions lChild
     put rPos
@@ -119,3 +123,60 @@ computePositions x = do
 ## Printing a Tree of Strings and Positions 
 
 For printing a tree of type `Tree (String, Position)` we will use a breadth first traversal of the tree. As we traverse each level of the tree, we store the next level in a list. We use this to convert our tree into a double list, a list of lists of nodes on each level, i.e. of type `[[(String, Position)]]`.
+
+For this reformatting of the tree, we don't really need to use the type of the tree. So we will work with the general tree of type `Tree a`.
+
+``` haskell
+-- Accumulator function for folding over each level. State represents the nodes in the next level of the tree.
+addNodeToLevel :: [a] -> Tree a -> State [Tree a] [a]
+addNodeToLevel acc Empty = return acc
+addNodeToLevel acc (Node x lChild rChild) = do
+    nextLevel <- get
+    put $ rChild : lChild : nextLevel
+    return $ x : acc
+
+-- Reformat sublevels of tree.
+reformatSubLevels :: [Tree a] -> State [Tree a] [[a]]
+reformatSubLevels [] = return []
+reformatSubLevels nodes = do
+    put [] -- initialize the next level as empty
+    thisLevel <- foldM addNodeToLevel [] nodes
+    nextLevel <- get
+    subLevels <- reformatSubLevels (reverse nextLevel) 
+    return $ (reverse thisLevel) : subLevels
+
+-- Reformat tree.
+reformatTree :: Tree a -> [[a]]
+reformatTree x = fst $ runState (reformatSubLevels [x]) []
+```
+
+After we have reformatted our tree into lists of levels of type `[[(String, Position)]]`, we need to convert each level into a string. For this we will need to use the `State` monad to keep track of the last Position.
+
+``` haskell
+
+addNodeString :: String -> (String, Position) -> State Position String
+addNodeString acc (str, pos) = do
+    lastPos <- get
+    let nSpaces = pos - lastPos - 1
+        nSpaces' = case nSpaces > 0 of 
+            True -> nSpaces 
+            False -> 0
+        spacing = replicate nSpaces' ' '
+    put pos
+    return $ str ++ spacing ++ acc 
+
+showLevel :: [(String, Position)] -> String
+showLevel nodes = fst $ runState strState (-1) 
+    where strState = foldM addNodeString "" nodes
+```
+
+So, now we can show the entire tree. As a first argument, the function takes the position of the root node.
+
+``` haskell
+-- First argument is the position of the root node.
+showTree :: Position -> Tree String -> String
+showTree rootPos x = showTreeWPositions mixedTree
+    where mixedTree = combine x posTree
+          posTree = fst $ runState (computeNodePositions widthTree) rootPos 
+          widthTree = computeWidths x
+```
