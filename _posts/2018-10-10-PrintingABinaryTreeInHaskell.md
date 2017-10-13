@@ -4,12 +4,15 @@ title: "Printing a Binary Tree in Haskell"
 date: 2017-10-10
 ---
 
-## [The Source Code for This Post]( {{ site . url }}/assets/2017-10-10-code.hs)
+## [Download the Source Code for This Post]( {{ site . url }}/assets/2017-10-10-code.hs)
 
 
 We will be discussing how to use the State monad to help print a binary search tree in a top to bottom manner.
-That is, we will be printing the root at the top of the tree and the tree grows downward. The following is an example output
-for the binary search tree for the sentence "haskell is a cool language but state monads are hard" (inserted in the order of the sentence):
+That is, we will be printing the root at the top of the tree and the tree grows downward. Consider the binary search tree for the words in the sentence "haskell is a cool language but state monads are hard"; the words are simply inserted in the order they appear in the sentence. Here is a picture of this tree.
+
+![Picture of Example Tree]( {{site . url}}/assets/2017-10-10-ExampleTree.svg)
+
+The following is the output for printing this tree in a top to bottom manner using our functions. 
 
 ```
                                 haskell
@@ -301,3 +304,6 @@ To get the example given at the beginning of this post, we simply run
 ``` haskell
 putStrLn $ showTree exampleTree
 ```
+
+## [Download the Source Code for This Post]( {{ site . url }}/assets/2017-10-10-code.hs)
+
