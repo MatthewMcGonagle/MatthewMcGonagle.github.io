@@ -1,5 +1,5 @@
 ---
-layout : default
+layout : post 
 title : "Selecting Sub-squares with Numpy Indexing"
 date : 2017-10-13 
 ---
