@@ -61,9 +61,9 @@ corners = A[cornersRow, cornersCol]
 
 The array `corners` has shape `(3, 8, 1, 1)`. In fact , `corners` may be written as 
 ```
-[[  [[0]]  [[1]]  [[2]]  [[3]]  [[4]]  [[5]]  [[6]]  [[7]] ]
- [[ [10]] [[11]] [[12]] [[13]] [[14]] [[15]] [[16]] [[17]] ]
- [[ [20]] [[21]] [[22]] [[23]] [[24]] [[25]] [[26]] [[27]] ]]
+[[ [[ 0]] [[ 1]] [[ 2]] [[ 3]] [[ 4]] [[ 5]] [[ 6]] [[ 7]] ]
+ [ [[10]] [[11]] [[12]] [[13]] [[14]] [[15]] [[16]] [[17]] ]
+ [ [[20]] [[21]] [[22]] [[23]] [[24]] [[25]] [[26]] [[27]] ]]
 ```  
 Note that the way we have written `corners` will differ from the output of the simple print statement `print(corners)`. We have written it this way, because it is more clear; Also the structure is the same.
 
@@ -96,5 +96,35 @@ We see that `subsquares.shape` is `(3, 8, 3, 3)`; this shape may be interpreted 
 ```
 
 So, `subsquares[i,j]` is the sub-square at the ith row and jth column in this grid, and `subsquares[i,j]` has shape `(3, 3)`!
+
+## Flattening into an One-dimensional Array of Sub-squares
+
+So, we now have a 3x8 grid of 3x3 sub-squares. How do we turn this into a one-dimensional array of 3x3 sub-squares? This part is much more simple than the previous parts. For this, we simply reshape `subsquares`.
+
+``` python
+# Now convert to single list of subsquares.
+subsquareList = subsquares.reshape(-1, sidel, sidel)
+```
+
+We see that `subsquareList` has shape `(24, 3, 3)`. Let's take a look at the first four sub-squares in `subsquareList`, i.e. `subsquareList[:4, :, :]`. 
+```
+[[[ 0  1  2]
+  [10 11 12]
+  [20 21 22]]
+
+ [[ 1  2  3]
+  [11 12 13]
+  [21 22 23]]
+
+ [[ 2  3  4]
+  [12 13 14]
+  [22 23 24]]
+
+ [[ 3  4  5]
+  [13 14 15]
+  [23 24 25]]]
+```
+So we see that the order the sub-squares are added to `subsquareList` is left to right and top to bottom as we would expect.
+
 ## [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-13-SubsquaresNumpy.py)
 

@@ -37,11 +37,8 @@ for i in range(nSqRows):
     print()
 
 # Now convert to single list of subsquares.
-
-subsquareRow = np.full((nSqRows, nSqCols), np.arange(nSqRows)[:, np.newaxis], dtype = 'int32').reshape(-1)
-subsquareCol = np.full((nSqRows, nSqCols), np.arange(nSqCols)[np.newaxis, :], dtype = 'int32').reshape(-1) 
-subsquareList = subsquares[subsquareRow, subsquareCol, :, :]
+subsquareList = subsquares.reshape(-1, sidel, sidel)
 print(subsquareList.shape)
-print(subsquareList)
-
+print(subsquareList[:4, :, :].shape)
+print(subsquareList[:4, :, :])
 
