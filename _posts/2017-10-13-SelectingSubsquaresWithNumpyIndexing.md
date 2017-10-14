@@ -48,6 +48,53 @@ Now, let use assume our sub-square side length `sidel` is valid, i.e. it's no mo
 ``` python
 sidel = 3
 ```
-Now, let's compute an array holding all `sidel` by `sidel` sub-squares inside `A`. At first, we will index each sub-square with a two-dimensional index. 
+Now, let's compute an array holding all `sidel` by `sidel` sub-squares inside `A`. At first, we will index each sub-square with a two-dimensional index. Also, let us first find the index of the upper left corner of each sub-square.
+
+We store the row index of each corner in an array `cornersRow` and the column index in an array `cornersCol`. For later use, we will require that the arrays have four dimensions, so we will set that up now.
+
+``` python
+# We remove sidel - 1 points from rows and cols, because these aren't corner pieces.
+cornersRow = np.arange(nRows - sidel + 1)[:, np.newaxis, np.newaxis, np.newaxis]
+cornersCol = np.arange(nCols - sidel + 1)[np.newaxis, :, np.newaxis, np.newaxis]
+corners = A[cornersRow, cornersCol]
+```
+
+The array `corners` has shape `(3, 8, 1, 1)`. In fact , `corners` may be written as 
+```
+[[  [[0]]  [[1]]  [[2]]  [[3]]  [[4]]  [[5]]  [[6]]  [[7]] ]
+ [[ [10]] [[11]] [[12]] [[13]] [[14]] [[15]] [[16]] [[17]] ]
+ [[ [20]] [[21]] [[22]] [[23]] [[24]] [[25]] [[26]] [[27]] ]]
+```  
+Note that the way we have written `corners` will differ from the output of the simple print statement `print(corners)`. We have written it this way, because it is more clear; Also the structure is the same.
+
+Now, let's find a 2d array of sub-squares. Again, first let us find the rows and cols of each entry for each sub-square.
+
+``` python
+subsquareRow = cornersRow + np.arange(sidel)[:, np.newaxis]
+subsquareCol = cornersCol + np.arange(sidel)
+```
+We see that `subsquareRow.shape` is `(3, 1, 3, 1)` and `subsquareCol.shape` is `(1, 8, 1, 3)`. These shapes will be broadcast into the full shape `(3, 8, 3, 3)` when we make use of them together. Now let's get the sub-squares of `A`.
+
+```
+subsquares = A[subsquareRow, subsquareCol]
+
+```
+
+We see that `subsquares.shape` is `(3, 8, 3, 3)`; this shape may be interpreted as 3x8 grid of 3x3 sub-squares. Showing `subsquares` in this form we have 
+````
+[[ 0  1  2]   [[ 1  2  3]   [[ 2  3  4]   [[ 3  4  5]   [[ 4  5  6]   [[ 5  6  7]   [[ 6  7  8]   [[ 7  8  9]
+ [10 11 12]    [11 12 13]    [12 13 14]    [13 14 15]    [14 15 16]    [15 16 17]    [16 17 18]    [17 18 19]
+ [20 21 22]]   [21 22 23]]   [22 23 24]]   [23 24 25]]   [24 25 26]]   [25 26 27]]   [26 27 28]]   [27 28 29]]
+
+[[10 11 12]   [[11 12 13]   [[12 13 14]   [[13 14 15]   [[14 15 16]   [[15 16 17]   [[16 17 18]   [[17 18 19]
+ [20 21 22]    [21 22 23]    [22 23 24]    [23 24 25]    [24 25 26]    [25 26 27]    [26 27 28]    [27 28 29]
+ [30 31 32]]   [31 32 33]]   [32 33 34]]   [33 34 35]]   [34 35 36]]   [35 36 37]]   [36 37 38]]   [37 38 39]]
+
+[[20 21 22]   [[21 22 23]   [[22 23 24]   [[23 24 25]   [[24 25 26]   [[25 26 27]   [[26 27 28]   [[27 28 29]
+ [30 31 32]    [31 32 33]    [32 33 34]    [33 34 35]    [34 35 36]    [35 36 37]    [36 37 38]    [37 38 39]
+ [40 41 42]]   [41 42 43]]   [42 43 44]]   [43 44 45]]   [44 45 46]]   [45 46 47]]   [46 47 48]]   [47 48 49]]
+```
+
+So, `subsquares[i,j]` is the sub-square at the ith row and jth column in this grid, and `subsquares[i,j]` has shape `(3, 3)`!
 ## [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-13-SubsquaresNumpy.py)
 

@@ -16,6 +16,7 @@ sidel = 3
 cornersRow = np.arange(nRows - sidel + 1)[:, np.newaxis, np.newaxis, np.newaxis]
 cornersCol = np.arange(nCols - sidel + 1)[np.newaxis, :, np.newaxis, np.newaxis]
 corners = A[cornersRow, cornersCol]
+print("corners.shape = ", corners.shape)
 print("\ncorners[:, :, 0, 0] = ")
 print(corners[:, :, 0, 0])
 
