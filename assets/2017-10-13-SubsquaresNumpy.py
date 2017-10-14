@@ -38,7 +38,16 @@ for i in range(nSqRows):
 
 # Now convert to single list of subsquares.
 subsquareList = subsquares.reshape(-1, sidel, sidel)
-print(subsquareList.shape)
-print(subsquareList[:4, :, :].shape)
+print('subsquareList.shape = ', subsquareList.shape)
+print('subsquareList[:4, :, :].shape = ', subsquareList[:4, :, :].shape)
+print('subsquareList[:4, :, :] = ')
 print(subsquareList[:4, :, :])
 
+# Now let's add up entries in each sub-square with certain weights. The answer will be a 2d array of values.
+weights = [[ 1, 0, -1],
+           [ 0, 1,  0],
+           [ 2, 0, 0]]
+
+subsquareSums = np.tensordot(subsquares, weights, axes = [[2, 3], [0, 1]])
+print(subsquareSums.shape)
+print(subsquareSums)

@@ -61,6 +61,7 @@ corners = A[cornersRow, cornersCol]
 
 The array `corners` has shape `(3, 8, 1, 1)`. In fact , `corners` may be written as 
 ```
+corners = 
 [[ [[ 0]] [[ 1]] [[ 2]] [[ 3]] [[ 4]] [[ 5]] [[ 6]] [[ 7]] ]
  [ [[10]] [[11]] [[12]] [[13]] [[14]] [[15]] [[16]] [[17]] ]
  [ [[20]] [[21]] [[22]] [[23]] [[24]] [[25]] [[26]] [[27]] ]]
@@ -81,7 +82,8 @@ subsquares = A[subsquareRow, subsquareCol]
 ```
 
 We see that `subsquares.shape` is `(3, 8, 3, 3)`; this shape may be interpreted as 3x8 grid of 3x3 sub-squares. Showing `subsquares` in this form we have 
-````
+```
+subsquares = 
 [[ 0  1  2]   [[ 1  2  3]   [[ 2  3  4]   [[ 3  4  5]   [[ 4  5  6]   [[ 5  6  7]   [[ 6  7  8]   [[ 7  8  9]
  [10 11 12]    [11 12 13]    [12 13 14]    [13 14 15]    [14 15 16]    [15 16 17]    [16 17 18]    [17 18 19]
  [20 21 22]]   [21 22 23]]   [22 23 24]]   [23 24 25]]   [24 25 26]]   [25 26 27]]   [26 27 28]]   [27 28 29]]
@@ -108,6 +110,7 @@ subsquareList = subsquares.reshape(-1, sidel, sidel)
 
 We see that `subsquareList` has shape `(24, 3, 3)`. Let's take a look at the first four sub-squares in `subsquareList`, i.e. `subsquareList[:4, :, :]`. 
 ```
+subsquareList[:4, :, :] = 
 [[[ 0  1  2]
   [10 11 12]
   [20 21 22]]
@@ -125,6 +128,35 @@ We see that `subsquareList` has shape `(24, 3, 3)`. Let's take a look at the fir
   [23 24 25]]]
 ```
 So we see that the order the sub-squares are added to `subsquareList` is left to right and top to bottom as we would expect.
+
+## Adding Over Sub-squares with Certain Weights
+
+Suppose that for each sub-square, we wish to sum up the entries of the sub-square with certain weights given by a 3x3 array. For our example, we will use
+``` python
+weights = [[ 1, 0, -1],
+           [ 0, 1,  0],
+           [ 2, 0,  0]]
+```
+So for example, summing over the first sub-square 
+```
+subsquares[0,0] = 
+[[ 0  1  2]
+ [10 11 12]
+ [20 21 22]]
+```
+with these weights gives `0 + 0 - 2 + 0 + 11 + 0 + 40 + 0 + 0 = 49`. To accomplish this with our multi-dimensional arrays, we will use `numpy.tensordot`. 
+
+``` python
+subsquareSums = np.tensordot(subsquares, weights, axes = [[2, 3], [0, 1]])
+```
+
+We see that `subsquareSums.shape` is `(3, 8)`. That is, it returns a number for each sub-square in the 3x8 grid of sub-squares. In fact, we have that `subsquareSums` is given by 
+```
+subsquareSums = 
+[[ 49  52  55  58  61  64  67  70]
+ [ 79  82  85  88  91  94  97 100]
+ [109 112 115 118 121 124 127 130]]
+```
 
 ## [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-13-SubsquaresNumpy.py)
 
