@@ -6,9 +6,10 @@ date : 2017-10-13
 
 ## [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-13-SubsquaresNumpy.py)
 
-We will be looking at using advanced indexing in Numpy to select all possible sub-squares of some given side length `sidel` inside a two-dimensional numpy array `A` (i.e. `A` is a matrix).
+We will be looking at using advanced indexing in Numpy to select all possible sub-squares of some given side length `sidel` inside a two-dimensional numpy array `A` (i.e. `A` is a matrix). For example, consider the following 4x5 matrix; each 3x3 sub-square of this matrix has been color coded and labeled.
+![Examples of Sub-squares of a Matrix]( {{ site . url }}/assets/2017-10-13-SubsquarePic.svg)
 
-## Constructing Array Using Broadcasting and Indexing
+## Constructing an Array Using Broadcasting and Indexing
 
 Our matrix `A` will have dimensions given by
 ``` python
