@@ -9,6 +9,8 @@ date : 2017-10-13
 We will be looking at using advanced indexing in Numpy to select all possible sub-squares of some given side length `sidel` inside a two-dimensional numpy array `A` (i.e. `A` is a matrix). For example, consider the following 4x5 matrix; each 3x3 sub-square of this matrix has been color coded and labeled.
 ![Examples of Sub-squares of a Matrix]( {{ site . url }}/assets/2017-10-13-SubsquarePic.svg)
 
+At the end of the post, we will see that this method provides a much faster way to do weighted sums of each sub-square; that is, the use of numpy indexing is much faster than a reasonable combination of list comprehension and numpy functions.
+
 ## Constructing an Array Using Broadcasting and Indexing
 
 First, we will import numpy by the standard convention of calling it `np`.
