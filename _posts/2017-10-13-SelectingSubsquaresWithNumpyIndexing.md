@@ -11,6 +11,11 @@ We will be looking at using advanced indexing in Numpy to select all possible su
 
 ## Constructing an Array Using Broadcasting and Indexing
 
+First, we will import numpy by the standard convention of calling it `np`.
+``` python
+import numpy as np
+```
+
 Our matrix `A` will have dimensions given by
 ``` python
 nRows = 5
@@ -33,7 +38,11 @@ A =
  [40 41 42 43 44 45 46 47 48 49]]
 ```
 
-Let us briefly comment on how this works. Now, `row0` has shape `(10)`, and `col0` has shape `(5)`. For the computation of `A`, the expression `col0[:, np.newaxis]` changes the shape of `col0` from `(5)` to `(5, 1)`. Now for the calculation of `A`, the summands (expressions on the left and right of `+`) have dimensions that don't match. The left summand is initially one-dimensional and the right summand is two-dimensional. To fix this, numpy automatically adds an axis to row0 to make the left summand also two-dimensional.
+Let us briefly comment on how this works. Please consider the following figure for a visual description of what is bappening, but please also consider the actual description after the figure. 
+
+![Visualization of the construction of the matrix A]({{ site . url }}/assets/2017-10-13-ArrayConstruction.svg)
+
+Now, `row0` has shape `(10)`, and `col0` has shape `(5)`. For the computation of `A`, the expression `col0[:, np.newaxis]` changes the shape of `col0` from `(5)` to `(5, 1)`. Now for the calculation of `A`, the summands (expressions on the left and right of `+`) have dimensions that don't match. The left summand is initially one-dimensional and the right summand is two-dimensional. To fix this, numpy automatically adds an axis to row0 to make the left summand also two-dimensional.
 
 However, the sizes of the dimensions for the summands still don't match. That is, they still don't have the same shape; the left summands has shape `(1, 10)`, the right summand has shape `(5, 1)`, and `(1, 10) != (5, 1)`. However, when dimension sizes don't match and for each axis only one size is greater than one, numpy can automatically fill in the rest to make all dimension sizes the same. For example, in our case the sizes of axis 0 are 1 and 5. These are different, but only one of them isn't 1. Therefore, numpy may make 5 copies of the array of shape `(1, 10)` along axis 0 to make an array of shape `(5, 10)`. Similarly, for axis 1, the array of shape `(5, 1)` may be copied along axis 1 to make a shape `(5, 10)`. 
 
