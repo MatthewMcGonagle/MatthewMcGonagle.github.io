@@ -168,5 +168,59 @@ subsquareSums =
  [109 112 115 118 121 124 127 130]]
 ```
 
+### Timing the Weighted Sum
+
+Now let's see how much faster these indexing methods are at computing weighted sums than using a reasonable list comprehension (with a little numpy).
+
+First, we need to import the timeit module:
+``` python
+import timeit
+```
+
+Next, let's put our broadcasting methods into a single function:
+``` python
+def indexingMethod(X, weights, sidel):
+
+    nRows, nCols = X.shape
+    cornersRow =  np.arange(nRows - sidel + 1)[:, np.newaxis, np.newaxis, np.newaxis]
+    cornersCol = np.arange(nCols - sidel + 1)[np.newaxis, :, np.newaxis, np.newaxis]
+
+    subsquareRow = cornersRow + np.arange(sidel)[:, np.newaxis]
+    subsquareCol = cornersCol + np.arange(sidel)
+    subsquares = X[subsquareRow, subsquareCol]
+    subsquareSums = np.tensordot(subsquares, weights, axes = [[2, 3], [0, 1]])
+    return subsquareSums
+
+``` 
+
+Next, let's construct a function that uses a list comprehension to index over our final grid of sums. The sums themselves will still be computed using `np.tensordot`.
+``` python
+def listComprehensionMethod(X, weights, sidel):
+    nRows, nCols = X.shape
+    subsquareSums = [[ np.tensordot(X[i : i + sidel, j : j + sidel], weights, [[0, 1], [0, 1]])
+                       for j in np.arange(nCols - sidel + 1) ] 
+                       for i in np.arange(nRows - sidel + 1) ]
+    return np.array(subsquareSums)
+```
+
+Now let's time these functions. We will test them on a random matrix `B` of dimensions 100x100.
+``` python
+B = [[random.randint(0, 10) for j in range(100)]
+        for i in range(100)]
+B = np.array(B)
+
+print("indexingMethod benchmark = ")
+print(timeit.timeit(lambda : indexingMethod(B, weights, sidel), number = 50))
+print("listComprehensionMethod benchmark = ")
+print(timeit.timeit(lambda : listComprehensionMethod(B, weights, sidel), number = 50))
+```
+We get the following results:
+```
+indexingMethod benchmark =
+0.039464220438448355
+listComprehensionMethod benchmark =
+4.71736960989355
+```
+So we see that the indexing/broadcasting method is much faster than the list comprehension.
 ## [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-13-SubsquaresNumpy.py)
 

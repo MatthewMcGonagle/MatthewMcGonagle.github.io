@@ -1,4 +1,6 @@
 import numpy as np
+import timeit 
+import random
 
 # First construct the array we will select sub-squares from.
 
@@ -47,7 +49,37 @@ print(subsquareList[:4, :, :])
 weights = [[ 1, 0, -1],
            [ 0, 1,  0],
            [ 2, 0, 0]]
+weights = np.array(weights)
 
 subsquareSums = np.tensordot(subsquares, weights, axes = [[2, 3], [0, 1]])
 print(subsquareSums.shape)
 print(subsquareSums)
+
+def indexingMethod(X, weights, sidel):
+
+    nRows, nCols = X.shape
+    cornersRow =  np.arange(nRows - sidel + 1)[:, np.newaxis, np.newaxis, np.newaxis]
+    cornersCol = np.arange(nCols - sidel + 1)[np.newaxis, :, np.newaxis, np.newaxis]
+
+    subsquareRow = cornersRow + np.arange(sidel)[:, np.newaxis]
+    subsquareCol = cornersCol + np.arange(sidel)
+    subsquares = X[subsquareRow, subsquareCol]
+    subsquareSums = np.tensordot(subsquares, weights, axes = [[2, 3], [0, 1]])
+    return subsquareSums
+
+def listComprehensionMethod(X, weights, sidel):
+    nRows, nCols = X.shape
+    subsquareSums = [[ np.tensordot(X[i : i + sidel, j : j + sidel], weights, [[0, 1], [0, 1]])
+                       for j in np.arange(nCols - sidel + 1) ] 
+                       for i in np.arange(nRows - sidel + 1) ]
+    return np.array(subsquareSums)
+
+B = [[random.randint(0, 10) for j in range(100)]
+        for i in range(100)]
+B = np.array(B)
+
+print("indexingMethod benchmark = ")
+print(timeit.timeit(lambda : indexingMethod(B, weights, sidel), number = 50))
+print("listComprehensionMethod benchmark = ")
+print(timeit.timeit(lambda : listComprehensionMethod(B, weights, sidel), number = 50))
+
