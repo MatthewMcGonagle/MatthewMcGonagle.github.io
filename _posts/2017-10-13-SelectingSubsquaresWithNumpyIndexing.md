@@ -172,9 +172,10 @@ subsquareSums =
 
 Now let's see how much faster these indexing methods are at computing weighted sums than using a reasonable list comprehension (with a little numpy).
 
-First, we need to import the timeit module:
+First, we need to import the `timeit` and `random` modules:
 ``` python
 import timeit
+import random
 ```
 
 Next, let's put our broadcasting methods into a single function:
