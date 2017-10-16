@@ -77,7 +77,23 @@ def listComprehensionMethod(X, weights, sidel):
 B = [[random.randint(0, 10) for j in range(100)]
         for i in range(100)]
 B = np.array(B)
+sidel = 3
+weights = [[random.randint(-2, 2) 
+                for j in range(sidel) ]
+                for i in range(sidel) ]
 
+print("\nbenchmarks for sidel = ", sidel)
+print("indexingMethod benchmark = ")
+print(timeit.timeit(lambda : indexingMethod(B, weights, sidel), number = 50))
+print("listComprehensionMethod benchmark = ")
+print(timeit.timeit(lambda : listComprehensionMethod(B, weights, sidel), number = 50))
+
+sidel = 75
+weights = [[random.randint(-2, 2) 
+                for j in range(sidel) ]
+                for i in range(sidel) ]
+
+print("\nbenchmarks for sidel = ", sidel)
 print("indexingMethod benchmark = ")
 print(timeit.timeit(lambda : indexingMethod(B, weights, sidel), number = 50))
 print("listComprehensionMethod benchmark = ")

@@ -206,12 +206,19 @@ def listComprehensionMethod(X, weights, sidel):
     return np.array(subsquareSums)
 ```
 
-Now let's time these functions. We will test them on a random matrix `B` of dimensions 100x100.
+Now let's time these functions. We will test them on a random matrix `B` of dimensions 100x100, and we will use a random weight matrix of with both dimensions having size sidel. First we will get a benchmark for `sidel = 3`.
+
 ``` python
 B = [[random.randint(0, 10) for j in range(100)]
         for i in range(100)]
 B = np.array(B)
 
+sidel = 3
+weights = [[random.randint(-2, 2) 
+                for j in range(sidel) ]
+                for i in range(sidel) ]
+
+print("\nbenchmarks for sidel = ", sidel)
 print("indexingMethod benchmark = ")
 print(timeit.timeit(lambda : indexingMethod(B, weights, sidel), number = 50))
 print("listComprehensionMethod benchmark = ")
@@ -219,11 +226,36 @@ print(timeit.timeit(lambda : listComprehensionMethod(B, weights, sidel), number 
 ```
 We get the following results:
 ```
+benchmarks for sidel =  3
 indexingMethod benchmark =
-0.039464220438448355
+0.04069033469840195
 listComprehensionMethod benchmark =
-4.71736960989355
+6.151106542460424
 ```
-So we see that the indexing/broadcasting method is much faster than the list comprehension.
+So we see that the indexing/broadcasting method is much faster than the list comprehension. However, this makes sense for when `sidel` is very small, as the list comprehension will need to iterate over many more sub-squares. Let us check the benchmark for a larger value of `sidel` so that there are less sub-squares.
+
+``` python
+sidel = 75
+weights = [[random.randint(-2, 2) 
+                for j in range(sidel) ]
+                for i in range(sidel) ]
+
+print("\nbenchmarks for sidel = ", sidel)
+print("indexingMethod benchmark = ")
+print(timeit.timeit(lambda : indexingMethod(B, weights, sidel), number = 50))
+print("listComprehensionMethod benchmark = ")
+print(timeit.timeit(lambda : listComprehensionMethod(B, weights, sidel), number = 50))
+```
+
+We get the following results:
+```
+benchmarks for sidel =  75
+indexingMethod benchmark =
+1.0525539573173281
+listComprehensionMethod benchmark =
+11.170894905507094
+```
+
+So for `sidel = 3`, we get that the list comprehension takes roughly 151 times longer, but for `sidel = 75`, the list comprehension takes only 10.6 times longer. However, in both cases the numpy indexing method is the clear winner.
 ## [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-13-SubsquaresNumpy.py)
 
