@@ -121,7 +121,9 @@ for sidel in search:
     print('Check index method == list comprehension 2 : ', end = '')
     print(np.array_equal(indexingMethod(B, weights, sidel), listComprehensionMethod2(B, weights, sidel)))
 
-
+print('\nsidel\tindex\tlist1\tlist2')
+for s,i,l1,l2 in zip(search, results['indexMethod'], results['list1'], results['list2']):
+    print(s, '\t', '%.3f' % i, '\t', '%.3f' % l1, '\t', '%.3f' % l2)
     
 for key in results:
     results[key] = np.array(results[key])
@@ -190,12 +192,14 @@ for sidel in search:
     print("listComprehensionMethod2 benchmark = ", benchmark)
     results['list2'].append(benchmark)
 
-   
     print('Check index method == list comprehension 1 : ', end = '')
     print(np.array_equal(indexingMethod(B, weights, sidel), listComprehensionMethod(B, weights, sidel)))
     print('Check index method == list comprehension 2 : ', end = '')
     print(np.array_equal(indexingMethod(B, weights, sidel), listComprehensionMethod2(B, weights, sidel)))
 
+print('\nsidel\tindex\tlist1\tlist2')
+for s,i,l1,l2 in zip(search, results['indexMethod'], results['list1'], results['list2']):
+    print(s, '\t', '%.3f' % i, '\t', '%.3f' % l1, '\t', '%.3f' % l2)
 
 plt.clf()
 plt.plot(search, results['indexMethod'])

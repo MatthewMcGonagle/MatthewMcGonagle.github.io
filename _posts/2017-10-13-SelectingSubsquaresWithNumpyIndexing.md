@@ -9,8 +9,7 @@ date : 2017-10-13
 We will be looking at using advanced indexing in Numpy to select all possible sub-squares of some given side length `sidel` inside a two-dimensional numpy array `A` (i.e. `A` is a matrix). For example, consider the following 4x5 matrix; each 3x3 sub-square of this matrix has been color coded and labeled.
 ![Examples of Sub-squares of a Matrix]( {{ site . url }}/assets/2017-10-13-SubsquarePic.svg)
 
-At the end of the post, we will see that this method provides a much faster way to do weighted sums of each sub-square; that is, the use of numpy indexing is much faster than a reasonable combination of list comprehension and numpy functions.
-
+For the last two sections at the end of this post, we will get a benchmark of this method vs two methods of list comprehensions. For the last section, we will see that there are situations where the indexing method is more optimal for execution time.
 ## Constructing an Array Using Broadcasting and Indexing
 
 First, we will import numpy by the standard convention of calling it `np`.
@@ -170,7 +169,7 @@ subsquareSums =
  [109 112 115 118 121 124 127 130]]
 ```
 
-### Timing the Weighted Sum
+## Timing the Weighted Sum
 
 Now let's see how much faster these indexing methods are at computing weighted sums than using a reasonable list comprehension (with a little numpy).
 
@@ -206,56 +205,160 @@ def listComprehensionMethod(X, weights, sidel):
     return np.array(subsquareSums)
 ```
 
-Now let's time these functions. We will test them on a random matrix `B` of dimensions 100x100, and we will use a random weight matrix of with both dimensions having size sidel. First we will get a benchmark for `sidel = 3`.
+There is also another way to use list comprehensions to do the weighted sum. The above method should be faster for larger sub-squares. The next method should be faster for smaller sub-squares.
+``` python
+def listComprehensionMethod2(X, weigths, sidel):
+    nRows, nCols = weights.shape
+    xRows, xCols = X.shape
+    result = np.zeros((xRows - sidel + 1, xCols - sidel + 1))
+    for i in range(nRows):
+        for j in range(nCols):
+            result += X[i : i + xRows - sidel + 1, j : j + xCols - sidel + 1] * weights[i, j]
+    return result
+
+```
+
+Now let's time these functions. We will test them on a random matrix `B` of dimensions 100x100, and we will use a random weight matrix of with both dimensions having size sidel. We will test these for different values of the sub-square sidelength. 
 
 ``` python
+# Get benchmarks for different methods.      
+random.seed(1013)  
 B = [[random.randint(0, 10) for j in range(100)]
         for i in range(100)]
 B = np.array(B)
 
-sidel = 3
-weights = [[random.randint(-2, 2) 
-                for j in range(sidel) ]
-                for i in range(sidel) ]
+results = {'indexMethod' : [], 'list1' : [], 'list2' : []}
+search = [3, 25, 50, 75, 97]
+for sidel in search: 
 
-print("\nbenchmarks for sidel = ", sidel)
-print("indexingMethod benchmark = ")
-print(timeit.timeit(lambda : indexingMethod(B, weights, sidel), number = 50))
-print("listComprehensionMethod benchmark = ")
-print(timeit.timeit(lambda : listComprehensionMethod(B, weights, sidel), number = 50))
+    weights = [[random.randint(-2, 2) 
+                    for j in range(sidel) ]
+                    for i in range(sidel) ]
+    weights = np.array(weights)
+    
+    print("\nbenchmarks for sidel = ", sidel)
+
+    benchmark = timeit.timeit(lambda : indexingMethod(B, weights, sidel), number = 50)
+    print("indexingMethod benchmark = ", benchmark)
+    results['indexMethod'].append(benchmark)
+
+    benchmark = timeit.timeit(lambda : listComprehensionMethod(B, weights, sidel), number = 50)
+    print("listComprehensionMethod benchmark = ", benchmark)
+    results['list1'].append(benchmark)
+
+    benchmark = timeit.timeit(lambda : listComprehensionMethod2(B, weights, sidel), number = 50)
+    print("listComprehensionMethod2 benchmark = ", benchmark)
+    results['list2'].append(benchmark)
+
+    # Double check that the methods are giving the same result.
+    print('Check index method == list comprehension 1 : ', end = '')
+    print(np.array_equal(indexingMethod(B, weights, sidel), listComprehensionMethod(B, weights, sidel)))
+    print('Check index method == list comprehension 2 : ', end = '')
+    print(np.array_equal(indexingMethod(B, weights, sidel), listComprehensionMethod2(B, weights, sidel)))
+
+
 ```
 We get the following results:
 ```
-benchmarks for sidel =  3
-indexingMethod benchmark =
-0.04069033469840195
-listComprehensionMethod benchmark =
-6.151106542460424
+sidel   index   list1   list2
+3        0.034   4.796   0.014
+25       1.018   3.107   0.639
+50       1.893   1.720   1.370
+75       1.064   0.537   1.491
+97       0.037   0.016   1.460
 ```
-So we see that the indexing/broadcasting method is much faster than the list comprehension. However, this makes sense for when `sidel` is very small, as the list comprehension will need to iterate over many more sub-squares. Let us check the benchmark for a larger value of `sidel` so that there are less sub-squares.
+A graph of these results (made with matplotlib) is:
+
+![Graph of Benchmarks for Constant Weights]({{ site . url }}/assets/2017-10-13-Benchmarks.svg)
+
+So we see that for the case of weights that are independent of the sub-square, the index method does worse than one of the other list comprehensions.
+
+## Timing for Weights Varying by the Sub-square
+
+Now let's try benchmarking for the case when the weights are depending on the sub-square. So now, `weights.shape` is `(100 - sidel + 1, 100 - sidel + 1, sidel, sidel)`. First, we have to redefine our functions to benchmark to use this new shape:
+``` python
+# Now look at benchmarks for weights that depend on sub-square.
+
+def indexingMethod(X, weights, sidel):
+
+    nRows, nCols = X.shape
+    cornersRow =  np.arange(nRows - sidel + 1)[:, np.newaxis, np.newaxis, np.newaxis]
+    cornersCol = np.arange(nCols - sidel + 1)[np.newaxis, :, np.newaxis, np.newaxis]
+
+    subsquareRow = cornersRow + np.arange(sidel)[:, np.newaxis]
+    subsquareCol = cornersCol + np.arange(sidel)
+    subsquares = X[subsquareRow, subsquareCol]
+    subsquareSums = np.sum(subsquares * weights, axis = (2, 3)) 
+    return subsquareSums
+
+def listComprehensionMethod(X, weights, sidel):
+    nRows, nCols = X.shape
+    subsquareSums = [[ np.tensordot(X[i : i + sidel, j : j + sidel], weights[i, j], [[0, 1], [0, 1]])
+                       for j in np.arange(nCols - sidel + 1) ] 
+                       for i in np.arange(nRows - sidel + 1) ]
+    return np.array(subsquareSums)
+
+def listComprehensionMethod2(X, weigths, sidel):
+    sqRos, sqCols, nRows, nCols = weights.shape
+    xRows, xCols = X.shape
+    result = np.zeros((xRows - sidel + 1, xCols - sidel + 1))
+    for i in range(nRows):
+        for j in range(nCols):
+            result += X[i : i + xRows - sidel + 1, j : j + xCols - sidel + 1] * weights[:, :, i, j]
+    return result
+```
+
+Again, let's get some benchmarks for different sidelengths of the sub-squares.
 
 ``` python
-sidel = 75
-weights = [[random.randint(-2, 2) 
-                for j in range(sidel) ]
-                for i in range(sidel) ]
+results = {'indexMethod' : [], 'list1' : [], 'list2' : []}
+search = [3, 25, 35, 50, 75, 97]
+for sidel in search: 
 
-print("\nbenchmarks for sidel = ", sidel)
-print("indexingMethod benchmark = ")
-print(timeit.timeit(lambda : indexingMethod(B, weights, sidel), number = 50))
-print("listComprehensionMethod benchmark = ")
-print(timeit.timeit(lambda : listComprehensionMethod(B, weights, sidel), number = 50))
+    weights = [[random.randint(-2, 2) 
+                    for j in range(sidel) ]
+                    for i in range(sidel) ]
+    weights = np.array(weights)
+    weights = weights + np.arange(100 - sidel + 1)[:, np.newaxis, np.newaxis]
+    weights = weights - np.arange(100 - sidel + 1)[:, np.newaxis, np.newaxis, np.newaxis]
+
+    
+    print("\nbenchmarks for sidel = ", sidel)
+
+    benchmark = timeit.timeit(lambda : indexingMethod(B, weights, sidel), number = 50)
+    print("indexingMethod benchmark = ", benchmark)
+    results['indexMethod'].append(benchmark)
+
+    benchmark = timeit.timeit(lambda : listComprehensionMethod(B, weights, sidel), number = 50)
+    print("listComprehensionMethod benchmark = ", benchmark)
+    results['list1'].append(benchmark)
+
+    benchmark = timeit.timeit(lambda : listComprehensionMethod2(B, weights, sidel), number = 50)
+    print("listComprehensionMethod2 benchmark = ", benchmark)
+    results['list2'].append(benchmark)
+
+    print('Check index method == list comprehension 1 : ', end = '')
+    print(np.array_equal(indexingMethod(B, weights, sidel), listComprehensionMethod(B, weights, sidel)))
+    print('Check index method == list comprehension 2 : ', end = '')
+    print(np.array_equal(indexingMethod(B, weights, sidel), listComprehensionMethod2(B, weights, sidel)))
+
 ```
 
-We get the following results:
+The results of this are:
 ```
-benchmarks for sidel =  75
-indexingMethod benchmark =
-1.0525539573173281
-listComprehensionMethod benchmark =
-11.170894905507094
+sidel   index   list1   list2
+3        0.038   4.929   0.015
+25       1.394   3.235   1.433
+35       2.065   2.672   2.906
+50       2.543   1.790   4.298
+75       1.445   0.563   1.724
+97       0.053   0.016   1.331
 ```
+A graph of these results (made with matplotlib) is:
 
-So for `sidel = 3`, we get that the list comprehension takes roughly 151 times longer, but for `sidel = 75`, the list comprehension takes only 10.6 times longer. However, in both cases the numpy indexing method is the clear winner.
-## [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-13-SubsquaresNumpy.py)
+![Graph of Benchmarks for Variable Weights]({{site . url}}/assets/2017-10-13-VarWeightsBenchmarks.svg)
+
+Now we see that for the variable weights case, there is a range of sidelength where the numpy indexing method beats both of the list comprehensions! So there are cases where it is more optimal relative to time.
+
+# [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-13-SubsquaresNumpy.py)
 
