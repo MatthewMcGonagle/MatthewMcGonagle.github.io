@@ -360,5 +360,5 @@ A graph of these results (made with matplotlib) is:
 
 Now we see that for the variable weights case, there is a range of sidelength where the numpy indexing method beats both of the list comprehensions! So there are cases where it is more optimal relative to time.
 
-# [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-13-SubsquaresNumpy.py)
+## [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-13-SubsquaresNumpy.py)
 
