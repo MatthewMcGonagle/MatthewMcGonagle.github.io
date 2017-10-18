@@ -126,7 +126,7 @@ ax.set_yticks(yticks)
 plt.title('Original Shape')
 plt.savefig('2017-10-17-graphs/square_train.png')
 
-hidden_layer_sizes = [(1), (2), (3), (4), (10), (100), (10, 10), (10, 10, 10), (10, 10, 10, 10)]
+hidden_layer_sizes = [(1), (2), (3), (4), (10), (100), (5, 2), (8, 2), (10, 10), (10, 10, 10), (10, 10, 10, 10)]
 X_train = np.stack([X.reshape(-1), Y.reshape(-1)], axis = -1)
 y_train = z.reshape(-1)
 mlp = MLPRegressor( activation = 'logistic',

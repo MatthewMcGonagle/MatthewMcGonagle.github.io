@@ -157,4 +157,70 @@ Now, let's take a look at using scikit-learn's `MLPRegressor()` to actually try 
 
 ## Learning a Square with MLPRegressor()
 
+We will look at learning the square for various sizes of hidden layers. First, let's construct the original square we will use to teach our model.
+``` python
+# Construct a mask for the square
+mask = (25 < X) & (X < 75) & (25 < Y) & (Y < 75)
+z = np.zeros(X.shape)
+z[mask] = 1.0
+plt.clf()
+ax = sns.heatmap(z, vmin = 0.0, vmax = 1.0, xticklabels = xticks, yticklabels = yticks[::-1]) 
+ax.set_xticks(xticks)
+ax.set_yticks(yticks)
+plt.title('Original Shape')
+plt.savefig('2017-10-17-graphs/square_train.png')
+```
+![Picture of Original Square]({{site . url}}/assets/2017-10-17-graphs/square_train.png)
+
+ For sci-kit learn's `MLPRegressor()`, the sizes are stored in the parameter `hidden_layer_sizes`. Also, note that we need to apply a `StandardScaler()` to the data to pre-process it before feeding it to the neural network, and we have manually adjusted the initial learning rate to give overall good performance for the layer sizes we are trying.
+``` python
+hidden_layer_sizes = [(1), (2), (3), (4), (10), (100), (5, 2), (8, 2), (10, 10), (10, 10, 10), (10, 10, 10, 10)]
+X_train = np.stack([X.reshape(-1), Y.reshape(-1)], axis = -1)
+y_train = z.reshape(-1)
+mlp = MLPRegressor( activation = 'logistic',
+                    learning_rate_init = 1e-1,
+                    random_state = 2017 )
+model = Pipeline([ ('scaler', StandardScaler()),
+                   ('mlp', MLPRegressor( activation = 'logistic',
+                                         learning_rate_init = 1e-1,
+                                         random_state = 2017 ) ) ])
+
+for sizes in hidden_layer_sizes:
+    model.set_params(mlp__hidden_layer_sizes = sizes)
+    model.fit(X_train, y_train)
+    y_predict = model.predict(X_train)
+    z_predict = y_predict.reshape(X.shape)
+    plt.clf()
+    ax = sns.heatmap(z_predict, vmin = 0.0, vmax = 1.0, xticklabels = xticks, yticklabels = yticks[::-1]) 
+    ax.set_xticks(xticks)
+    ax.set_yticks(yticks)
+    plt.title('hidden_layer_sizes = ' + str(sizes))
+    plt.savefig('2017-10-17-graphs/square' + str(sizes) + '.png')
+    print('Finished ', sizes)
+```
+First let's take a look at the results for only one hidden layer.
+
+![Picture Learning Square for Layer Sizes = (1)]({{site . url}}/assets/2017-10-17-graphs/square1.png)
+![Picture Learning Square for Layer Sizes = (2)]({{site . url}}/assets/2017-10-17-graphs/square2.png)
+![Picture Learning Square for Layer Sizes = (3)]({{site . url}}/assets/2017-10-17-graphs/square3.png)
+![Picture Learning Square for Layer Sizes = (4)]({{site . url}}/assets/2017-10-17-graphs/square4.png)
+![Picture Learning Square for Layer Sizes = (10)]({{site . url}}/assets/2017-10-17-graphs/square10.png)
+![Picture Learning Square for Layer Sizes = (100)]({{site . url}}/assets/2017-10-17-graphs/square100.png)
+
+We see that the picture looks reasonable only for a large number of nodes if there is only one hidden layer. Furthermore, we can see undersirable values bleeding out of the square into the surrounding region, as we discussed when we were manually looking at a single layer. Now let's take a look at the results for two hidden layers.
+
+![Picture Learning Square for Layer Sizes = (5, 2)]({{site . url}}/assets/2017-10-17-graphs/square(5, 2).png)
+![Picture Learning Square for Layer Sizes = (8, 2)]({{site . url}}/assets/2017-10-17-graphs/square(8, 2).png)
+![Picture Learning Square for Layer Sizes = (10, 10)]({{site . url}}/assets/2017-10-17-graphs/square(10, 10).png)
+
+We see that for `hidden_layer_sizes = (5, 2)`, the learned shape is a blurry and warped square. This is in contrast to the result we had when we manually could get the square for a size of (4, 2). There are a couple things to take into consideration. First, sci-kit learn's MLPRegressor() controls the size of the coefficient it finds by using a regularity penalty. After applying a standard scaling, the set up from the manual set up would require very large coefficients. One can see this from the fact that the almost instant transition from 0 to 1 would require very large derivatives.
+
+Second, of course, is that the algorithm won't perfectly learn the shape, as its optimal function isn't convex in the coefficients.
+
+Now let's see the results for three and four layers.
+
+![Picture Learning Square for Layer Sizes = (10, 10, 10)]({{site . url}}/assets/2017-10-17-graphs/square(10, 10, 10).png)
+![Picture Learning Square for Layer Sizes = (10, 10, 10, 10)]({{site . url}}/assets/2017-10-17-graphs/square(10, 10, 10, 10).png)
+
+We see that there isn't really any improvement over using just two layers.
 
