@@ -41,16 +41,16 @@ plt.title('One Logistic Function')
 plt.savefig('2017-10-17-graphs/manual_onelog.png')
 
 # Now let's look at hidden layer.
-def f1(x, y):
+def layer1_node1(x, y):
     return logistic(-x +  35)
-def f2(x, y):
+def layer1_node2(x, y):
     return logistic(y - 65)
-def f3(x, y):
+def layer1_node3(x, y):
     return logistic(x - 65)
-def f4(x, y):
+def layer1_node4(x, y):
     return logistic(-y + 35)
 
-z = 1/2.0 * f2(X,Y) + 1/2.0 * f3(X,Y) 
+z = 1/2.0 * layer1_node2(X,Y) + 1/2.0 * layer1_node3(X,Y) 
 
 plt.clf()
 ax = sns.heatmap(z, vmin = 0.0, vmax = 1.0, xticklabels = xticks, yticklabels = yticks[::-1]) 
@@ -59,25 +59,22 @@ ax.set_yticks(yticks)
 plt.title('Two Logistic Functions')
 plt.savefig('2017-10-17-graphs/manual_twolog.png')
 
-def g1(x, y):
-    result = f2(X,Y) + f3(X,Y) - 1/2
-    return logistic( result * 10)
-def g2(x, y):
-    result = f1(X,Y) + f2(X,Y) + f3(X,Y) + f4(X,Y) - 1/2
-    return logistic( result * 10)
-def f5(x, y):
-    return logistic(-x +  25)
-def f6(x, y):
-    return logistic(y - 75)
-def f7(x, y):
-    return logistic(x - 75)
-def f8(x, y):
-    return logistic(-y + 25)
-def g3(x, y):
-    result = f5(X,Y) + f6(X,Y) + f7(X,Y) + f8(X,Y) - 1/2
-    return logistic(result * 10)
+z = 0.5 * layer1_node1(X,Y) + 0.5 * layer1_node2(X,Y) + 0.5 * layer1_node3(X,Y) + 0.5 * layer1_node4(X,Y)
 
-z = g1(X,Y) 
+plt.clf()
+ax = sns.heatmap(z, vmin = 0.0, vmax = 1.0, xticklabels = xticks, yticklabels = yticks[::-1]) 
+ax.set_xticks(xticks)
+ax.set_yticks(yticks)
+plt.title('Four Logistic Functions')
+plt.savefig('2017-10-17-graphs/manual_fourlog.png')
+
+# Start looking at adding a second hidden layer.
+
+def layer2_node1(x, y):
+    result = layer1_node2(X,Y) + layer1_node3(X,Y) - 1/2
+    return logistic( result * 10)
+
+z = layer2_node1(X,Y) 
 plt.clf()
 ax = sns.heatmap(z, vmin = 0.0, vmax = 1.0, xticklabels = xticks, yticklabels = yticks[::-1]) 
 ax.set_xticks(xticks)
@@ -85,7 +82,12 @@ ax.set_yticks(yticks)
 plt.title('Hidden Layer Sizes is (2, 1)')
 plt.savefig('2017-10-17-graphs/manual_hidden(2,1).png')
 
-z = g2(X, Y)
+
+def layer2_node2(x, y):
+    result = layer1_node1(X,Y) + layer1_node2(X,Y) + layer1_node3(X,Y) + layer1_node4(X,Y) - 1/2
+    return logistic( result * 10)
+
+z = layer2_node2(X, Y)
 plt.clf()
 ax = sns.heatmap(z, vmin = 0.0, vmax = 1.0, xticklabels = xticks, yticklabels = yticks[::-1]) 
 ax.set_xticks(xticks)
@@ -93,7 +95,20 @@ ax.set_yticks(yticks)
 plt.title('Hidden Layer Sizes is (4, 1)')
 plt.savefig('2017-10-17-graphs/manual_hidden(4,1).png')
 
-z = -g3(X,Y) + g2(X,Y) 
+def layer1_node5(x, y):
+    return logistic(-x +  25)
+def layer1_node6(x, y):
+    return logistic(y - 75)
+def layer1_node7(x, y):
+    return logistic(x - 75)
+def layer1_node8(x, y):
+    return logistic(-y + 25)
+
+def layer2_node3(x, y):
+    result = layer1_node5(X,Y) + layer1_node6(X,Y) + layer1_node7(X,Y) + layer1_node8(X,Y) - 1/2
+    return logistic(result * 10)
+
+z = -layer2_node3(X,Y) + layer2_node2(X,Y) 
 plt.clf()
 ax = sns.heatmap(z, vmin = 0.0, vmax = 1.0, xticklabels = xticks, yticklabels = yticks[::-1]) 
 ax.set_xticks(xticks)
@@ -114,12 +129,14 @@ plt.savefig('2017-10-17-graphs/square_train.png')
 hidden_layer_sizes = [(1), (2), (3), (4), (10), (100), (10, 10), (10, 10, 10), (10, 10, 10, 10)]
 X_train = np.stack([X.reshape(-1), Y.reshape(-1)], axis = -1)
 y_train = z.reshape(-1)
+mlp = MLPRegressor( activation = 'logistic',
+                    learning_rate_init = 1e-1,
+                    random_state = 2017 )
 model = Pipeline([ ('scaler', StandardScaler()),
-                   ('mlp', MLPRegressor(hidden_layer_sizes = (3),
-                                        activation = 'logistic',
-                                        learning_rate_init = 1e-1, 
-                                        random_state = 2017) ) ])
-                                        
+                   ('mlp', MLPRegressor( activation = 'logistic',
+                                         learning_rate_init = 1e-1,
+                                         random_state = 2017 ) ) ])
+
 for sizes in hidden_layer_sizes:
     model.set_params(mlp__hidden_layer_sizes = sizes)
     model.fit(X_train, y_train)
