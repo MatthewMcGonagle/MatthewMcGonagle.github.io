@@ -4,6 +4,8 @@ title : "Learning Geometric Shapes with a Multi-layer Perceptron"
 date : 2017-10-17
 ---
 
+## [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-17-LearningShapesMLP.py)
+
 For this post, we will look at how a Multi-layer Perceptron learns data by looking at how it learns simple geometric shapes.
 
 We will be using the standard logistic activation function, `logistic(x) = 1 / (1 + exp(-x)),` or in python:
@@ -223,4 +225,69 @@ Now let's see the results for three and four layers.
 ![Picture Learning Square for Layer Sizes = (10, 10, 10, 10)]({{site . url}}/assets/2017-10-17-graphs/square(10, 10, 10, 10).png)
 
 We see that there isn't really any improvement over using just two layers.
+
+## Learning the More Complex Square Shape with MLPRegressor()
+
+Now let's try learning the more complex square shape with sci-kit learn's `MLPRegressor()`. Let's set up the shape we will use for training.
+``` python
+mask = (25 < X) & (X < 75) & (25 < Y) & (Y < 75)
+mask2 = (35 < X) & (X < 65) & (35 < Y) & (Y < 65)
+z = np.zeros(X.shape)
+z[mask & ~mask2] = 1.0
+plt.clf()
+ax = sns.heatmap(z, vmin = 0.0, vmax = 1.0, xticklabels = xticks, yticklabels = yticks[::-1]) 
+ax.set_xticks(xticks)
+ax.set_yticks(yticks)
+plt.title('Original Shape')
+plt.savefig('2017-10-17-graphs/annular_train.png')
+```
+![Picture of Original Complex Square For Training]({{site . url}}/assets/2017-10-17-graphs/annular_train.png)
+
+Now, let's try learning this shape with sci-kit learn's `MLPRegressor()`.
+``` python
+y_train = z.reshape(-1)
+model = Pipeline([ ('scaler', StandardScaler()),
+                   ('mlp', MLPRegressor(hidden_layer_sizes = (3),
+                                        activation = 'logistic',
+                                        learning_rate_init = 1e-1,
+                                        random_state = 2017) ) ])
+                                        
+for sizes in hidden_layer_sizes:
+    model.set_params(mlp__hidden_layer_sizes = sizes)
+    model.fit(X_train, y_train)
+    y_predict = model.predict(X_train)
+    z_predict = y_predict.reshape(X.shape)
+
+    plt.clf()
+    ax = sns.heatmap(z_predict, vmin = 0.0, vmax = 1.0, xticklabels = xticks, yticklabels = yticks[::-1]) 
+    ax.set_xticks(xticks)
+    ax.set_yticks(yticks)
+    plt.title('hidden_layer_sizes = ' + str(sizes))
+    plt.savefig('2017-10-17-graphs/annular' + str(sizes) + '.png')
+    print('Finished ', sizes)
+```
+
+Let's take a look at the results for one hidden layer.
+
+![Picture of Complex Square for Hidden Layer Sizes = (1)]({{site . url}}/assets/2017-10-17-graphs/annular1.png)
+![Picture of Complex Square for Hidden Layer Sizes = (2)]({{site . url}}/assets/2017-10-17-graphs/annular2.png)
+![Picture of Complex Square for Hidden Layer Sizes = (3)]({{site . url}}/assets/2017-10-17-graphs/annular3.png)
+![Picture of Complex Square for Hidden Layer Sizes = (4)]({{site . url}}/assets/2017-10-17-graphs/annular4.png)
+![Picture of Complex Square for Hidden Layer Sizes = (10)]({{site . url}}/assets/2017-10-17-graphs/annular10.png)
+![Picture of Complex Square for Hidden Layer Sizes = (100)]({{site . url}}/assets/2017-10-17-graphs/annular100.png)
+
+We see that the results for one hidden layer aren't very good, which isn't very surprising. It is near impossible for just logistic functions to create the empty region between the square regions. Now let's take a look at the results for two hidden layers.
+
+![Picture of Complex Square for Hidden Layer Sizes = (5,2)]({{site . url}}/assets/2017-10-17-graphs/annular(5, 2).png)
+![Picture of Complex Square for Hidden Layer Sizes = (8, 2)]({{site . url}}/assets/2017-10-17-graphs/annular(8, 2).png)
+![Picture of Complex Square for Hidden Layer Sizes = (10, 10)]({{site . url}}/assets/2017-10-17-graphs/annular(10, 10).png)
+
+Despite the fact that in the manual case, we did a very good job for a hidden layer size of (8, 2), we see that the learning algorithm does not do a good job. However a hidden layer size of (10, 10) does a decent job, but there is still some bleeding of values seen in the bottom region. Now let's look at the results for three and four hidden layers.
+
+![Picture of Complex Square for Hidden Layer Sizes = (10, 10, 10)]({{site . url}}/assets/2017-10-17-graphs/annular(10, 10, 10).png)
+![Picture of Complex Square for Hidden Layer Sizes = (10, 10, 10, 10)]({{site . url}}/assets/2017-10-17-graphs/annular(10, 10, 10, 10).png)
+
+Again, the results for more layers isn't really any better than two layers.
+
+## [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-17-LearningShapesMLP.py)
 
