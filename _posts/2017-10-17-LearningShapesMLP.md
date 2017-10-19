@@ -20,7 +20,10 @@ def logistic(x):
 
 As you can see, the logistic function flattens out for values far from zero.
 
-However, we will be looking at functions of two variables f(x,y). First, let's set up our x-values and y-values in 2d arrays.
+However, we will be looking at functions of two variables f(x,y). So our Multi-Layer Perceptron will be structured similar to the following figure:
+![Picture of Example Multi-Layer Perceptron Model]({{site . url}}/assets/2017-10-17-mlp.svg)
+
+ Now, let's set up our x-values and y-values in 2d arrays.
 ``` python
 # Set up domain value arrays.
 X = np.arange(100)[np.newaxis, :]
