@@ -24,6 +24,10 @@ _                 cool                  _      language
 ```
 Here, each `_` represents an empty node in our tree.
 
+Let us make a remark about the method we will use in this post. It is possible to do the horizontal printing above using a simple one pass recursion with functions that return `[String]`. In fact, the State monad would be unnecessary in this case. However, we will be using a different method as described below for the following reasons:
+* Our method will actually determine the positions of each node in the print out. In the future, we plan on making a post about using this to print out the tree in a `.svg` file. 
+* For pedagogical reasons, our method will allow us to demonstrate how to use the `State` monad.
+
 ## Our Tree Data Type
 
 First, we will be using the following recursively defined tree data type:
