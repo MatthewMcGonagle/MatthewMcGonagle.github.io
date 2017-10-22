@@ -292,5 +292,42 @@ Despite the fact that in the manual case, we did a very good job for a hidden la
 
 Again, the results for more layers isn't really any better than two layers.
 
+## Varying Regularity For Many Nodes
+
+Now let's take a look at the effect of varying the L2 regularization penalty for a network of three hidden layers with sizes `(50, 50, 50)`. It is often recommended to train on varying the regularization strength versus training on the layer sizes, for example see [these notes for Stanford's Neural Network course](https://cs231n.github.io/neural-networks-1/). 
+For sklearn's MLPRegressor, the regularity in the fitted parameters is controlled by the hyper-parameter `alpha`.
+``` python
+model = Pipeline([ ('scaler', StandardScaler()),
+                   ('mlp', MLPRegressor(hidden_layer_sizes = (50, 50, 50),
+                           activation = 'logistic',
+                           learning_rate_init = 1e-1,
+                           random_state = 2017) ) ])
+alphas = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6]
+
+for alpha, i in zip(alphas, range(len(alphas))):
+    model.set_params(mlp__alpha = alpha)
+    model.fit(X_train, y_train)
+    y_predict = model.predict(X_train)
+    z_predict = y_predict.reshape(X.shape)
+
+    plt.clf()
+    ax = sns.heatmap(z_predict, vmin = 0.0, vmax = 1.0, xticklabels = xticks, yticklabels = yticks[::-1]) 
+    ax.set_xticks(xticks)
+    ax.set_yticks(yticks)
+    plt.title('alpha = ' + str(alpha))
+    plt.savefig('2017-10-17-graphs/annular_regularity' + str(i) + '.png')
+    print('Finished ', alpha)
+```
+We get the following results:
+
+![Picture For Regularity alpha0]({{site . url}}/assets/2017-10-17-graphs/annular_regularity0.png)
+![Picture For Regularity alpha1]({{site . url}}/assets/2017-10-17-graphs/annular_regularity1.png)
+![Picture For Regularity alpha2]({{site . url}}/assets/2017-10-17-graphs/annular_regularity2.png)
+![Picture For Regularity alpha3]({{site . url}}/assets/2017-10-17-graphs/annular_regularity3.png)
+![Picture For Regularity alpha4]({{site . url}}/assets/2017-10-17-graphs/annular_regularity4.png)
+![Picture For Regularity alpha5]({{site . url}}/assets/2017-10-17-graphs/annular_regularity5.png)
+
+For too much regularity, i.e. `alpha = 0.1`, we don't get convergence. For too little regularity, e.g. `alpha = 1e-6`, we get bleeding of values to the region outside of the geometric shape.
+
 ## [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-17-LearningShapesMLP.py)
 

@@ -150,6 +150,8 @@ for sizes in hidden_layer_sizes:
     plt.savefig('2017-10-17-graphs/square' + str(sizes) + '.png')
     print('Finished ', sizes)
 
+# Train on layer sizes for more complicated shape.
+
 mask = (25 < X) & (X < 75) & (25 < Y) & (Y < 75)
 mask2 = (35 < X) & (X < 65) & (35 < Y) & (Y < 65)
 z = np.zeros(X.shape)
@@ -182,3 +184,26 @@ for sizes in hidden_layer_sizes:
     plt.savefig('2017-10-17-graphs/annular' + str(sizes) + '.png')
     print('Finished ', sizes)
 
+# Now let's train on regularity for large layer sizes.
+
+model = Pipeline([ ('scaler', StandardScaler()),
+                   ('mlp', MLPRegressor(hidden_layer_sizes = (50, 50, 50),
+                           activation = 'logistic',
+                           learning_rate_init = 1e-1,
+                           random_state = 2017) ) ])
+alphas = [1e-1, 1e-2, 1e-3, 1e-4, 1e-5, 1e-6]
+
+for alpha, i in zip(alphas, range(len(alphas))):
+    model.set_params(mlp__alpha = alpha)
+    model.fit(X_train, y_train)
+    y_predict = model.predict(X_train)
+    z_predict = y_predict.reshape(X.shape)
+
+    plt.clf()
+    ax = sns.heatmap(z_predict, vmin = 0.0, vmax = 1.0, xticklabels = xticks, yticklabels = yticks[::-1]) 
+    ax.set_xticks(xticks)
+    ax.set_yticks(yticks)
+    plt.title('alpha = ' + str(alpha))
+    plt.savefig('2017-10-17-graphs/annular_regularity' + str(i) + '.png')
+    print('Finished ', alpha)
+   
