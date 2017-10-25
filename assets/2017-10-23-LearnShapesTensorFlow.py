@@ -2,6 +2,7 @@ import tensorflow as tf
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
+import sys
 from sklearn.linear_model import LinearRegression
 
 np.random.seed(20171023)
@@ -22,7 +23,17 @@ shapes[mask] = 1.0 # 1.0
 features = np.stack([X.reshape(-1),Y.reshape(-1)], axis = -1)
 print('features.shape = ', features.shape)
 
-sns.heatmap(shapes)
+
+def plotheatmap(heats):
+    plt.clf()
+    xticks = np.arange(0, 1, .1)
+    yticks = np.arange(0, 1, .1)
+    ax = sns.heatmap(heats, xticklabels = xticks, yticklabels = yticks[::-1])
+    ax.set_xticks(np.arange(0, 100, 10))
+    ax.set_yticks(np.arange(0, 100, 10))
+
+plotheatmap(shapes)    
+plt.title('Original Shape')
 plt.show()
 shapes = shapes.reshape(-1, 1)
 
@@ -47,11 +58,13 @@ with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
 
     losses = []
+    lossindex = []
     for i in range(3000):
         sess.run(train_step, {x: features, y_: shapes})
         if i % 100 == 0:
             newloss = sess.run(l2_loss, {x: features, y_:shapes})
             losses.append(newloss) 
+            lossindex.append(i)
             print(i, ' loss = ', newloss)
 
     result = sess.run(y, {x: features})
@@ -61,11 +74,14 @@ with tf.Session() as sess:
 print('weights = ', weights)
 print('bias = ', bias)
 
-plt.plot(losses[1:])
+plt.clf()
+plt.title('Losses For Gradient Descent of Linear Model')
+plt.plot(lossindex[1:], losses[1:])
 plt.show()
 
 result = result.reshape(nY, nX)
-sns.heatmap(result)
+plotheatmap(result)
+plt.title('Gradient Descent for Linear Model')
 plt.show()
 
 model = LinearRegression()
@@ -73,10 +89,12 @@ model.fit(features, shapes)
 print('regression coef = ', model.coef_)
 print('intercept = ', model.intercept_)
 result = model.predict(features).reshape((nY, nX))
-sns.heatmap(result)
+plotheatmap(result)
+plt.title('Regular Linear Regression')
 plt.show()
 
 # Now let's make a graph with a hidden layer. 
+
 hiddensize1 = 50
 tf.reset_default_graph()
 tf.set_random_seed(20171023)
@@ -98,53 +116,51 @@ reg_term = tf.contrib.layers.apply_regularization(l2_reg, weights_list = [W1, Wo
 l2_loss = tf.reduce_mean(tf.square(out - y_)) + reg_term
 train_step = tf.train.GradientDescentOptimizer(20e-2).minimize(l2_loss)
 
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
+def runSession(nsteps):
 
-    losses = []
-    for i in range(3000):
-        batchi = np.random.randint(0, len(shapes), size = 200)
-        batchx = features[batchi]
-        batchy = shapes[batchi]
-        sess.run(train_step, {x: batchx, y_: batchy})
-        if i % 100 == 0:
-            newloss = sess.run(l2_loss, {x: features, y_:shapes})
-            losses.append(newloss) 
-            print(i, ' loss = ', newloss)
+    with tf.Session() as sess:
+        sess.run(tf.global_variables_initializer())
     
-    result = sess.run(out, {x: features})
+        losses = []
+        lossesindex = []
+        for i in range(nsteps):
+            batchi = np.random.randint(0, len(shapes), size = 200)
+            batchx = features[batchi]
+            batchy = shapes[batchi]
+            sess.run(train_step, {x: batchx, y_: batchy})
+            if i % 100 == 0:
+                newloss = sess.run(l2_loss, {x: features, y_:shapes})
+                losses.append(newloss) 
+                lossesindex.append(i)
+                print(i, ' loss = ', newloss)
+        
+        result = sess.run(out, {x: features})
 
-plt.plot(losses[1:])
+    return lossesindex, losses, result
+
+lossesindex, losses, result = runSession(3000)
+
+plt.title('Losses for Gradient Descent of 1 Hidden')
+plt.plot(lossesindex[1:], losses[1:])
 plt.show()
 
 result = result.reshape(nY, nX)
-sns.heatmap(result)
+plotheatmap(result)
+plt.title('Gradient Descent for 1 Hidden')
 plt.show()
 
 # Do again for adam optimizer
 
 train_step = tf.train.AdamOptimizer(3e-3).minimize(l2_loss)
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
+lossesindex, losses, result = runSession(3000)
 
-    losses = []
-    for i in range(3000):
-        batchi = np.random.randint(0, len(shapes), size = 200)
-        batchx = features[batchi]
-        batchy = shapes[batchi]
-        sess.run(train_step, {x: batchx, y_: batchy})
-        if i % 100 == 0: 
-            newloss = sess.run(l2_loss, {x: features, y_:shapes})
-            losses.append(newloss) 
-            print(i , ' loss = ', newloss)
-    
-    result = sess.run(out, {x: features})
-
-plt.plot(losses[1:])
+plt.title('Losses for Adam of 1 Hidden')
+plt.plot(lossesindex[1:], losses[1:])
 plt.show()
 
 result = result.reshape(nY, nX)
-sns.heatmap(result)
+plotheatmap(result)
+plt.title('Adam for 1 Hidden')
 plt.show()
 
 # Now let's add another layer.
@@ -159,68 +175,40 @@ Wout = tf.Variable(tf.random_normal([hiddensize2, 1], stddev = 0.25) )
 bout = tf.Variable(tf.zeros([1]))
 out = tf.matmul(hidden2, Wout) + bout 
 
-# We redefined the node out, so we need to redefine the loss function and the training step
+# We redefined the node out, so we need to redefine the regularity function, 
+# the loss function, and the training step.
+
 l2_reg = tf.contrib.layers.l2_regularizer(scale = 1e-4)
 reg_term = tf.contrib.layers.apply_regularization(l2_reg, weights_list = [W1, W2, Wout])
 
 l2_loss = tf.reduce_mean(tf.square(out - y_)) + reg_term
 train_step = tf.train.GradientDescentOptimizer(10e-2).minimize(l2_loss)
 
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
+lossesindex, losses, result = runSession(6000)
 
-    losses = []
-    for i in range(6000):
-        batchi = np.random.randint(0, len(shapes), size = 200)
-        batchx = features[batchi]
-        batchy = shapes[batchi]
-        sess.run(train_step, {x: batchx, y_: batchy})
-        if i % 100 == 0:
-            newloss = sess.run(l2_loss, {x: features, y_:shapes})
-            losses.append(newloss) 
-            print(i, ' loss = ', newloss)
-    
-    result = sess.run(out, {x: features})
-
-plt.plot(losses[1:])
+plt.title('Losses for Gradient Descent of 2 Hidden')
+plt.plot(lossesindex[1:], losses[1:])
 plt.show()
 
 result = result.reshape(nY, nX)
-sns.heatmap(result)
+plotheatmap(result)
+plt.title('Gradient Descent for 2 Hidden')
 plt.show()
 
-global_step = tf.Variable(0, trainable = False)
-learning_rate_init = 1e-2
-learning_rate = tf.train.exponential_decay(learning_rate_init, global_step,
-                                           500, 0.95, staircase = True)
+train_step = tf.train.AdamOptimizer(3e-3).minimize(l2_loss)
+lossesindex, losses, result = runSession(5000)
 
-train_step = tf.train.AdamOptimizer(3e-3).minimize(l2_loss, global_step = global_step)
-
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
-
-    losses = []
-    for i in range(5000):
-        batchi = np.random.randint(len(shapes), size = 200)
-        batchx = features[batchi]
-        batchy = shapes[batchi]
-        sess.run(train_step, {x: batchx, y_: batchy})
-        if i % 100 == 0:
-            newloss = sess.run(l2_loss, {x: features, y_:shapes})
-            losses.append(newloss) 
-            print(i, ' loss = ', newloss)
-
-    
-    result = sess.run(out, {x: features})
-
-plt.plot(losses[1:])
+plt.title('Losses for Adam for 2 Hidden')
+plt.plot(lossesindex[1:], losses[1:])
 plt.show()
 
 result = result.reshape(nY, nX)
-sns.heatmap(result)
+plotheatmap(result)
+plt.title('Adam for 2 Hidden Layers')
 plt.show()
 
 # Add a third hidden layer.
+
 hiddensize3 = 50
 W3 = tf.Variable(tf.random_normal([hiddensize2, hiddensize3], stddev = 0.25) )
 b3 = tf.Variable(tf.zeros(hiddensize3) )
@@ -230,56 +218,34 @@ Wout = tf.Variable(tf.random_normal([hiddensize3, 1], stddev = 0.25) )
 bout = tf.Variable(tf.zeros([1]) )
 out = tf.matmul(hidden3, Wout) + bout 
 
-# We redefined the node out, so we need to redefine the loss function and the training step
+# We redefined the node out, so we need to redefine the regularity function, the loss function,
+# and the training step
+
 reg_term = tf.contrib.layers.apply_regularization(l2_reg, weights_list = [W1, W2, W3, Wout])
 l2_loss = tf.reduce_mean(tf.square(out - y_)) + reg_term
 
 train_step = tf.train.GradientDescentOptimizer(15e-2).minimize(l2_loss)
 
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
+lossesindex, losses, result = runSession(6000)
 
-    losses = []
-    for i in range(6000):
-        batchi = np.random.randint(len(shapes), size = 200)
-        batchx = features[batchi]
-        batchy = shapes[batchi]
-        sess.run(train_step, {x: batchx, y_: batchy})
-        if i % 100 == 0:
-            newloss = sess.run(l2_loss, {x: features, y_:shapes})
-            losses.append(newloss) 
-            print(i, ' loss = ', newloss)
-    
-    result = sess.run(out, {x: features})
-
-plt.plot(losses[1:])
+plt.title('Losses for Gradient Descent of 3 Hidden')
+plt.plot(lossesindex[1:], losses[1:])
 plt.show()
 
 result = result.reshape(nY, nX)
-sns.heatmap(result)
+plotheatmap(result)
+plt.title('Gradient Descent for 3 Hidden Layers')
 plt.show()
 
 train_step = tf.train.AdamOptimizer(2e-3).minimize(l2_loss)
 
-with tf.Session() as sess:
-    sess.run(tf.global_variables_initializer())
+lossesindex, losses, result = runSession(5000)
 
-    losses = []
-    for i in range(5000):
-        batchi = np.random.randint(len(shapes), size = 200)
-        batchx = features[batchi]
-        batchy = shapes[batchi]
-        sess.run(train_step, {x: batchx, y_: batchy})
-        if i % 100 == 0:
-            newloss = sess.run(l2_loss, {x: features, y_:shapes})
-            losses.append(newloss) 
-            print(i, ' loss = ', newloss)
-    
-    result = sess.run(out, {x: features})
-
-plt.plot(losses[1:])
+plt.title('Losses for Adam of 3 Hidden')
+plt.plot(lossesindex[1:], losses[1:])
 plt.show()
 
 result = result.reshape(nY, nX)
-sns.heatmap(result)
+plotheatmap(result)
+plt.title('Adam for 3 Hidden Layers')
 plt.show()
