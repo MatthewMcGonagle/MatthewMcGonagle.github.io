@@ -20,10 +20,7 @@ Y = Y / nY
 shapes = np.zeros((nY, nX)) 
 mask = (0.35 < X) & (X < 0.65) & (0.35 < Y) & (Y < 0.65)
 mask = (.25 < X) & (X < .75) & (.25 < Y) & (Y < .75) & ~mask
-shapes[mask] = 1.0 # 1.0 
-features = np.stack([X.reshape(-1),Y.reshape(-1)], axis = -1)
-print('features.shape = ', features.shape)
-
+shapes[mask] = 1.0 
 
 def plotheatmap(heats):
     plt.clf()
@@ -36,8 +33,10 @@ def plotheatmap(heats):
 plotheatmap(shapes)    
 plt.title('Original Shape')
 plt.savefig('2017-10-23-graphs/original.png')
-shapes = shapes.reshape(-1, 1)
 
+shapes = shapes.reshape(-1, 1)
+features = np.stack([X.reshape(-1),Y.reshape(-1)], axis = -1)
+print('features.shape = ', features.shape)
 print('shapes.shape = ', shapes.shape)
 
 # Create tensorflow graph.
@@ -48,11 +47,11 @@ print('shapes.shape = ', shapes.shape)
 x = tf.placeholder(tf.float32, shape = [None, 2]) 
 y_ = tf.placeholder(tf.float32, shape = [None, 1]) 
 
-W = tf.Variable(tf.zeros([2, 1]) + 0.1, dtype = tf.float32)
-b = tf.Variable(tf.zeros([1]) - 0.1, dtype = tf.float32)
+W = tf.Variable(tf.zeros([2, 1]), dtype = tf.float32)
+b = tf.Variable(tf.zeros([1]), dtype = tf.float32)
 y = tf.add(tf.matmul(x, W), b)
-l2_loss = tf.reduce_mean(tf.square(y - y_)) 
 
+l2_loss = tf.reduce_mean(tf.square(y - y_)) 
 train_step = tf.train.GradientDescentOptimizer(1e-2).minimize(l2_loss)
 
 print('Training Gradient Descent of Linear Model')
@@ -98,12 +97,13 @@ plt.savefig('2017-10-23-graphs/linearRegression.png')
 
 # Now let's make a graph with a hidden layer. 
 
-hiddensize1 = 50
 tf.reset_default_graph()
 tf.set_random_seed(20171023)
 
 x = tf.placeholder(tf.float32, shape = [None, 2]) 
 y_ = tf.placeholder(tf.float32, shape = [None, 1]) 
+
+hiddensize1 = 50
 
 W1 = tf.Variable(tf.random_normal([2, hiddensize1], stddev = 0.25) )
 b1 = tf.Variable(tf.zeros([hiddensize1]) )
@@ -144,6 +144,7 @@ def runSession(nsteps):
 print('Training 1 hidden layer using gradient descent') 
 lossesindex, losses, result = runSession(3000)
 
+plt.clf()
 plt.title('Losses for Gradient Descent of 1 Hidden')
 plt.plot(lossesindex[1:], losses[1:])
 plt.savefig('2017-10-23-graphs/hidden1GradLosses.svg')
@@ -160,6 +161,7 @@ train_step = tf.train.AdamOptimizer(3e-3).minimize(l2_loss)
 print('Training 1 hidden layer using adam')
 lossesindex, losses, result = runSession(3000)
 
+plt.clf()
 plt.title('Losses for Adam of 1 Hidden')
 plt.plot(lossesindex[1:], losses[1:])
 plt.savefig('2017-10-23-graphs/hidden1AdamLosses.svg')
@@ -193,6 +195,7 @@ train_step = tf.train.GradientDescentOptimizer(10e-2).minimize(l2_loss)
 print('Training 2 hidden layers using gradient descent')
 lossesindex, losses, result = runSession(6000)
 
+plt.clf()
 plt.title('Losses for Gradient Descent of 2 Hidden')
 plt.plot(lossesindex[1:], losses[1:])
 plt.savefig('2017-10-23-graphs/hidden2GradLosses.svg')
@@ -206,6 +209,7 @@ train_step = tf.train.AdamOptimizer(3e-3).minimize(l2_loss)
 print('Training 2 hidden layers using adam')
 lossesindex, losses, result = runSession(5000)
 
+plt.clf()
 plt.title('Losses for Adam for 2 Hidden')
 plt.plot(lossesindex[1:], losses[1:])
 plt.savefig('2017-10-23-graphs/hidden2AdamLosses.svg')
@@ -237,6 +241,7 @@ train_step = tf.train.GradientDescentOptimizer(15e-2).minimize(l2_loss)
 print('Training 3 hidden layers using gradient descent')
 lossesindex, losses, result = runSession(6000)
 
+plt.clf()
 plt.title('Losses for Gradient Descent of 3 Hidden')
 plt.plot(lossesindex[1:], losses[1:])
 plt.savefig('2017-10-23-graphs/hidden3GradLosses.svg')
@@ -250,6 +255,7 @@ train_step = tf.train.AdamOptimizer(2e-3).minimize(l2_loss)
 print('Training 3 hidden layers using adam')
 lossesindex, losses, result = runSession(5000)
 
+plt.clf()
 plt.title('Losses for Adam of 3 Hidden')
 plt.plot(lossesindex[1:], losses[1:])
 plt.savefig('2017-10-23-graphs/hidden3AdamLosses.svg')
