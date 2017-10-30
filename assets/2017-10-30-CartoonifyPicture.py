@@ -6,6 +6,8 @@ from PIL import Image
 import sys
 from sklearn.preprocessing import StandardScaler
 
+fig = plt.figure(figsize = (3.5,3))
+
 # Open the image we will try to turn into a cartoon.
 
 img = Image.open('HilbertPic.jpg')
@@ -41,7 +43,6 @@ stratimg = stratify(img, stratlevels)
 plotimage(stratimg)
 plt.title('Simple Discrete Levels')
 plt.savefig('2017-10-30-graphs/simple.png')
-
 
 # Set up features for X and Y coordinates.
 
