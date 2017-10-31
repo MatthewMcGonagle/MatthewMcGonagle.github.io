@@ -1,7 +1,7 @@
 ---
 layout: post
 title: "Learning Simple Shapes in Tensor Flow"
-data: 2017-10-23
+date: 2017-10-23
 ---
 
 ## [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-23-LearnShapesTensorFlow.py)
