@@ -219,6 +219,7 @@ plt.title('Standard Deviation of Neighborhoods')
 plt.savefig('2017-10-30-graphs/nbrFeature.png')
 
 # Create new features.
+
 features = np.concatenate([X.reshape(-1, 1), Y.reshape(-1, 1), nbrs.reshape(-1,1)], axis = -1)
 
 nSamples, nFeatures = features.shape

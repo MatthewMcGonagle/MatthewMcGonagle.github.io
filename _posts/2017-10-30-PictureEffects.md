@@ -244,7 +244,7 @@ Now, we can see that we have a better detection of the outline of the left side 
 
 ![Pic of Result for Reduced Decaying Training Rate]({{site . url}}/assets/2017-10-30-graphs/decayRateStrat.png)
 
-## Third Attempt, Add a Feature for Neighborhood Standard Deviation
+## Third Attempt: Add a Feature for Neighborhood Standard Deviation
 
 To try to get more detail on the face, let's try adding another feature. Currently, we have a sample for every x and y position in the image, i.e. for every pixel. For each of these pixels, our new feature will be a standard deviation of the pixels that occur in a neighborhood of the pixel.
 
@@ -286,3 +286,107 @@ plt.savefig('2017-10-30-graphs/nbrFeature.png')
 We get the following result:
 
 ![Picture of Neighborhood Stddev Feature]({{site . url}}/assets/2017-10-30-graphs/nbrFeature.png)
+
+Okay, now let's create the new features.
+``` python
+# Create new features.
+
+features = np.concatenate([X.reshape(-1, 1), Y.reshape(-1, 1), nbrs.reshape(-1,1)], axis = -1)
+
+nSamples, nFeatures = features.shape
+print('features.shape = ', features.shape)
+```
+
+We need to recreate our layers, our loss function, training rate, and training step.
+``` python
+# Recreate layers. 
+
+print('Setting up layers.')
+tf.reset_default_graph()
+tf.set_random_seed(20171026)
+np.random.seed(20171026)
+
+layers = createLayers(nFeatures)
+
+# Set up loss.
+
+print('Setting up loss.')
+
+l2_loss = tf.reduce_mean(tf.square(layers['out'] - layers['y_'])) 
+
+global_step = tf.Variable(0, trainable = False)
+learning_rate_init = 1e-1
+learning_rate = tf.train.exponential_decay(learning_rate_init, global_step, 500, 10**(-1/20 * 1.50), staircase = True)
+
+train_step = tf.train.AdamOptimizer(learning_rate).minimize(l2_loss, global_step = global_step)
+```
+Now let's train the model and get the results.
+``` python
+print('Training for Including Neighborhood Stddev')
+losses_index, losses, result = runSession(10000)
+
+plt.clf()
+plt.plot(losses_index[1:], losses[1:])
+plt.title('Losses for Including Neighborhood Stddev')
+plt.savefig('2017-10-30-graphs/nbrLosses.svg')
+
+result = result.reshape(nY, nX)
+plotimage(result)
+plt.title('Using Neighborhood Stddev')
+plt.savefig('2017-10-30-graphs/nbr.png') 
+```
+We get:
+
+![Graph of Losses for Neighbor Feature]({{site . url}}/assets/2017-10-30-graphs/nbrLosses.svg)
+![Pic of Result for Neighbor Feature]({{site . url}}/assets/2017-10-30-graphs/nbr.png)
+
+So we see that there is now some ugly noise in the face of the prediction. Let's take a look at what this looks like when we reduce the color palette.
+
+![Pic of Result for Reduced Neighbor Feature]({{site . url}}/assets/2017-10-30-graphs/nbrStrat.png)
+The noise is still there and creates more of an effect that looks more creepy than what we desire.
+
+## Last Attempt: Put Some Regularity on the Neighbor Feature
+
+Let's keep the neighborhood standard deviation feature we added in the last section, but let's add a regularizer based on the weights for this feature in the first hidden layer. This will allow the model to use this feature, but reduce its effect to allow the noise to be smoothed out.
+So let's set up our regularizer and create a new loss function. We will also need to recreate some of the other parts of our model.
+``` python
+print('Setting up loss.')
+
+l2_reg = tf.contrib.layers.l2_regularizer(scale = 10**1.5) 
+reg_term = tf.contrib.layers.apply_regularization(l2_reg, weights_list = [layers['W1'][2, :]]) 
+l2_loss = tf.reduce_mean(tf.square(layers['out'] - layers['y_'])) + reg_term
+
+global_step = tf.Variable(0, trainable = False)
+learning_rate_init = 1e-1
+learning_rate = tf.train.exponential_decay(learning_rate_init, global_step, 500, 10**(-1/20 * 1.50), staircase = True)
+
+train_step = tf.train.AdamOptimizer(learning_rate).minimize(l2_loss, global_step = global_step)
+``` 
+Now let's train the model and get the results.
+``` python
+print('Training for Regularity Applied to Neighborhood Feature')
+losses_index, losses, result = runSession(10000)
+
+plt.clf()
+plt.plot(losses_index[1:], losses[1:])
+plt.title('Losses for Using Regularity Neighborhood Stddev')
+plt.savefig('2017-10-30-graphs/regularityLosses.svg')
+
+result = result.reshape(nY, nX)
+plotimage(result)
+plt.title('Using Regularity of Neighborhood Stddev')
+plt.savefig('2017-10-30-graphs/regularity.png') 
+```
+We get:
+
+![Graph of Losses for Regularized Feature]({{site . url}}/assets/2017-10-30-graphs/regularityLosses.svg)
+![Pic of Result for Regularized Feature]({{site . url}}/assets/2017-10-30-graphs/regularity.png)
+
+It seems we have some outline of the nose and part of the beard. Let's look at what happens when we reduce the palette.
+
+![Pic of Result for Reduced Regularized Feature]({{site . url}}/assets/2017-10-30-graphs/regularityStrat.png)
+
+So we have several different results. We have certainly fallen short of creating a "cartoonification" of the original image. Furthermore, it really seems which is preferable is a matter of personal preference. No method is so outperforming of the other to call a clear winner.
+
+## [Download the Source Code for This Post]( {{site . url}}/assets/2017-10-30-CartoonifyPicture.py)
+
