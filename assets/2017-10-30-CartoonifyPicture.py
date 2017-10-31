@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from PIL import Image
 import sys
-from sklearn.preprocessing import StandardScaler
 
 fig = plt.figure(figsize = (3.5,3))
 
@@ -13,6 +12,8 @@ fig = plt.figure(figsize = (3.5,3))
 img = Image.open('HilbertPic.jpg')
 img = np.asarray(img, dtype = 'int32')
 print('img.shape = ', img.shape)
+
+# Function for plotting images with tick marks.
 
 def plotimage(data):
     nY, nX = data.shape
@@ -103,7 +104,7 @@ def createLayers(nFeatures):
    
 layers = createLayers(nFeatures) 
 
-# Set up regularizer and loss.
+# Set up the loss function and training step. 
 
 print('Setting up loss.')
 
