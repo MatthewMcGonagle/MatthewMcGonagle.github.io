@@ -14,4 +14,4 @@ I find this picture to be helpful, but I also feel it falls short of pointing ou
 
 ![Pic of C Being Center]({{site . url}}/assets/2017-11-01-improved.svg)
 
-First, we remove the connection between `B` and `C`. Second, we perform the rotation. Last, we add the connection between `C` and `D`. Note this connection is the only one possible to preserve the ordering.
+First, we remove the connection between `B` and `C`. Second, we perform the rotation. Last, we add the connection between `C` and `D`. Note this connection is the only one possible to preserve the ordering; note that we can't necessarily connect `A` to `C` as they are both possibly sub-trees. That is, there may be no empty right children inside `A` that can be connected to `C`.
