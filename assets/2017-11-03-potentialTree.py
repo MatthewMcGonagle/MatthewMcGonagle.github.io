@@ -139,10 +139,34 @@ def getUpdateFromLeftChildren(parentPos, lChildPos, childRepulsion):
 
     return update
 
+def getUpdateFromRightChildren(parentPos, rChildPos, childRepulsion):
+
+    # Get masks for which side of the parent the child is on.
+    rChildOnLeft = rChildPos < parentPos
+    rChildOnRight = ~rChildOnLeft
+
+   
+    # Get update for when right child is to the left of the parent. In this case, we need to move the
+    # the parent to the left; we do so in an exponential manner to be very punishing for this position. 
+
+    update = np.zeros(parentPos.shape)
+    update[rChildOnLeft] =  1 - np.exp(parentPos[rChildOnLeft] - rChildPos[rChildOnLeft]) 
+
+    # Now get the updates for when the right child is actually to the right of the parent. In this case,
+    # we move the parent to the right. We also add in some repulsion to move the parent to the left to keep
+    # them from vertically stacking.
+
+    update[rChildOnRight] = rChildPos[rChildOnRight] - parentPos[rChildOnRight] 
+    update[rChildOnRight] += - (1 / childRepulsion + rChildPos[rChildOnRight] - parentPos[rChildOnRight] )**-1 
+
+    return update
+
+
 def updatePos(positions, indices, params):
+
     baseIndex = 0
     allupdates = np.array([])
-    epsilon = 1e-2
+
     for leveli, lefti, righti in zip(indices['level'], indices['left'], indices['right']):
 
         levelPos = positions[leveli]
@@ -165,18 +189,12 @@ def updatePos(positions, indices, params):
         update[hasLeft] += params['children'] * newUpdate 
 
         hasRight = righti > -1
-        wRChild = levelPos[hasRight]
-        rightPos = positions[righti[hasRight]]
-        rChildOnLeft = rightPos < wRChild
-        newUpdate = np.zeros(levelPos.shape)
-        rChildUpdate = newUpdate[hasRight]
-        rChildUpdate[rChildOnLeft] =  1 - np.exp(wRChild[rChildOnLeft] - rightPos[rChildOnLeft]) 
-        rChildUpdate[~rChildOnLeft] = rightPos[~rChildOnLeft] - wRChild[~rChildOnLeft] 
-        rChildUpdate[~rChildOnLeft] += -(epsilon + rightPos[~rChildOnLeft] - wRChild[~rChildOnLeft] )**-1 
-        newUpdate[hasRight] = rChildUpdate
+        parentPos = levelPos[hasRight]
+        rChildPos = positions[righti[hasRight]]
 
-        update += params['children'] * newUpdate
-        
+        newUpdate = getUpdateFromRightChildren(parentPos, rChildPos, params['childRepulsion'])
+        update[hasRight] += params['children'] * newUpdate
+
         # Add updates for this level to updates for entire tree.
 
         allupdates = np.concatenate([allupdates, update])
