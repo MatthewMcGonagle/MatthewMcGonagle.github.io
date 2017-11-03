@@ -126,16 +126,18 @@ def getUpdateFromLeftChildren(parentPos, lChildPos, childRepulsion):
 
     lChildOnRight = lChildPos > parentPos
     lChildOnLeft = ~lChildOnRight
+
+    # Put in an attraction between the parent and its left child.
+
     update = np.zeros(parentPos.shape)
-    
-    # When left child is to the right, we need to move the node to the right. Do so at an exponential rate.
-    update[lChildOnRight] = -1 + np.exp(lChildPos[lChildOnRight] - parentPos[lChildOnRight]) 
-    
-    # When left child is on the left, we move the node left towards the child but also to the right away from
-    # the child at different rates.
-    
-    update[lChildOnLeft] = lChildPos[lChildOnLeft] - parentPos[lChildOnLeft]
-    update[lChildOnLeft] += (1 / childRepulsion + parentPos[lChildOnLeft] - lChildPos[lChildOnLeft] )**-1
+    update = lChildPos - parentPos    
+
+    # Add in a repulsive effect for the parent and its left child. This effect will push the parent to the right
+    # past the child. Furthermore, it is different in the two cases that the child is on the parent's left or right.
+    # However, the repulsion changes continuously.
+
+    update[lChildOnRight] += childRepulsion 
+    update[lChildOnLeft] += (1 / np.sqrt(childRepulsion) + parentPos[lChildOnLeft] - lChildPos[lChildOnLeft] )**-2
 
     return update
 
@@ -146,18 +148,17 @@ def getUpdateFromRightChildren(parentPos, rChildPos, childRepulsion):
     rChildOnRight = ~rChildOnLeft
 
    
-    # Get update for when right child is to the left of the parent. In this case, we need to move the
-    # the parent to the left; we do so in an exponential manner to be very punishing for this position. 
+    # We put in the effects of an attractive potential to bring together the parent with its right child.
 
     update = np.zeros(parentPos.shape)
-    update[rChildOnLeft] =  1 - np.exp(parentPos[rChildOnLeft] - rChildPos[rChildOnLeft]) 
+    update = rChildPos - parentPos
 
-    # Now get the updates for when the right child is actually to the right of the parent. In this case,
-    # we move the parent to the right. We also add in some repulsion to move the parent to the left to keep
-    # them from vertically stacking.
+    # However, we put in a repulsive effect to keep them from stacking; furthermore, this effect will push the
+    # the parent to the left past the child. Note that we set up the repulsion differently from when the
+    # the child is on the left vs on the right; however, it is continuous across this change.
 
-    update[rChildOnRight] = rChildPos[rChildOnRight] - parentPos[rChildOnRight] 
-    update[rChildOnRight] += - (1 / childRepulsion + rChildPos[rChildOnRight] - parentPos[rChildOnRight] )**-1 
+    update[rChildOnLeft] += - childRepulsion
+    update[rChildOnRight] += - (1 / np.sqrt(childRepulsion) + rChildPos[rChildOnRight] - parentPos[rChildOnRight] )**-2 
 
     return update
 
@@ -173,7 +174,7 @@ def updatePos(positions, indices, params):
 
         # Update to keep the graph from flying off to infinity.
 
-        update = -params['bounded'] * getUpdateForBounded(levelPos) 
+        update = params['bounded'] * getUpdateForBounded(levelPos) 
 
         # Updates for spacing out nodes.
 
@@ -187,6 +188,8 @@ def updatePos(positions, indices, params):
 
         newUpdate = getUpdateFromLeftChildren(parentPos, lChildPos, params['childRepulsion'])
         update[hasLeft] += params['children'] * newUpdate 
+
+        # Update coming from right children 
 
         hasRight = righti > -1
         parentPos = levelPos[hasRight]
@@ -202,7 +205,7 @@ def updatePos(positions, indices, params):
     return positions + params['learning_rate'] * allupdates
 
 np.random.seed(20171102)
-nums = np.random.randint(0, 100, size = 70)
+nums = np.random.randint(0, 100, size = 100)
 print(nums)
 tree = Tree()
 for num in nums:
@@ -211,7 +214,6 @@ tree.print()
 
 levelList = tree.levelList()
 positions = getInitPositions(levelList)
-print(levelList)
 
 i = 0
 for level in levelList:
@@ -240,7 +242,7 @@ def getRightIndex(node):
 indices['left'] = [np.array([getLeftIndex(node) for node in level]) for level in levelList]
 indices['right'] = [np.array([getRightIndex(node) for node in level]) for level in levelList]
 
-params = {'bounded' : 1e-1, 'level' : 1, 'children': 1, 'childRepulsion':1e2, 'learning_rate':0.001}
+params = {'bounded' : 1e-3, 'level' : 1, 'children': 1, 'childRepulsion':50, 'learning_rate':0.001}
 
 changes = []
 for i in range(5000):
@@ -249,7 +251,6 @@ for i in range(5000):
     changes.append(newchange)
     positions = newpos
   
-print(positions)
 plt.plot(changes[50:])
 plt.show()
 
@@ -269,7 +270,6 @@ def getTreeLines(node, lines):
 
 lines = []
 getTreeLines(tree.root, lines)
-print(lines)
 lines = np.array(lines).T
 print('lines.shape = ', lines.shape)
 plt.plot(lines[0], lines[1], color = 'red')
