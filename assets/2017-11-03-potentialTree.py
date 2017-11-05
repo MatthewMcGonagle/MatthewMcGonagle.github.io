@@ -13,6 +13,8 @@ class Tree:
     
     def __init__(self, root = None):
         self.root = root 
+        self.levelList = None
+        self.indices = None 
 
     def insertsubtree(self, val, root):
         if root.val == val:
@@ -63,14 +65,18 @@ class Tree:
         nodes = [node for level in myLevels for node in level] 
         return nodes 
 
-    def levelList(self):
+    # Create a list where each entry is a list of the nodes occuring in each level. So self.levelList is
+    # a list of lists of nodes.
+
+    def createLevelList(self):
+
         if self.root == None:
             return []
 
-        mylist = []
+        self.levelList = []
         level = [self.root]
         while level != []:
-            mylist.append(level)
+            self.levelList.append(level)
             nextlevel = []
             for node in level:
                 if node.left != None:
@@ -78,9 +84,40 @@ class Tree:
                 if node.right != None:
                     nextlevel.append(node.right)
             level = nextlevel
-        
-        return mylist
 
+    def setValToIndexOfFlattenedLevels(self):
+
+        if self.levelList == None:
+            raise ValueError('levelList is None when expected to be a list of lists')
+
+        i = 0
+        for level in self.levelList:
+            for node in level:
+                node.val = i
+                i += 1
+        self.indices = {}
+
+    def __getLeftIndex(self, node):
+        if node.left == None:
+            return -1
+        else:
+            return node.left.val 
+    
+    def __getRightIndex(self, node):
+        if node.right == None:
+            return -1
+        else:
+            return node.right.val
+
+    def createIndexLists(self):
+        if self.indices == None:
+            raise ValueError('indices is None when expecting dictionary. Make sure to call setValToIndexOfFlattenedLevels')
+    
+        self.indices['level'] = [[node.val for node in level] for level in self.levelList]        
+        self.indices['left'] = [np.array([self.__getLeftIndex(node) for node in level]) for level in self.levelList]
+        self.indices['right'] = [np.array([self.__getRightIndex(node) for node in level]) for level in self.levelList]
+       
+        
 def getInitPositions(levelList):
     positions = np.array([])
     for level in levelList:
@@ -129,15 +166,15 @@ def getUpdateFromLeftChildren(parentPos, lChildPos, childRepulsion):
 
     # Put in an attraction between the parent and its left child.
 
-    update = np.zeros(parentPos.shape)
-    update = lChildPos - parentPos    
+    diffPos = lChildPos - parentPos
+    update = diffPos
 
     # Add in a repulsive effect for the parent and its left child. This effect will push the parent to the right
     # past the child. Furthermore, it is different in the two cases that the child is on the parent's left or right.
     # However, the repulsion changes continuously.
 
     update[lChildOnRight] += childRepulsion 
-    update[lChildOnLeft] += (1 / np.sqrt(childRepulsion) + parentPos[lChildOnLeft] - lChildPos[lChildOnLeft] )**-2
+    update[lChildOnLeft] += (1 / np.sqrt(childRepulsion) - diffPos [lChildOnLeft] )**-2
 
     return update
 
@@ -150,15 +187,15 @@ def getUpdateFromRightChildren(parentPos, rChildPos, childRepulsion):
    
     # We put in the effects of an attractive potential to bring together the parent with its right child.
 
-    update = np.zeros(parentPos.shape)
-    update = rChildPos - parentPos
+    diffPos = rChildPos - parentPos
+    update = diffPos
 
     # However, we put in a repulsive effect to keep them from stacking; furthermore, this effect will push the
     # the parent to the left past the child. Note that we set up the repulsion differently from when the
     # the child is on the left vs on the right; however, it is continuous across this change.
 
     update[rChildOnLeft] += - childRepulsion
-    update[rChildOnRight] += - (1 / np.sqrt(childRepulsion) + rChildPos[rChildOnRight] - parentPos[rChildOnRight] )**-2 
+    update[rChildOnRight] += - (1 / np.sqrt(childRepulsion) + diffPos[rChildOnRight] ) ** -2
 
     return update
 
@@ -212,41 +249,17 @@ for num in nums:
     tree.insert(num)  
 tree.print()
 
-levelList = tree.levelList()
-positions = getInitPositions(levelList)
-
-i = 0
-for level in levelList:
-    for node in level:
-        node.val = i
-        i += 1
-
+tree.createLevelList()
+positions = getInitPositions(tree.levelList)
+tree.setValToIndexOfFlattenedLevels()
+tree.createIndexLists()
 tree.print()
-
-indices = [[node.val for node in level] for level in levelList]        
-indices = {'level' : indices}
-print(indices['level'])
-
-def getLeftIndex(node):
-    if node.left == None:
-        return -1
-    else:
-        return node.left.val 
-
-def getRightIndex(node):
-    if node.right == None:
-        return -1
-    else:
-        return node.right.val
-
-indices['left'] = [np.array([getLeftIndex(node) for node in level]) for level in levelList]
-indices['right'] = [np.array([getRightIndex(node) for node in level]) for level in levelList]
 
 params = {'bounded' : 1e-3, 'level' : 1, 'children': 1, 'childRepulsion':50, 'learning_rate':0.001}
 
 changes = []
 for i in range(5000):
-    newpos = updatePos(positions, indices, params) 
+    newpos = updatePos(positions, tree.indices, params) 
     newchange = np.linalg.norm(newpos - positions)
     changes.append(newchange)
     positions = newpos
@@ -254,9 +267,9 @@ for i in range(5000):
 plt.plot(changes[50:])
 plt.show()
 
-ypos = getYPos(levelList)
+ypos = getYPos(tree.levelList)
 
-nodelist = [node for level in levelList for node in level]
+nodelist = [node for level in tree.levelList for node in level]
 for node, pos, ypos in zip(nodelist, positions, ypos):
     node.val = (pos, ypos) 
 
@@ -276,4 +289,3 @@ plt.plot(lines[0], lines[1], color = 'red')
 plt.scatter(lines[0], lines[1])
 
 plt.show()
-
