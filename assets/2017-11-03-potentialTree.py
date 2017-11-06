@@ -13,8 +13,6 @@ class Tree:
     
     def __init__(self, root = None):
         self.root = root 
-        self.levelList = None
-        self.indices = None 
 
     def insertsubtree(self, val, root):
         if root.val == val:
@@ -36,7 +34,7 @@ class Tree:
         else:
             self.insertsubtree(val, self.root)
 
-    def printlevel(self, nodelist):
+    def __printlevel(self, nodelist):
         nextlevel = []
         levelstr = ""
         for node in nodelist:
@@ -56,67 +54,109 @@ class Tree:
             return
         level = [self.root]
         while level != [] :
-            level = self.printlevel(level)
+            level = self.__printlevel(level)
 
-    def nodeList(self):
-        if self.root == None:
-            return None
-        myLevels = self.levelList()
-        nodes = [node for level in myLevels for node in level] 
-        return nodes 
+class TreeProcessor:
 
-    # Create a list where each entry is a list of the nodes occuring in each level. So self.levelList is
-    # a list of lists of nodes.
+    def __init__(self):
+        self.levelList = None
+        self.indices = None
+        self.NOCHILD = -1
+        self.childI = None 
+        self.edges = None
 
-    def createLevelList(self):
 
-        if self.root == None:
-            return []
+    def __updateLeftChild(self, node, nextLevel, newLeftInd):
+        
+         if node.left != None:
+             nextLevel.append(node.left)
+             newLeftInd.append(self.childI)
+             self.childI += 1
+         else:
+             newLeftInd.append(self.NOCHILD)
 
-        self.levelList = []
-        level = [self.root]
-        while level != []:
-            self.levelList.append(level)
-            nextlevel = []
-            for node in level:
-                if node.left != None:
-                    nextlevel.append(node.left)
-                if node.right != None:
-                    nextlevel.append(node.right)
-            level = nextlevel
+    def __updateRightChild(self, node, nextLevel, newRightInd):
+        
+         if node.right != None:
+             nextLevel.append(node.right)
+             newRightInd.append(self.childI)
+             self.childI += 1
+         else:
+             newRightInd.append(self.NOCHILD)
 
-    def setValToIndexOfFlattenedLevels(self):
+    def __offsetChild(self, childIndex, numPrevious):
 
-        if self.levelList == None:
-            raise ValueError('levelList is None when expected to be a list of lists')
+        if childIndex != self.NOCHILD:
+            return childIndex + numPrevious
+        else:
+            return childIndex
+ 
+    def getLevelInfoLists(self, tree):
 
-        i = 0
-        for level in self.levelList:
-            for node in level:
-                node.val = i
-                i += 1
         self.indices = {}
 
-    def __getLeftIndex(self, node):
-        if node.left == None:
-            return -1
-        else:
-            return node.left.val 
-    
-    def __getRightIndex(self, node):
-        if node.right == None:
-            return -1
-        else:
-            return node.right.val
+        if tree.root == None:
+            self.indices['left'] = None
+            self.indices['right'] = None
+            self.indices['level'] = None
+            self.levelList = None
+            return
 
-    def createIndexLists(self):
-        if self.indices == None:
-            raise ValueError('indices is None when expecting dictionary. Make sure to call setValToIndexOfFlattenedLevels')
-    
-        self.indices['level'] = [[node.val for node in level] for level in self.levelList]        
-        self.indices['left'] = [np.array([self.__getLeftIndex(node) for node in level]) for level in self.levelList]
-        self.indices['right'] = [np.array([self.__getRightIndex(node) for node in level]) for level in self.levelList]
-       
+        # Initialize info we will find.
+
+        self.indices['level'] = []
+        self.indices['left'] = []
+        self.indices['right'] = [] 
+        self.levelList = []
+
+        # Initialize loop variables.
+
+        level = [tree.root]
+        nodeI = 0
+        
+        # Keep processing while current level is non-empty.
+
+        while level != []:
+
+            # Initialize info for processing this level.
+
+            nextLevel = []
+            newLeftInd = []
+            newRightInd = []
+            newLevelInd = []
+            self.childI = 0
+
+            for node in level:
+
+                newLevelInd.append(nodeI)
+                nodeI += 1
+
+                self.__updateLeftChild(node, nextLevel, newLeftInd)
+                self.__updateRightChild(node, nextLevel, newRightInd)
+
+            newLeftInd = [self.__offsetChild(i, nodeI) for i in newLeftInd]
+            newRightInd = [self.__offsetChild(i, nodeI) for i in newRightInd]
+
+            self.indices['level'].append(np.array(newLevelInd)) 
+            self.indices['left'].append(np.array(newLeftInd))
+            self.indices['right'].append(np.array(newRightInd))                    
+            self.levelList.append(level)
+            level = nextLevel
+
+    def __addEdge(self, parenti, childi, positions): 
+
+            parentPos = positions[parenti]
+            if childi != self.NOCHILD:
+                newPos = positions[childi]
+                self.edges.append([parentPos, newPos])
+
+    def getEdges(self, positions):
+        self.edges = []
+        for leveli, leftiS, rightiS in zip(self.indices['level'], self.indices['left'], self.indices['right']):
+            for parenti, lefti, righti in zip(leveli, leftiS, rightiS):
+                self.__addEdge(parenti, lefti, positions)
+                self.__addEdge(parenti, righti, positions)
+        self.edges = np.array(self.edges)
         
 def getInitPositions(levelList):
     positions = np.array([])
@@ -249,43 +289,33 @@ for num in nums:
     tree.insert(num)  
 tree.print()
 
-tree.createLevelList()
-positions = getInitPositions(tree.levelList)
-tree.setValToIndexOfFlattenedLevels()
-tree.createIndexLists()
+processor = TreeProcessor()
+processor.getLevelInfoLists(tree)
+positions = getInitPositions(processor.levelList)
+for key in processor.indices:
+    print('processor.indices[', key, '] = ')
+    print(processor.indices[key])
 tree.print()
 
 params = {'bounded' : 1e-3, 'level' : 1, 'children': 1, 'childRepulsion':50, 'learning_rate':0.001}
 
-changes = []
+changeNorms = []
 for i in range(5000):
-    newpos = updatePos(positions, tree.indices, params) 
-    newchange = np.linalg.norm(newpos - positions)
-    changes.append(newchange)
+    newpos = updatePos(positions, processor.indices, params) 
+    newChangeNorm = np.linalg.norm(newpos - positions)
+    changeNorms.append(newChangeNorm)
     positions = newpos
   
-plt.plot(changes[50:])
+plt.plot(changeNorms[50:])
 plt.show()
 
-ypos = getYPos(tree.levelList)
+ypos = getYPos(processor.levelList)
+positions = np.stack([positions, ypos], axis = -1)
+processor.getEdges(positions)
 
-nodelist = [node for level in tree.levelList for node in level]
-for node, pos, ypos in zip(nodelist, positions, ypos):
-    node.val = (pos, ypos) 
-
-def getTreeLines(node, lines):
-    if node.left != None:
-        lines.append([node.val, node.left.val])
-        getTreeLines(node.left, lines)
-    if node.right != None:
-        lines.append([node.val, node.right.val])
-        getTreeLines(node.right, lines)
-
-lines = []
-getTreeLines(tree.root, lines)
-lines = np.array(lines).T
-print('lines.shape = ', lines.shape)
-plt.plot(lines[0], lines[1], color = 'red')
-plt.scatter(lines[0], lines[1])
+print(processor.edges.shape)
+plt.plot(processor.edges.T[0], processor.edges.T[1], color = 'red')
+plt.scatter(positions.T[0], positions.T[1])
 
 plt.show()
+print(positions)
