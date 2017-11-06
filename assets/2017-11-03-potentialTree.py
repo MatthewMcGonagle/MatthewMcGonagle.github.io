@@ -157,6 +157,16 @@ class TreeProcessor:
                 self.__addEdge(parenti, lefti, positions)
                 self.__addEdge(parenti, righti, positions)
         self.edges = np.array(self.edges)
+
+    def getNodeText(self):
+
+        textList = []
+
+        for level in self.levelList:
+            for node in level:
+                textList.append(str(node.val))
+
+        return textList
         
 def getInitPositions(levelList):
     positions = np.array([])
@@ -312,10 +322,12 @@ plt.show()
 ypos = getYPos(processor.levelList)
 positions = np.stack([positions, ypos], axis = -1)
 processor.getEdges(positions)
+nodeNames = processor.getNodeText()
 
 print(processor.edges.shape)
-plt.plot(processor.edges.T[0], processor.edges.T[1], color = 'red')
-plt.scatter(positions.T[0], positions.T[1])
-
+plt.plot(processor.edges.T[0], processor.edges.T[1], color = 'black', lw = 2, zorder = 1)
+plt.scatter(positions.T[0], positions.T[1], zorder = 2, s = 500, color = '#00FF00') 
+ax = plt.gca()
+for pos, name in zip(positions, nodeNames):
+    ax.text(pos[0], pos[1], name, fontsize = 14, horizontalalignment = 'center', verticalalignment = 'center') 
 plt.show()
-print(positions)
