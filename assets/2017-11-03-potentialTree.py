@@ -412,7 +412,8 @@ params = {'bounded' : 1e-3, 'level' : 1.0, 'children': 1, 'childRepulsion':50, '
 fig = plt.figure(figsize = figsize)
 ypos = getYPos(processor.levelList)
 changeNorms = []
-tracki = [0, 10, 20, 100, 500, 1000, 2000]
+normi = []
+tracki = [0, 10, 20, 100, 500]
 for i in range(5000):
 
     if i in tracki: 
@@ -422,13 +423,15 @@ for i in range(5000):
 
     newpos = updatePos(positions, processor.indices, params) 
     newChangeNorm = np.linalg.norm(newpos - positions)
-    changeNorms.append(newChangeNorm)
+    if i % 50 == 0:
+        normi.append(i)
+        changeNorms.append(newChangeNorm)
     positions = newpos
 
 # Graph the sizes of the changes after each iteration.
   
 plt.clf()
-plt.plot(changeNorms[50:])
+plt.plot(normi, changeNorms)
 plt.title('Norms of Changes in Positions of Each Iteration')
 plt.savefig('2017-11-03-graphs/changeNorms.svg')
 

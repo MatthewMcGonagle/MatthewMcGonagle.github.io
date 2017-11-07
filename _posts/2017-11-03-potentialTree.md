@@ -10,6 +10,23 @@ In this post, we will look at using gradient descent combined with the use of po
 
 ![Final Binary Tree Drawing]({{site . url}}/assets/2017-11-03-graphs/final.svg)
 
+That is, we iteratively update the horizontal positions of the nodes in our tree that so that they are more appropriately spaced out. We start with the following initial positions of the nodes:
+![Pic of Initial Positions of Nodes]({{site . url}}/assets/2017-11-03-graphs/iterate0.svg)
+Then we update the horizontal positions of each node using gradient descent on a potential coming from these positions. The horizontal potential will be set up to have the following properties:
+* The nodes of the graph will be kept from shooting off to infinity.
+* The nodes on each level will push each other around so that they appear in the appropriate left and right order. Furthermore, when in the correct order they repel each other; they are unable to come too close to each other.
+* Each parent is attracted to both their left child and right child; However, they are also repelled by their children so that they don't stack. However this repulsion is only in the appropriate directions for left and right children to be on the correct side of the parent. Note, these effects are only for horizontal positions.
+
+Here are some selected iterates of the gradient descent so may get an idea of how the positions of the nodes evolve.
+
+![Pic of Iterate 10]({{site . url}}/assets/2017-11-03-graphs/iterate10.svg)
+
+![Pic of Iterate 20]({{site . url}}/assets/2017-11-03-graphs/iterate20.svg)
+
+![Pic of Iterate 100]({{site . url}}/assets/2017-11-03-graphs/iterate100.svg)
+
+![Pic of Iterate 500]({{site . url}}/assets/2017-11-03-graphs/iterate500.svg)
+
 Before we get started, let's import `numpy` and `pyplot`; also let's set up the figure size we will be using to draw our graphs with `pyplot`.
 
 ``` python
@@ -483,7 +500,8 @@ Now let's actually run the gradient descent and record the result for several ti
 fig = plt.figure(figsize = figsize)
 ypos = getYPos(processor.levelList)
 changeNorms = []
-tracki = [0, 10, 20, 100, 500, 1000, 2000]
+normi = []
+tracki = [0, 10, 20, 100, 500]
 for i in range(5000):
 
     if i in tracki: 
@@ -493,15 +511,19 @@ for i in range(5000):
 
     newpos = updatePos(positions, processor.indices, params) 
     newChangeNorm = np.linalg.norm(newpos - positions)
-    changeNorms.append(newChangeNorm)
+    if i % 50 == 0:
+        normi.append(i)
+        changeNorms.append(newChangeNorm)
     positions = newpos
 ```
+This produces the graph of iterates we gave at the beginning of this post.
+
 Now we graph the norms of the changes and the final positions of our graphs.
 ```python
 # Graph the sizes of the changes after each iteration.
   
 plt.clf()
-plt.plot(changeNorms[50:])
+plt.plot(normi, changeNorms)
 plt.title('Norms of Changes in Positions of Each Iteration')
 plt.savefig('2017-11-03-graphs/changeNorms.svg')
 
@@ -512,4 +534,10 @@ plt.title('Final Form, Iteration 4999')
 plt.savefig('2017-11-03-graphs/final.svg')
 plt.show()
 ```
+The graph of the norms of the changes is:
+
+![Graph of Changes]({{site . url}}/assets/2017-11-03-graphs/changeNorms.svg)
+
+The final graph of the binary tree is the one given at the very beginning of the post.
+
 ## [Download The Source Code for this Post]({{site . url}}/assets/2017-11-03-potentialTree.py)
