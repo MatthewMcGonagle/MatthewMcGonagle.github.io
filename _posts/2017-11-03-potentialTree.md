@@ -1,15 +1,42 @@
+---
+layout: post
+title: 'Drawing a Binary Tree Using Gradient Descent and a Potential Function'
+date: 2017-11-03
+---
+
+## [Download The Source Code for this Post]({{site . url}}/assets/2017-11-03-potentialTree.py)
+
+In this post, we will look at using gradient descent combined with the use of potential functions to decide on the spacing for drawing a binary tree. For example, we use this to draw the following tree:
+
+![Final Binary Tree Drawing]({{site . url}}/assets/2017-11-03-graphs/final.svg)
+
+Before we get started, let's import `numpy` and `pyplot`; also let's set up the figure size we will be using to draw our graphs with `pyplot`.
+
+``` python
 import matplotlib.pyplot as plt
 import numpy as np
 
 figsize = (11, 5)
+```
 
+In the next section, we will set up a class for constructing our binary search tree. We will be inserting a random numbers into our tree; so we won't be bothering with balancing our tree. We will do the most basic binary search tree insertion. So the following section could be skipped if you are confident enough with the construction of a binary search tree.
+
+## Setting Up Our Tree
+
+First, we set up a class for the nodes in our tree.
+
+``` python
 class Node:
 
     def __init__(self, val, left = None, right = None):
         self.left = left 
         self.right = right 
         self.val = val
+```
 
+Now let's setup our class for creating a binary search tree. The purpose of this post isn't to explain how binary search trees work, so I will only show the code for the curiosity of the reader. Understanding the details of this class isn't really necessary.
+
+``` python
 class Tree:
 
     # root should be initialized as a Node.    
@@ -71,7 +98,39 @@ class Tree:
         level = [self.root]
         while level != [] :
             level = self.__printlevel(level)
+```
 
+Now let's construct our tree and do a very rough ASCII printout of its levels. We insert 100 random integers in the range 0 to 99 (inclusive) into our tree.
+``` python
+np.random.seed(20171102)
+nums = np.random.randint(0, 100, size = 100)
+print(nums)
+tree = Tree()
+for num in nums:
+    tree.insert(num)  
+tree.print()
+```
+We get the following print out of the tree:
+``` 
+80
+39 83
+32 70 81 98
+8 37 51 79 None None 94 99
+5 27 33 38 40 55 75 None 88 95 None None
+0 6 13 29 None 35 None None None 43 53 61 74 None 85 92 None 97
+None 3 None None 11 18 None None None None 42 49 52 None 59 65 72 None None None 89 None None None
+2 4 10 12 16 26 None None 45 None None None 58 None 64 69 None None None 91
+None None None None None None None None 15 17 20 None 44 48 56 None 62 None 66 None 90 None
+14 None None None None None None None None None None 57 None None None 68 None None
+None None None None None None
+```
+This printout isn't super neat and helpful. However, it will still allow us to double check our results.
+
+## Create Class to get Arrays of Variables for Gradient Descent
+
+Now we will create a class `TreeProcessor` to find the variables we will need to do our gradient descent. First, we will later be using a flat array `positions` of the **horizontal** positions of each node in our tree.
+
+``` python
 class TreeProcessor:
 
     # # self.levelList will be a list of lists. Each member is a list of the nodes
@@ -94,7 +153,9 @@ class TreeProcessor:
         self.NOCHILD = -1
         self.childI = None 
         self.edges = None
-
+```
+Now, let's write some private member functions for determining the indices of children inside the positions array.
+``` python
     # Private member function for adding left child to the next level array
     # and also for recording the relative index of where the left child occurs in the
     # array of positions. Relative index is relative to the index of the last node
@@ -132,7 +193,10 @@ class TreeProcessor:
             return childIndex + numPrevious
         else:
             return childIndex
-
+```
+Now let's create a public member function for finding the list of the nodes in each level, and also
+the lists of the indices of each node and its children in each level.
+``` python
     # Find self.levelList and self.indices for a specific tree. 
 
     def getLevelInfoLists(self, tree):
@@ -193,7 +257,10 @@ class TreeProcessor:
             self.indices['right'].append(np.array(newRightInd))                    
             self.levelList.append(level)
             level = nextLevel
-
+```
+Finally let's make some functions for finding the edges of our tree and finding the text
+representing the value in each node.
+``` python
     # Private member function for getting the edge between a parent and its child based on
     # the index of each inside a positions array.
 
@@ -227,29 +294,23 @@ class TreeProcessor:
                 textList.append(str(node.val))
 
         return textList
-        
-def getInitPositions(levelList):
-    positions = np.array([])
-    for level in levelList:
-        levelpos = np.arange(len(level), dtype = 'float32')
-        positions = np.concatenate([positions, levelpos])
-    return positions
+```
 
-def getYPos(levelList):
-    ypos = np.array([])
-    pos = 0
-    for level in levelList: 
-        newpos = np.full(len(level), pos)
-        ypos = np.concatenate([ypos, newpos])
-        pos -= 1
-    return ypos
- 
+## Create Functions for Gradient Descent
+
+Now we will create our functions that will incrementally update the positions of the nodes in our graph. The positions are stored in a flat array of floats which we denote by `positions`. Every function will use a dictionary of parameters denoted by `params` that stores values that adjust the weights of the effects of each part of our gradient descent.
+
+First, we create an update that keeps the nodes in the graph from shooting off to infinity.
+``` python
 # Update to keep the graph from flying off to inifinity.
 
 def getUpdateForBounded(levelPos):
 
     return -levelPos
-   
+```
+
+Next, we get updates to the horizontal position of each node that comes from the nodes on the same level. Each node pushes other nodes in the correct direction according to which order they should appear. The magnitude depends on the inverse distance squared.
+``` python
 # Update coming from nodes on same level. They repel each other.
   
 def getUpdateFromSameLevel(levelPos):
@@ -268,7 +329,9 @@ def getUpdateFromSameLevel(levelPos):
     diffMatrix = diffMatrix * diffIndex
 
     return diffMatrix.sum(axis = -1)
-    
+```
+Now, let's get an update for each node coming from its left child. Note, the function takes as parameter the nodes on a level that have a left child. That is we have already filtered out those nodes on a level that don't have left children. For each node that has a left child, there is quadratic potential that results in an attraction between the node and its left child. However, there is also a repulsion that pushes the node the right of its left child.
+``` python
 def getUpdateFromLeftChildren(parentPos, lChildPos, childRepulsion):  
 
     lChildOnRight = lChildPos > parentPos
@@ -287,7 +350,9 @@ def getUpdateFromLeftChildren(parentPos, lChildPos, childRepulsion):
     update[lChildOnLeft] += (1 / np.sqrt(childRepulsion) - diffPos [lChildOnLeft] )**-2
 
     return update
-
+```
+Now, let's do the same for the right child. This time however, the repulsion pushes the parent to the left of the right child.
+``` python
 def getUpdateFromRightChildren(parentPos, rChildPos, childRepulsion):
 
     # Get masks for which side of the parent the child is on.
@@ -308,8 +373,9 @@ def getUpdateFromRightChildren(parentPos, rChildPos, childRepulsion):
     update[rChildOnRight] += - (1 / np.sqrt(childRepulsion) + diffPos[rChildOnRight] ) ** -2
 
     return update
-
-
+```
+Now let's make a function to combine all of these updates into one incremental update.
+``` python
 def updatePos(positions, indices, params):
 
     baseIndex = 0
@@ -350,7 +416,12 @@ def updatePos(positions, indices, params):
         allupdates = np.concatenate([allupdates, update])
     
     return positions + params['learning_rate'] * allupdates
+```
 
+## Create Functions to Draw our Tree
+
+First we create a function to get the vertical positions of each node in the tree. This does not change as we update the current positions.
+``` python
 # Function for getting vertical position of each node, in the order of levelList.
 
 def getYPos(levelList):
@@ -361,7 +432,10 @@ def getYPos(levelList):
         ypos = np.concatenate([ypos, newpos])
         pos -= 1
     return ypos
+```
 
+Now let's make our function for drawing our tree given its position information.
+``` python
 # Function for drawing the tree according to the horizontal position given by
 # positions and the vertical position given by ypos. We use processor to find the edges.
 
@@ -380,19 +454,12 @@ def drawTree(positions, ypos, processor):
     for pos, name in zip(coords, nodeNames):
         ax.text(pos[0], pos[1], name, fontsize = 12, horizontalalignment = 'center', verticalalignment = 'center') 
     plt.subplots_adjust(left = 0.05, right = 1.0)
+```
 
-##################################
-####### Main Executable Code #####
-##################################
+## Iterate the Updates to the Positions
 
-np.random.seed(20171102)
-nums = np.random.randint(0, 100, size = 100)
-print(nums)
-tree = Tree()
-for num in nums:
-    tree.insert(num)  
-tree.print()
-
+First let's set up the tree processor to get the appropriate arrays of indices of of nodes and children inside the `positions` array.
+``` python
 # Set up the processor and get the arrays of indices in position array of each node.
 
 processor = TreeProcessor()
@@ -401,11 +468,15 @@ positions = getInitPositions(processor.levelList)
 for key in processor.indices:
     print('processor.indices[', key, '] = ')
     print(processor.indices[key])
-
+```
+Now let's set up some parameters for adjusting the effects of each part of the gradient descent. We have found these values by trial and error.
+``` python
 # Parameters for adjusting the effects of each part of gradient descent.
 
 params = {'bounded' : 1e-3, 'level' : 1.0, 'children': 1, 'childRepulsion':50, 'learning_rate':0.001}
-
+```
+Now let's actually run the gradient descent and record the result for several times of our iteration. We also record the norms of the changes in the positions of all of the nodes as we iterate.
+``` python
 # Iterate the updates on the horizontal positions of each node. Graph the result after certain
 # iterations.
 
@@ -424,7 +495,9 @@ for i in range(5000):
     newChangeNorm = np.linalg.norm(newpos - positions)
     changeNorms.append(newChangeNorm)
     positions = newpos
-
+```
+Now we graph the norms of the changes and the final positions of our graphs.
+```python
 # Graph the sizes of the changes after each iteration.
   
 plt.clf()
@@ -438,3 +511,5 @@ drawTree(positions, ypos, processor)
 plt.title('Final Form, Iteration 4999') 
 plt.savefig('2017-11-03-graphs/final.svg')
 plt.show()
+```
+## [Download The Source Code for this Post]({{site . url}}/assets/2017-11-03-potentialTree.py)
