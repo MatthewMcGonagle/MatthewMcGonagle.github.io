@@ -2,6 +2,8 @@ import matplotlib.pyplot as plt
 from matplotlib import collections as mc
 import numpy as np
 
+figsize = (15, 5)
+
 class Node:
 
     def __init__(self, val, left = None, right = None):
@@ -291,6 +293,20 @@ def updatePos(positions, indices, params):
     
     return positions + params['learning_rate'] * allupdates
 
+def drawTree(positions, ypos, processor):
+
+    coords = np.stack([positions, ypos], axis = -1)
+    processor.getEdges(coords)
+    nodeNames = processor.getNodeText()
+    
+    plt.clf()
+    plt.plot(processor.edges.T[0], processor.edges.T[1], color = 'black', lw = 2, zorder = 1)
+    plt.scatter(coords.T[0], coords.T[1], zorder = 2, s = 500, color = '#00FF00') 
+    ax = plt.gca()
+    ax.set_xlim(left = np.amin(coords[:,0]) - 1, right = np.amax(coords[:,0]) + 1)
+    for pos, name in zip(coords, nodeNames):
+        ax.text(pos[0], pos[1], name, fontsize = 14, horizontalalignment = 'center', verticalalignment = 'center') 
+
 np.random.seed(20171102)
 nums = np.random.randint(0, 100, size = 100)
 print(nums)
@@ -307,27 +323,26 @@ for key in processor.indices:
     print(processor.indices[key])
 tree.print()
 
-params = {'bounded' : 1e-3, 'level' : 1, 'children': 1, 'childRepulsion':50, 'learning_rate':0.001}
+params = {'bounded' : 1e-3, 'level' : 30.0, 'children': 1, 'childRepulsion':50, 'learning_rate':0.001}
 
+fig = plt.figure(figsize = figsize)
+ypos = getYPos(processor.levelList)
 changeNorms = []
-for i in range(5000):
+tracki = [i for i in range(0, 4000, 500)]
+tracki.append(250)
+for i in range(3000):
     newpos = updatePos(positions, processor.indices, params) 
     newChangeNorm = np.linalg.norm(newpos - positions)
     changeNorms.append(newChangeNorm)
     positions = newpos
+    if i in tracki: 
+        drawTree(positions, ypos, processor)
+        plt.savefig('2017-11-03-graphs/iterate' + str(i) + '.svg')
   
+plt.clf()
 plt.plot(changeNorms[50:])
-plt.show()
+plt.savefig('2017-11-03-graphs/changeNorms.svg')
 
-ypos = getYPos(processor.levelList)
-positions = np.stack([positions, ypos], axis = -1)
-processor.getEdges(positions)
-nodeNames = processor.getNodeText()
-
-print(processor.edges.shape)
-plt.plot(processor.edges.T[0], processor.edges.T[1], color = 'black', lw = 2, zorder = 1)
-plt.scatter(positions.T[0], positions.T[1], zorder = 2, s = 500, color = '#00FF00') 
-ax = plt.gca()
-for pos, name in zip(positions, nodeNames):
-    ax.text(pos[0], pos[1], name, fontsize = 14, horizontalalignment = 'center', verticalalignment = 'center') 
+drawTree(positions, ypos, processor)
+plt.savefig('2017-11-03-graphs/final.svg')
 plt.show()
