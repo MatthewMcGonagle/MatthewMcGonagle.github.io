@@ -301,11 +301,12 @@ def drawTree(positions, ypos, processor):
     
     plt.clf()
     plt.plot(processor.edges.T[0], processor.edges.T[1], color = 'black', lw = 2, zorder = 1)
-    plt.scatter(coords.T[0], coords.T[1], zorder = 2, s = 500, color = '#00FF00') 
+    plt.scatter(coords.T[0], coords.T[1], zorder = 2, s = 300, color = '#00FF00') 
     ax = plt.gca()
-    ax.set_xlim(left = np.amin(coords[:,0]) - 1, right = np.amax(coords[:,0]) + 1)
+    ax.set_xlim(left = np.amin(coords[:,0]) - 0.5, right = np.amax(coords[:,0]) + 0.5)
+    ax.set_ylim(bottom = np.amin(coords[:, 1]) - 0.5, top = np.amax(coords[:, 1]) + 0.5)
     for pos, name in zip(coords, nodeNames):
-        ax.text(pos[0], pos[1], name, fontsize = 14, horizontalalignment = 'center', verticalalignment = 'center') 
+        ax.text(pos[0], pos[1], name, fontsize = 12, horizontalalignment = 'center', verticalalignment = 'center') 
 
 np.random.seed(20171102)
 nums = np.random.randint(0, 100, size = 100)
@@ -323,21 +324,22 @@ for key in processor.indices:
     print(processor.indices[key])
 tree.print()
 
-params = {'bounded' : 1e-3, 'level' : 30.0, 'children': 1, 'childRepulsion':50, 'learning_rate':0.001}
+params = {'bounded' : 1e-3, 'level' : 1.0, 'children': 1, 'childRepulsion':50, 'learning_rate':0.001}
 
 fig = plt.figure(figsize = figsize)
 ypos = getYPos(processor.levelList)
 changeNorms = []
-tracki = [i for i in range(0, 4000, 500)]
-tracki.append(250)
+tracki = [0, 10, 20, 100, 500, 1000, 2000]
 for i in range(3000):
+
+    if i in tracki: 
+        drawTree(positions, ypos, processor)
+        plt.savefig('2017-11-03-graphs/iterate' + str(i) + '.svg')
+
     newpos = updatePos(positions, processor.indices, params) 
     newChangeNorm = np.linalg.norm(newpos - positions)
     changeNorms.append(newChangeNorm)
     positions = newpos
-    if i in tracki: 
-        drawTree(positions, ypos, processor)
-        plt.savefig('2017-11-03-graphs/iterate' + str(i) + '.svg')
   
 plt.clf()
 plt.plot(changeNorms[50:])
