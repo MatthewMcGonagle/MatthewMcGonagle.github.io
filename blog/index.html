@@ -4,9 +4,23 @@ title: Matthew McGonagle's Blog
 ---
 
     <h1> {{ page . title }} </h1>
+    <h2> Programming Posts </h2>
+    <p> These posts are technical posts containing tutorials and examples of concepts in programming, data science, and computer science. </p>
+ 
     <ul class = "posts">
-
-        {% for post in site.posts %}
+    
+       {% for post in site.categories.programming %}
             <li><span>{{ post.date | date_to_string }} </span> - <a href = "{{ post . url }}" title = "{{ post . title }}"> {{ post.title }} </a></li>
         {% endfor %}
+
     </ul>
+
+    <h2> Math for All Posts </h2>
+    <p> These posts are meant to explain mathematical concepts for a general audience. I hope that these are understandable by anyone. </p>
+ 
+    <ul class = "mathposts">
+        {% for mathpost in site.categories.math %}
+            <li> <span> {{ mathpost.date | date_to_string}} </span> - <a href = "{{ mathpost . url }}" title = "{{mathpost . title }}"> {{ mathpost . title }} </a></li>
+        {% endfor %}
+    </ul>
+
