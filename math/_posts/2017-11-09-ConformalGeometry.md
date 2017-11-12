@@ -22,12 +22,22 @@ Now we will consider filling a disk with grass and mud in a special way to get w
 To get the Poincare Disk Model, we have to add mud in a very specific way. We won't go into the exact details, but we describe some of the consequences of doing this:
 
 * The edges of the disk are so muddy that we slow down so much that it takes an infinite amount of time to reach the edge. That is, we are slowed down so much that we can never reach the edge.
-* Almost every path of shortest time running between two points A and B is the arc of a circle that intersects the boundary in right angles (i.e angles of 90 degrees). The exceptions to this are simply the lines that pass through the center of the disk. 
+* The shortest path between two points A and B falls into two categories:
+    * The path is a segment of a line passing through the center of the disk.
+    * The path is an arc of a circle that intersects the edge of the disk at 90 degree agles.
 
-In order to understand the paths of shortest time, consider the following picture:
+Let's take a look at the possibilities for the shortest paths. We draw the shortest path between A and B in blue. The line or circle it sits on is drawn as dotted red. The following is a picture for those that are line segments:
 
-![Pic of Geodesics for Poincare Disk]({{site . url}}/assets/2017-11-09-geodesics.svg)
+![Pic of Line Segment Geodesics]({{site . url}}/assets/2017-11-09-geodesicline.svg)
 
-The red paths represent the circles intersecting the edge of the disk at 90 degrees and also represents the line passing through the middle of the disk. We drawn an example of a path between some example paths between A and B in blue. Note that such a circular path moves inward towards the center where you can run faster on the grass. You can't spend too much time on the grass before your wasting time by moving too far in the wrong direction (i.e. not in the direction of B). 
+The following is a picture for those that are arcs of circles:
+
+![Pic of Circular Arc Geodesics]({{site . url}}/assets/2017-11-09-geodesics.svg)
+
+Note that such a circular path moves inward towards the center where you can run faster on the grass. You can't spend too much time on the grass before your wasting time by moving too far in the wrong direction (i.e. not in the direction of B). So then it must then move away from the center and back towards B. 
+
+The following is a picture of many examples of lines and circular arcs that the shortest paths can sit on. Note that it is possible for these to intersect.
+
+![Pic of Many Geodesics]({{site . url}}/assets/2017-11-09-ManyGeodesics.svg)
 
 The study of the shortest time paths in the Poincare Disk Model is called **hyperbolic geometry**. It is a very specific example of conformal geometry.
