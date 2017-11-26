@@ -88,12 +88,12 @@ class RandomVar:
         if len(values) > 0:
             self.values = values
         else:
-            print( "ERROR: values is empty. RandomVar must take on values")
+            raise ValueError("ERROR: values is empty. RandomVar must take on values")
 
         if len(probs) > 0:
             self.probs = probs
         else:
-            print( "ERROR: probs is empty. RandomVar must take on probabilies")
+            raise ValueError("ERROR: probs is empty. RandomVar must take on probabilies")
 
     def add(self, randVar2):
         newprobs = {}
@@ -132,19 +132,17 @@ class BinomialTable:
 
     def C(n, k):
         if n < 0 or n > self.n:
-            print( "ERROR: n not in bounds for binomial table")
-            return 
+            return  0.0
 
         elif k < 0 or k > self.n:
-            print( "ERROR: k not in bounds for binomial table")
-            return 
+            return 0.0 
 
         else:
             return table[n, k]
 
     def getRandomVar(self, n, p):
         if n > self.n:
-            print("ERROR: n is too large for binomial table when creating random binomial variable")
+            raise ValueError("ERROR: n is too large for binomial table when creating random binomial variable")
         q = 1 - p
         vals = np.arange(n+1) 
         probs = self.table[n, :n+1]
