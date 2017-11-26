@@ -88,12 +88,12 @@ class RandomVar:
         if len(values) > 0:
             self.values = values
         else:
-            raise ValueError("ERROR: values is empty. RandomVar must take on values")
+            raise ValueError("values is empty. RandomVar must take on values")
 
         if len(probs) > 0:
             self.probs = probs
         else:
-            raise ValueError("ERROR: probs is empty. RandomVar must take on probabilies")
+            raise ValueError("probs is empty. RandomVar must take on probabilies")
 
     def add(self, randVar2):
         newprobs = {}
@@ -108,6 +108,9 @@ class RandomVar:
         newvals = np.array(list(newprobs.keys()))
         newprobs = np.array(list(newprobs.values()))
         return RandomVar(newvals, newprobs)
+
+    def shift(self, dvals):
+        self.values += dvals
 
 class BinomialTable:
 
@@ -142,7 +145,7 @@ class BinomialTable:
 
     def getRandomVar(self, n, p):
         if n > self.n:
-            raise ValueError("ERROR: n is too large for binomial table when creating random binomial variable")
+            raise ValueError("n is too large for binomial table when creating random binomial variable")
         q = 1 - p
         vals = np.arange(n+1) 
         probs = self.table[n, :n+1]
@@ -150,12 +153,61 @@ class BinomialTable:
         probs *= q**(n - vals) 
         return RandomVar(vals, probs)
 
+class modelTree:
+
+    def __init__(self, nLevels):
+
+        if nLevels < 0:
+            raise ValueError("Tree should have non-negative number of levels.")
+
+        self.maxLevel = nLevels - 1
+        self.nNodes = 2**nLevels - 1 
+        self.leftEdgeProb = 1.0 / 3.0
+        self.rightEdgeProb = 2.0 / 3.0
+        self.binTable = BinomialTable(nLevels) 
+        self.root = Node()
+        self.__addRandVars(self.root, 0, 0, 0, 0)
+        
+    def __finalNodeVar(self, nodeLevel):
+        nSubLevels = self.maxLevel - nodeLevel 
+        nSubNodes = 2**(nSubLevels + 1) - 1
+        values = np.array([0, nSubNodes, 2 * nSubNodes])
+        probs = np.full(values.shape, 1.0) / len(values) 
+        return RandomVar(values, probs)
+
+    def __leftEdgeVar(self, nLeftAbove):
+        var = self.binTable.getRandomVar(nLeftAbove, self.leftEdgeProb) 
+        return var 
+
+    def __rightEdgeVar(self, nRightAbove):
+        var = self.binTable.getRandomVar(nRightAbove, self.rightEdgeProb)
+        return var 
+
+    def __addRandVars(self, node, level, shift, nLeftAbove, nRightAbove):
+
+        randVar = RandomVar(np.array([shift]), np.array([1.0]))
+        if level < self.maxLevel:
+            randVar = randVar.add(self.__finalNodeVar(level))
+        if nLeftAbove > 0:
+            randVar = randVar.add(self.__leftEdgeVar(nLeftAbove))
+        if nRightAbove > 0:
+            randVar = randVar.add(self.__rightEdgeVar(nRightAbove))
+        node.data = randVar
+        if level < self.maxLevel:
+            nSubLevels = self.maxLevel - level
+            newShift = 2**(nSubLevels + 1) - 1 
+            node.left = Node()
+            node.right = Node()
+            self.__addRandVars(node.left, level + 1, shift, nLeftAbove + 1, nRightAbove)
+            self.__addRandVars(node.right, level + 1, newShift, nLeftAbove, nRightAbove + 1)
+
 ################### Start of main execution #############
 
 nLevels = 4
 nTraversals = 1000
 binomTable = BinomialTable(nLevels)
 np.random.seed(20171121)
+model = modelTree(nLevels)
 statTraversals = Tree(nLevels)
 
 print(binomTable.getTable())
@@ -189,4 +241,3 @@ for levelData in statList:
     xdata = np.full(levelData.shape, xdata) 
     plt.scatter(xdata, levelData)
     plt.show()
-
