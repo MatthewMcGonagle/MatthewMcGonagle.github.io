@@ -13,17 +13,18 @@ class Node:
 class Tree:
 
     def __init__(self, nLevels):
-        self.nNodes = 2**(nLevels + 1) - 1
+        self.nNodes = 2**nLevels - 1
+        self.maxLevel = nLevels - 1
         self.root = Node(np.zeros(self.nNodes))
-        self.addChildren(nLevels, self.root)
+        self.addChildren(0, self.root)
         self.rollValue = {'preorder' : 0, 'inorder' : 1, 'postorder' : 2}
 
     def addChildren(self, level, node):
         node.left = Node(np.zeros(self.nNodes))
         node.right = Node(np.zeros(self.nNodes))
-        if level > 1:
-            self.addChildren(level - 1, node.left) 
-            self.addChildren(level - 1, node.right)
+        if level < self.maxLevel - 1:
+            self.addChildren(level + 1, node.left) 
+            self.addChildren(level + 1, node.right)
 
     def __randTraversal(self, n, node):
 
@@ -240,11 +241,11 @@ class modelTree:
 
 ################### Start of main execution #############
 
-nLevels = 4
+nLevels = 5
 nTraversals = 7000
 binomTable = BinomialTable(nLevels)
 np.random.seed(20171121)
-model = modelTree(nLevels+1)
+model = modelTree(nLevels)
 modelList = model.getDataList()
 statTraversals = Tree(nLevels)
 
@@ -270,7 +271,7 @@ for i in range(nTraversals):
 statList = statTraversals.getDataList()
 
 cNorm = colors.Normalize(vmin = 0.0, vmax = 1.0)
-cmap = cm.ScalarMappable(norm = cNorm, cmap = 'winter') 
+cmap = cm.ScalarMappable(norm = cNorm, cmap = 'jet') 
 levelNames = [str(i) for i in np.arange(len(statList)) ]
 for levelData, modelData, levelName in zip(statList, modelList, levelNames):
 
