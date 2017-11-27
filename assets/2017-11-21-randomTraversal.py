@@ -146,11 +146,11 @@ class BinomialTable:
     def getRandomVar(self, n, p):
         if n > self.n:
             raise ValueError("n is too large for binomial table when creating random binomial variable")
-        q = 1 - p
+        q = 1.0 - p
         vals = np.arange(n+1) 
         probs = self.table[n, :n+1]
-        probs *= p**vals
-        probs *= q**(n - vals) 
+        probs = probs * p**vals
+        probs = probs * q**(n - vals) 
         return RandomVar(vals, probs)
 
 class modelTree:
@@ -199,6 +199,8 @@ class modelTree:
             randVar = randVar.add(self.__leftEdgeVar(nLeftAbove))
         if nRightAbove > 0:
             randVar = randVar.add(self.__rightEdgeVar(nRightAbove))
+        print(randVar.values)
+        print(randVar.probs)
         node.data = self.__convertRandVar(randVar)
         if level < self.maxLevel:
             nSubLevels = self.maxLevel - level
@@ -245,6 +247,8 @@ modelList = model.getDataList()
 statTraversals = Tree(nLevels)
 
 print(binomTable.getTable())
+print(binomTable.getRandomVar(3, 0.25).values, binomTable.getRandomVar(3, 0.25).probs)
+
 randVar1 = binomTable.getRandomVar(1, 0.5)
 print(randVar1.values, randVar1.probs)
 randVar2 = binomTable.getRandomVar(2, 0.5) 
