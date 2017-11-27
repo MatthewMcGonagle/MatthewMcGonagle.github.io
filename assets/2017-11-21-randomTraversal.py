@@ -269,22 +269,25 @@ for i in range(nTraversals):
 
 statList = statTraversals.getDataList()
 
-for i in range(len(statList)):
-    statList[i] = np.stack(statList[i])
-    statList[i] /= nTraversals
-
-print(statList[0].shape)
-
 cNorm = colors.Normalize(vmin = 0.0, vmax = 1.0)
 cmap = cm.ScalarMappable(norm = cNorm, cmap = 'winter') 
-for levelData, modelData in zip(statList, modelList):
+levelNames = [str(i) for i in np.arange(len(statList)) ]
+for levelData, modelData, levelName in zip(statList, modelList, levelNames):
+
     cScalar = np.linspace(0, 1.0, len(levelData))
     cRGB = cmap.to_rgba(cScalar)
     xdata = np.arange(len(levelData[0]))
+    levelData = np.stack(levelData)
+    levelData /= nTraversals
     modelData = np.stack(modelData)
 
+    plt.cla()
     for curve, model, color in zip(levelData, modelData, cRGB):
         plt.plot(curve, color = color)
         plt.scatter(xdata, curve, color = color)
         plt.plot(xdata + 0.5, model, color = color, linestyle = '--')
+    plt.title("Level " + levelName) 
+    ax = plt.gca()
+    ax.set_xlabel('Number Processed')
+    ax.set_ylabel('Probability')
     plt.show()
