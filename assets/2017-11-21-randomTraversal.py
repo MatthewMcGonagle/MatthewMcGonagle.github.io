@@ -170,9 +170,9 @@ class modelTree:
         
     def __finalNodeVar(self, nodeLevel):
         nSubLevels = self.maxLevel - nodeLevel 
-        nSubNodes = 2**(nSubLevels + 1) - 1
+        nSubNodes = 2**nSubLevels - 1
         values = np.array([0, nSubNodes, 2 * nSubNodes])
-        probs = np.full(values.shape, 1.0) / len(values) 
+        probs = np.full(values.shape, 1.0 / len(values)) 
         return RandomVar(values, probs)
 
     def __leftEdgeVar(self, nLeftAbove):
@@ -183,8 +183,15 @@ class modelTree:
         var = self.binTable.getRandomVar(nRightAbove, self.rightEdgeProb)
         return var 
 
+    def __convertRandVar(self, randVar):
+
+        probs = np.zeros(self.nNodes)
+        probs[randVar.values] = randVar.probs
+        return probs
+    
     def __addRandVars(self, node, level, shift, nLeftAbove, nRightAbove):
 
+        print(level, shift, nLeftAbove, nRightAbove)
         randVar = RandomVar(np.array([shift]), np.array([1.0]))
         if level < self.maxLevel:
             randVar = randVar.add(self.__finalNodeVar(level))
@@ -192,14 +199,40 @@ class modelTree:
             randVar = randVar.add(self.__leftEdgeVar(nLeftAbove))
         if nRightAbove > 0:
             randVar = randVar.add(self.__rightEdgeVar(nRightAbove))
-        node.data = randVar
+        node.data = self.__convertRandVar(randVar)
         if level < self.maxLevel:
             nSubLevels = self.maxLevel - level
-            newShift = 2**(nSubLevels + 1) - 1 
+            newShift = 2**nSubLevels - 1 + shift 
             node.left = Node()
             node.right = Node()
             self.__addRandVars(node.left, level + 1, shift, nLeftAbove + 1, nRightAbove)
             self.__addRandVars(node.right, level + 1, newShift, nLeftAbove, nRightAbove + 1)
+
+    def getDataList(self):
+        dataList = []
+        self.__getDataList(dataList, [self.root])
+        return dataList
+
+    # In order traversal
+
+    def __getDataList(self, dataList, nodeList):
+
+        while(nodeList != []):
+
+            nextLevelNodes = []
+            thisLevelData = []
+            for node in nodeList:
+               
+                thisLevelData.append(node.data)
+ 
+                if node.left != None:
+                    nextLevelNodes.append(node.left)
+
+                if node.right != None:
+                    nextLevelNodes.append(node.right)
+
+            dataList.append(thisLevelData)
+            nodeList = nextLevelNodes
 
 ################### Start of main execution #############
 
@@ -207,7 +240,8 @@ nLevels = 4
 nTraversals = 1000
 binomTable = BinomialTable(nLevels)
 np.random.seed(20171121)
-model = modelTree(nLevels)
+model = modelTree(nLevels+1)
+modelList = model.getDataList()
 statTraversals = Tree(nLevels)
 
 print(binomTable.getTable())
@@ -235,9 +269,11 @@ for i in range(len(statList)):
 
 print(statList[0].shape)
 
-for levelData in statList:
+for levelData, modelData in zip(statList, modelList):
     plt.plot(levelData)
     xdata = np.arange(len(levelData[:, 0])).reshape(-1,1)
     xdata = np.full(levelData.shape, xdata) 
     plt.scatter(xdata, levelData)
+    modelData = np.stack(modelData, axis = -1)
+    plt.plot(xdata + 0.5, modelData)
     plt.show()
