@@ -1,5 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm 
+import matplotlib.colors as colors
 
 class Node:
 
@@ -239,7 +241,7 @@ class modelTree:
 ################### Start of main execution #############
 
 nLevels = 4
-nTraversals = 1000
+nTraversals = 7000
 binomTable = BinomialTable(nLevels)
 np.random.seed(20171121)
 model = modelTree(nLevels+1)
@@ -268,16 +270,21 @@ for i in range(nTraversals):
 statList = statTraversals.getDataList()
 
 for i in range(len(statList)):
-    statList[i] = np.stack(statList[i], axis = -1)
+    statList[i] = np.stack(statList[i])
     statList[i] /= nTraversals
 
 print(statList[0].shape)
 
+cNorm = colors.Normalize(vmin = 0.0, vmax = 1.0)
+cmap = cm.ScalarMappable(norm = cNorm, cmap = 'winter') 
 for levelData, modelData in zip(statList, modelList):
-    plt.plot(levelData)
-    xdata = np.arange(len(levelData[:, 0])).reshape(-1,1)
-    xdata = np.full(levelData.shape, xdata) 
-    plt.scatter(xdata, levelData)
-    modelData = np.stack(modelData, axis = -1)
-    plt.plot(xdata + 0.5, modelData)
+    cScalar = np.linspace(0, 1.0, len(levelData))
+    cRGB = cmap.to_rgba(cScalar)
+    xdata = np.arange(len(levelData[0]))
+    modelData = np.stack(modelData)
+
+    for curve, model, color in zip(levelData, modelData, cRGB):
+        plt.plot(curve, color = color)
+        plt.scatter(xdata, curve, color = color)
+        plt.plot(xdata + 0.5, model, color = color, linestyle = '--')
     plt.show()
