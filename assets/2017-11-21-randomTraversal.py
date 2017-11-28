@@ -369,18 +369,73 @@ class BinomialTable:
           self.table[nballs, 1:] = self.table[nballs - 1, 1:] + self.table[nballs - 1, :-1] 
 
     def getRandomVar(self, n, p):
+        '''
+        Gets the binomial distribution for n trials with probability of success p.
+
+        Parameters
+        ----------
+        self : self
+        n : int
+            The number of trials in the binomial distribution. The random variable will be
+            computed from the nth row of the precomputed binomial coefficient table. 
+        p : float
+            The probability of success for each independent trial.
+        
+        Returns
+        -------
+        RandomVar
+            Random variable for the desired binomial distribution.
+        '''
+
         if n > self.n:
             raise ValueError("n is too large for binomial table when creating random binomial variable")
-        q = 1.0 - p
+
+        q = 1.0 - p # The probability of failure.
         vals = np.arange(n+1) 
         probs = self.table[n, :n+1]
+
+        # Since the table has int values and the probabilties are supposed to be float values, we
+        # are wary of using *=.
+
         probs = probs * p**vals
         probs = probs * q**(n - vals) 
         return RandomVar(vals, probs)
 
 class modelTree:
+    '''
+    Class for computing the theoretical probabilities for a random traversal of our tree. We assume an
+    even probability of choosing preorder, inorder, and postorder at each node. Furthermore, we assume
+    that the choices at the nodes are independent.
+
+    Member Variables
+    ----------------
+    maxLevel : int
+        The number of the largest level. The root is located at level 0.
+    nNodes : int
+        The number of nodes in the tree.
+    leftEdgeProb : float
+        When an ancestor that holds the current node in its left sub-tree, the probability that
+        the ancestor will be processed before the current node. Happens only for preorder of ancestor. 
+    rightEdgeProb : float
+        When an ancestor that holds the current node in its right sub-tree, the probability that
+        the ancestor will be processed before the current node. Happens for preorder and inorder
+        of ancestor.
+    binTable : BinomialTable
+        The binomial table we will use to compute binomial distributions for our model.
+    root : Node
+        The root of the tree.
+    ''' 
 
     def __init__(self, nLevels):
+        '''
+        Initializer
+        
+        Parameters
+        ----------
+        self : self
+        nLevels : int
+            The number of levels in the tree. The levels will be enumerated from 0 to nLevels - 1.
+        '''
 
         if nLevels < 0:
             raise ValueError("Tree should have non-negative number of levels.")
@@ -391,59 +446,184 @@ class modelTree:
         self.rightEdgeProb = 2.0 / 3.0
         self.binTable = BinomialTable(nLevels) 
         self.root = Node()
+
+        # Set up the nodes of the tree while computing the theoretical model at each node.
         self.__addRandVars(self.root, 0, 0, 0, 0)
         
     def __finalNodeVar(self, nodeLevel):
+        '''
+        Computes random variable for offsets coming from nodes in sub-tree below current node.
+
+        For preorder, these is no offset as this node is processed before sub-trees.
+        For inorder, the number of nodes in left sub-tree come before this node.
+        For postorder, both the nodes in the left sub-tree and the right sub-tree come
+        before this node.
+
+        Parameters
+        ----------
+        self : self
+        nodeLevel : int
+            The level of the current node we are computing the model for.
+
+        Returns
+        -------
+        RandomVar
+            The random variable for the offset coming from the nodes below the current node
+            we are computing the model for.
+        '''
+
         nSubLevels = self.maxLevel - nodeLevel 
         nSubNodes = 2**nSubLevels - 1
         values = np.array([0, nSubNodes, 2 * nSubNodes])
+
+        # All of these values are equally likely.
         probs = np.full(values.shape, 1.0 / len(values)) 
+
         return RandomVar(values, probs)
 
     def __leftEdgeVar(self, nLeftAbove):
+        '''
+        Gets random variable for offsets coming from ancestors where the current node is sitting in
+        their left sub-tree. This is a binomially distributed random variable. It counts which of
+        these ancestors are processed before the current node.
+        
+        Parameters
+        ----------
+        self : self
+        nLeftAbove : int
+            The number of ancestors of the current node such that the current node is sitting in their
+            left sub-tree.
+
+        Returns
+        -------
+        RandomVar
+            The random variable representing the offset coming from the ancestors. This is a binomially
+            distributed for which of these ancestors contributes one single offset. 
+        '''
+
         var = self.binTable.getRandomVar(nLeftAbove, self.leftEdgeProb) 
         return var 
 
     def __rightEdgeVar(self, nRightAbove):
+        '''
+        Gets random variable that counts for the ancestors of the current node which have the current node
+        sitting in their right sub-tree. The variable counts how many of these ancestors are processed 
+        before the current node.
+
+        Parameters
+        ----------
+        self : self
+        nRightAbove : int
+            The number of ancestors such that the current node is sitting in its right sub-tree.
+
+        Returns
+        -------
+        RandomVar
+            The random variable counting how many of these ancestors are processed before the current node.
+        '''
+
         var = self.binTable.getRandomVar(nRightAbove, self.rightEdgeProb)
         return var 
 
     def __convertRandVar(self, randVar):
+        '''
+        Converts the random variable of probabilities of value for a node into an array of probabilities
+        for all values between 0 and nNodes - 1.
+
+        Parameters
+        ----------
+        self : self
+        randVar : RandomVar
+            Random variable holding statistics of some node.
+
+        Returns
+        -------
+        Numpy array of floats of length self.nNodes
+            Array holding all probabilities for all values, including those for which the node has
+            probability 0.
+        '''
 
         probs = np.zeros(self.nNodes)
         probs[randVar.values] = randVar.probs
         return probs
     
     def __addRandVars(self, node, level, shift, nLeftAbove, nRightAbove):
+        '''
+        Recursively compute the model probabilities for order of being processed in random tree
+        traversal, add children, and then do so for children.
 
-        print(level, shift, nLeftAbove, nRightAbove)
+        Parameters
+        ----------
+        self : self
+        node : Node
+            Current node.
+        level : int
+            The level of the current node. The root is at level 0.
+        shift : int
+            The amount to shift the random variable for this node. Represents the total size of left
+            sub-trees for ancestors that contain the current node in their right sub-tree.
+        nLeftAbove : int
+            The number of ancestors of this node such that this node is in the left sub-tree of the
+            ancestor.
+        nRightAbove : int
+            The number of ancestors of this node such that this node is in the right sub-tree of the
+            ancestor.
+        '''
+
+        # First set up random variable for shift. Shift always happens with probability 1.0.
         randVar = RandomVar(np.array([shift]), np.array([1.0]))
+
+        # The rest of the random variable is the sum of contributions from sub-trees of this
+        # this node and the ancestors of this node. For each case, check that these are 
+        # non-empty before adding in.
+        
         if level < self.maxLevel:
             randVar = randVar.add(self.__finalNodeVar(level))
+
         if nLeftAbove > 0:
             randVar = randVar.add(self.__leftEdgeVar(nLeftAbove))
+
         if nRightAbove > 0:
             randVar = randVar.add(self.__rightEdgeVar(nRightAbove))
-        print(randVar.values)
-        print(randVar.probs)
+
         node.data = self.__convertRandVar(randVar)
+
+        # If we aren't on the last level, then we need to compute for the children.
+
         if level < self.maxLevel:
+
             nSubLevels = self.maxLevel - level
+
+            # For the right child, we need to add in size of left sub-tree to shift.
+
             newShift = 2**nSubLevels - 1 + shift 
+
             node.left = Node()
             node.right = Node()
             self.__addRandVars(node.left, level + 1, shift, nLeftAbove + 1, nRightAbove)
             self.__addRandVars(node.right, level + 1, newShift, nLeftAbove, nRightAbove + 1)
 
     def getDataList(self):
+        '''
+        Gets probability distributions of all the nodes.
+
+        Groups the distributions of the nodes into lists for each level. So we get a list of 2d numpy arrays.
+
+        Parameters
+        ----------
+        self : self
+
+        Returns
+        -------
+        List of 2d numpy arrays.
+
+            A list of 2d numpy arrays where each 2d numpy array holds the probabilty distributions of all the 
+            nodes in one level. That is, each 2d numpy array has shape (number of nodes in level, 
+            number of nodes in tree).
+        '''
+
         dataList = []
-        self.__getDataList(dataList, [self.root])
-        return dataList
-
-    # In order traversal
-
-    def __getDataList(self, dataList, nodeList):
-
+        nodeList = [self.root]
         while(nodeList != []):
 
             nextLevelNodes = []
@@ -460,6 +640,8 @@ class modelTree:
 
             dataList.append(thisLevelData)
             nodeList = nextLevelNodes
+
+        return dataList
 
 ################### Start of main execution #############
 
