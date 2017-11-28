@@ -124,7 +124,8 @@ class SimulationTree:
 
         Returns
         -------
-        After processing this node, the number to mark the next node processed.
+        Int
+            After processing this node, the number to mark the next node processed.
         '''
 
         # For empty leaves, don't do anything.
@@ -188,8 +189,11 @@ class SimulationTree:
 
         Returns
         -------
-        A list of 2d numpy arrays where each 2d numpy array holds the statistics of all the nodes in one level.
-        That is, each 2d numpy array has shape (number of nodes in level, number of nodes in tree).
+        List of 2d numpy arrays.
+
+            A list of 2d numpy arrays where each 2d numpy array holds the statistics of all the 
+            nodes in one level. That is, each 2d numpy array has shape (number of nodes in level, 
+            number of nodes in tree).
         '''
 
         dataList = []
@@ -214,8 +218,35 @@ class SimulationTree:
         return dataList
 
 class RandomVar:
+    '''
+    Class for representing random variables that can take a finite number of values. 
+    Will allow us to easily add together two independent random variables.
+
+    Member Variables
+    ----------------
+    self.values : numpy array
+        Should hold array of values that the variable can obtain. May or may not include values for the
+        probability is 0.
+    self.probs : numpy array, dtype = float
+        Array of values that contains the probabilities of corresponding values in self.values. The user
+        is responsible for making sure they are a valid probability distribution.
+    '''
 
     def __init__(self, values, probs):
+        '''
+        Initializer.
+
+        Sets up values of random variable and their respective probabilities.
+    
+        Parameters
+        ----------
+        self : self
+        values : numpy array
+            Array of values the random variable may take. This can include values that have probability 0.
+        probs : numpy array
+            Array of probabilities for the respective values of the random variables.
+        '''
+
         if len(values) > 0:
             self.values = values
         else:
@@ -227,52 +258,115 @@ class RandomVar:
             raise ValueError("probs is empty. RandomVar must take on probabilies")
 
     def add(self, randVar2):
+        '''
+        Adds this random variable to another independent random variable.
+
+        Computes the values and probabilities for the random variable that corresponds to
+        summing this random varaible with another independent random variable.
+        
+        Parameters
+        ----------
+        self : self
+        randVar2 : RandomVar
+            The other random variable (assumed to be independent of this random variable).
+    
+        Returns
+        -------
+        RandomVar
+            The random variable representing the sum.
+        '''
+
+        # We first store values of new random variable in a dictionary. So as we sum our values,
+        # we can check to see if we have already seen this sum valued and then add to its
+        # already existing probability.
+
         newprobs = {}
         for val, prob in zip(self.values, self.probs):
             for val2, prob2 in zip(randVar2.values, randVar2.probs):
                 newval = val + val2
                 newprob = prob * prob2 
+
+                # If the value already exists for our new random variable, then we need to
+                # add in the new probability to probability in the dict. Else we just add 
+                # the probability to the dict under the key given by the value. 
+
                 if newval in newprobs.keys():
                     newprobs[newval] += newprob
                 else:
                     newprobs[newval] = newprob 
+
         newvals = np.array(list(newprobs.keys()))
         newprobs = np.array(list(newprobs.values()))
         return RandomVar(newvals, newprobs)
 
     def shift(self, dvals):
+        '''
+        Shifts the values of the random variable by a fixed amount.
+
+        Parameters
+        ----------
+        self : self
+        dvals : Number
+            The amount to shift all of the values of the random variable.
+        '''
+
         self.values += dvals
 
 class BinomialTable:
+    '''
+    Class for storing a computed binomial coefficient table. These values are computed in a dynamic
+    programming manner. The table computed is square since we will be using all of the binomial
+    coefficients with parameters less than some value when computing our model tree.
+
+    Member Variables
+    ----------------
+    n : int
+        When thinking the binomial coefficients as storing the number of subsets of a set of size n,
+        then this is the n.
+    table : 2d numpy array of int, shape (n, n)
+        The table of computed values of binomial coefficients. 
+    '''
 
     def __init__(self, n):
+        '''
+        Initializer
+
+        Compute the table.
+        Parameters
+        ----------
+        self : self
+        n : int
+            We compute a table for binomial 0 choose 0 to binomial n choose n.
+        '''
+
         self.n = n
         self.__computeTable(n)
 
     def __computeTable(self, n):
+        '''
+        Compute the table of binomial coefficients.
+
+        We make the computation in a dynamic programming manner.
+    
+        Parameters
+        ----------
+        self : self
+        n : int
+            We compute the table for binomial 0 choose 0 to binomial n choose n.
+        '''
+
+        # Initialize the table and precompute the case of n = 0.
 
         self.table = np.zeros((n + 1, n + 1))
         self.table[0,0] = 1
         if n == 0:
             return 
+
         # Now we use the fact that C(n, k) = C(n-1, k) + C(n - 1, k - 1). This fact comes from determing
         # the two cases of whether the last element is in the k-subset.
         for nballs in range(1, n + 1):
           self.table[nballs, 0] = 1
           self.table[nballs, 1:] = self.table[nballs - 1, 1:] + self.table[nballs - 1, :-1] 
-
-    def getTable(self):
-        return self.table
-
-    def C(n, k):
-        if n < 0 or n > self.n:
-            return  0.0
-
-        elif k < 0 or k > self.n:
-            return 0.0 
-
-        else:
-            return table[n, k]
 
     def getRandomVar(self, n, p):
         if n > self.n:
@@ -377,7 +471,7 @@ model = modelTree(nLevels)
 modelList = model.getDataList()
 statTraversals = SimulationTree(nLevels)
 
-print(binomTable.getTable())
+print(binomTable.table)
 print(binomTable.getRandomVar(3, 0.25).values, binomTable.getRandomVar(3, 0.25).probs)
 
 randVar1 = binomTable.getRandomVar(1, 0.5)
