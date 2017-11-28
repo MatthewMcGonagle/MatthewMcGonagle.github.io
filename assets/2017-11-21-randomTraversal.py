@@ -181,7 +181,8 @@ class SimulationTree:
         '''
         Gets statistics of all the nodes.
 
-        Groups the statistics of the nodes into lists for each level. So we get a list of 2d numpy arrays.
+        Groups the statistics of the nodes into lists for each level. So we get a list of lists of
+        numpy arrays.
 
         Parameters
         ----------
@@ -189,11 +190,12 @@ class SimulationTree:
 
         Returns
         -------
-        List of 2d numpy arrays.
+        List of list of numpy arrays.
 
-            A list of 2d numpy arrays where each 2d numpy array holds the statistics of all the 
-            nodes in one level. That is, each 2d numpy array has shape (number of nodes in level, 
-            number of nodes in tree).
+            A list of list of numpy arrays where each list of numpy arrays 
+            holds the statistics of all the nodes in one level. That is, 
+            each of these lists has length equal to the number of nodes in the level, and
+            every array has length equal to the number of nodes in the tree. 
         '''
 
         dataList = []
@@ -607,7 +609,7 @@ class modelTree:
         '''
         Gets probability distributions of all the nodes.
 
-        Groups the distributions of the nodes into lists for each level. So we get a list of 2d numpy arrays.
+        Groups the distributions of the nodes into lists for each level. So we get a list of lists. 
 
         Parameters
         ----------
@@ -615,11 +617,12 @@ class modelTree:
 
         Returns
         -------
-        List of 2d numpy arrays.
+        List of list of numpy arrays.
 
-            A list of 2d numpy arrays where each 2d numpy array holds the probabilty distributions of all the 
-            nodes in one level. That is, each 2d numpy array has shape (number of nodes in level, 
-            number of nodes in tree).
+            A list of list of numpy arrays where each list of numpy arrays 
+            holds the probabilty distributions of all the nodes in one level. That is, 
+            each of these lists has length equal to the number of nodes in the level, and
+            every array has length equal to the number of nodes in the tree. 
         '''
 
         dataList = []
@@ -645,14 +648,9 @@ class modelTree:
 
 ################### Start of main execution #############
 
-nLevels = 5
-nTraversals = 7000
-binomTable = BinomialTable(nLevels)
-np.random.seed(20171121)
-model = modelTree(nLevels)
-modelList = model.getDataList()
-statTraversals = SimulationTree(nLevels)
+######### Test of BinomialTable class and RandomVar class
 
+binomTable = BinomialTable(5)
 print(binomTable.table)
 print(binomTable.getRandomVar(3, 0.25).values, binomTable.getRandomVar(3, 0.25).probs)
 
@@ -662,6 +660,24 @@ randVar2 = binomTable.getRandomVar(2, 0.5)
 print(randVar2.values, randVar2.probs)
 randVar3 = randVar1.add(randVar2)
 print(randVar3.values, randVar3.probs)
+
+######### Run simulation and compute model.
+
+nLevels = 5 # Number of levels in tree.
+nTraversals = 7000 # Number of times to run simulation.
+np.random.seed(20171121) 
+
+# Compute model.
+
+model = modelTree(nLevels)
+modelList = model.getDataList()
+
+# Set up tree for doing simulation.
+
+statTraversals = SimulationTree(nLevels)
+
+# Do nTraversals random traversals.
+ 
 printI = 0
 for i in range(nTraversals):
 
@@ -674,25 +690,47 @@ for i in range(nTraversals):
 
 statList = statTraversals.getDataList()
 
+###### Graph the model results with the simulation results. We graph the results of different
+###### levels separately. We horizontally shift the model curves so they can be compared
+###### with the empirical results.
+
+# Set up color map for coloring the results of different nodes different colors.
 cNorm = colors.Normalize(vmin = 0.0, vmax = 1.0)
 cmap = cm.ScalarMappable(norm = cNorm, cmap = 'jet') 
+
 levelNames = [str(i) for i in np.arange(len(statList)) ]
+
+# Graph the results of each level.
+
 for levelData, modelData, levelName in zip(statList, modelList, levelNames):
+
+    # Get colors for the results of each node.
 
     cScalar = np.linspace(0, 1.0, len(levelData))
     cRGB = cmap.to_rgba(cScalar)
+
+    # x-values
     xdata = np.arange(len(levelData[0]))
+    
+    # Do some preprocessing of the data for this level.
+
     levelData = np.stack(levelData)
     levelData /= nTraversals
     modelData = np.stack(modelData)
+
+    # Graph the results for this level.
 
     plt.cla()
     for curve, model, color in zip(levelData, modelData, cRGB):
         plt.plot(curve, color = color)
         plt.scatter(xdata, curve, color = color)
+
+        # Horizontally offset the model data so that it can be read next to the
+        # empirical data.
+
         plt.plot(xdata + 0.5, model, color = color, linestyle = '--')
     plt.title("Level " + levelName) 
     ax = plt.gca()
     ax.set_xlabel('Number Processed')
     ax.set_ylabel('Probability')
-    plt.show()
+    plt.savefig("2017-11-21-graphs/level" + levelName + ".svg")
