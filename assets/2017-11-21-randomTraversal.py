@@ -3,10 +3,6 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm 
 import matplotlib.colors as colors
 
-# Class : Node
-# This class is used to hold data in a node of a binary tree. It has an initializer for its data
-# which defaults to None. Furthermore, its left and right children initialize as None.
-
 class Node:
     '''
     Class for nodes in tree.
@@ -403,7 +399,7 @@ class BinomialTable:
         probs = probs * q**(n - vals) 
         return RandomVar(vals, probs)
 
-class modelTree:
+class ModelTree:
     '''
     Class for computing the theoretical probabilities for a random traversal of our tree. We assume an
     even probability of choosing preorder, inorder, and postorder at each node. Furthermore, we assume
@@ -669,7 +665,7 @@ np.random.seed(20171121)
 
 # Compute model.
 
-model = modelTree(nLevels)
+model = ModelTree(nLevels)
 modelList = model.getDataList()
 
 # Set up tree for doing simulation.
