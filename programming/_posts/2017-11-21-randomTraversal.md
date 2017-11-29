@@ -51,3 +51,29 @@ To understand the distribution at node `D`, there are a couple things that need 
 * Similarly, all of the nodes in the right sub-trees of the ancestors described in item 3 will always be processed after node `D`. This is due to the fact that for such ancestors, node `D` is always in their left sub-tree.
 * Every ancestor described in item 1 has the same probability of being processed before node `D`. Since node `D` is in their right sub-trees, these ancestors are processed before `D` if these ancestors roll a Preorder Traversal or an Inorder Traversal. So they have a `2/3` probability of being processed before `D`.
 * Every ancestor described in item 3 has the same probabilty of being processed before node `D`. Since node `D` is in their left sub-tree, these ancestors are processed before `D` only if these ancestors roll a Preorder Traversal. So they have a `1/3` probability of being processed before `D`.
+
+Now, let's compute the probability distribution at `D`. We will write this as a sum of random variables. First let use denote a binomially distributed random variable with probability p as `Binom(n, p)`, which represents the number of heads in `n` independent tosses of a coin with probability `p` of heads. Also let `Unif()` be a uniformly distributed random variable taking the three values `0`, `1`, and `2`. Then we have that the random variable `N(D)` for the order of node `D` during a random traversal is given by
+```
+N(D) = 18 + Binom(2, 2/3) + Binom(1, 1/3) + 1 * Unif().
+```
+Let us discuss each term:
+* The constant `18` comes from the total number of nodes in the left sub-trees of the ancestors in item 1.
+* The term `Binom(2, 2/3)` comes from the `2` ancestors of `D` in item 1.
+* The term `Binom(1, 1/3)` comes from the `1` anestor of `D` in item 3.
+* The term `1 * Unif()` comes from the sub-trees of `D` of size `1`.
+
+In general, if a node has:
+* `R` ancestors in item 1,
+* `Offset` total number of nodes in the left sub-trees of those ancestors.
+* `L` ancestors in item 3,
+* `nSubtree` number of nodes in the each sub-tree of the particular node we are computing the distribution for.
+
+Then the random variable for the order number of our node is given by:
+```
+N = Offset + Binom(R, 2/3) + Binom(L, 1/3) + nSubtree * Unif()
+```
+This is enough to compute a probability distribution for each node that we can graph and compare to numerical simulation. A more explicit formula really won't add any more clarity.
+
+## Computing the Theoretical Model
+
+Now we will investigate computing the theoretical model in `python`. We will build some classes in `python` to help use do so.
