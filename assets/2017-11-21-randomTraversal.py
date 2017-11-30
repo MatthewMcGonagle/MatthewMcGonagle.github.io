@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm 
 import matplotlib.colors as colors
+import matplotlib.lines as mlines
 
 class Node:
     '''
@@ -647,15 +648,19 @@ class ModelTree:
 ######### Test of BinomialTable class and RandomVar class
 
 binomTable = BinomialTable(5)
-print(binomTable.table)
-print(binomTable.getRandomVar(3, 0.25).values, binomTable.getRandomVar(3, 0.25).probs)
+print('Binomial Table for n = 5 is\n', binomTable.table)
+print('RandomVar Binom(3, 0.25) values are \n', binomTable.getRandomVar(3, 0.25).values, 
+      '\nProbabilities are\n', binomTable.getRandomVar(3, 0.25).probs)
 
 randVar1 = binomTable.getRandomVar(1, 0.5)
-print(randVar1.values, randVar1.probs)
+print('RandomVar Binom(1, 0.5) values = \n', randVar1.values, 
+       '\nProbabilities are = \n', randVar1.probs)
 randVar2 = binomTable.getRandomVar(2, 0.5) 
-print(randVar2.values, randVar2.probs)
+print('\nRandomVar Binom(2, 0.5) values = \n', randVar2.values, 
+      '\nProbabilites are = \n', randVar2.probs)
 randVar3 = randVar1.add(randVar2)
-print(randVar3.values, randVar3.probs)
+print('\nBinom(1, 0.5) + Binom(2, 0.5) values = \n', randVar3.values, 
+       '\nProbabilities are = \n', randVar3.probs)
 
 ######### Run simulation and compute model.
 
@@ -718,15 +723,18 @@ for levelData, modelData, levelName in zip(statList, modelList, levelNames):
 
     plt.cla()
     for curve, model, color in zip(levelData, modelData, cRGB):
-        plt.plot(curve, color = color)
-        plt.scatter(xdata, curve, color = color)
+        plt.plot(xdata, curve, color = color, marker = 'o')
+        #plt.scatter(xdata, curve, color = color)
 
         # Horizontally offset the model data so that it can be read next to the
         # empirical data.
 
         plt.plot(xdata + 0.5, model, color = color, linestyle = '--')
     plt.title("Level " + levelName) 
+    theory_line = mlines.Line2D([], [], color = 'blue', linestyle = '--', label = 'Theory')
+    sim_line = mlines.Line2D([], [], color = 'blue', label = 'Simulation')
+    plt.legend(handles = [sim_line, theory_line], loc = (1.05, 0.75))
     ax = plt.gca()
     ax.set_xlabel('Number Processed')
     ax.set_ylabel('Probability')
-    plt.savefig("2017-11-21-graphs/level" + levelName + ".svg")
+    plt.savefig("2017-11-21-graphs/level" + levelName + ".svg", bbox_inches = 'tight')

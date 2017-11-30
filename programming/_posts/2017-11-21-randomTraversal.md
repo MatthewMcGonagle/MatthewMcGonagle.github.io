@@ -745,7 +745,66 @@ class ModelTree:
 ```
 ## Testing Some of Our Classes
 
-Here let us briefly run some tests of our classes and their member functions to make sure they coded properly.
+Here let us briefly run some tests of our classes and their member functions to make sure they are coded properly. First, let's try computing a binomial table to make sure we are correctly computing our binomial coefficients.
+``` python
+######### Test of BinomialTable class and RandomVar class
+
+binomTable = BinomialTable(5)
+print('Binomial Table for n = 5 is\n', binomTable.table)
+print('RandomVar Binom(3, 0.25) values are \n', binomTable.getRandomVar(3, 0.25).values, 
+      '\nProbabilities are\n', binomTable.getRandomVar(3, 0.25).probs)
+```
+We get
+```
+Binomial Table for n = 5 is
+ [[  1.   0.   0.   0.   0.   0.]
+ [  1.   1.   0.   0.   0.   0.]
+ [  1.   2.   1.   0.   0.   0.]
+ [  1.   3.   3.   1.   0.   0.]
+ [  1.   4.   6.   4.   1.   0.]
+ [  1.   5.  10.  10.   5.   1.]]
+RandomVar Binom(3, 0.25) values are
+ [0 1 2 3]
+Probabilities are
+ [ 0.421875  0.421875  0.140625  0.015625]
+```
+
+The table is definitely correct (just consult Pascal's triangle). One can also double check that the binomial random variable values and probabilities are correct, but we won't go through the details here.
+
+Next, let's double check the addition of random variables.
+
+``` python
+randVar1 = binomTable.getRandomVar(1, 0.5)
+print('RandomVar Binom(1, 0.5) values = \n', randVar1.values, 
+       '\nProbabilities are = \n', randVar1.probs)
+randVar2 = binomTable.getRandomVar(2, 0.5) 
+print('\nRandomVar Binom(2, 0.5) values = \n', randVar2.values, 
+      '\nProbabilites are = \n', randVar2.probs)
+randVar3 = randVar1.add(randVar2)
+print('\nBinom(1, 0.5) + Binom(2, 0.5) values = \n', randVar3.values, 
+       '\nProbabilities are = \n', randVar3.probs)
+```
+
+We get that 
+
+```
+RandomVar Binom(1, 0.5) values =
+ [0 1]
+Probabilities are =
+ [ 0.5  0.5]
+
+RandomVar Binom(2, 0.5) values =
+ [0 1 2]
+Probabilites are =
+ [ 0.25  0.5   0.25]
+
+Binom(1, 0.5) + Binom(2, 0.5) values =
+ [0 1 2 3]
+Probabilities are =
+ [ 0.125  0.375  0.375  0.125]
+```
+
+So we see that the addition of random variables is working correctly.
 
 ## Computing the Model and Running The Simulation
 
@@ -782,6 +841,19 @@ for i in range(nTraversals):
 statList = statTraversals.getDataList()
 ```
 
-Now, let's graph the results of the theoretical model and simulation. We will graph the distributions of the nodes in each level.
+Now, let's graph the results of the theoretical model and simulation. We will graph the distributions of the nodes in each level. The distribution for each node will be graphed with separate colors. We horizontally shift the data for the theoretical model a little bit to the right so that it can be easily seen next to the simulated data.
+
+![Graph of level 0]({{site . url}}/assets/2017-11-21-graphs/level0.svg)
+
+![Graph of Level 1]({{site . url}}/assets/2017-11-21-graphs/level1.svg)
+
+![Graph of Level 2]({{site . url}}/assets/2017-11-21-graphs/level2.svg)
+
+![Graph of Level 3]({{site . url}}/assets/2017-11-21-graphs/level3.svg)
+
+![Graph of Level 4]({{site . url}}/assets/2017-11-21-graphs/level4.svg)
+
+We see that the simulated data and theoretical model are in very close agreement.
+
 ## [Download the Source Code for this Post]({{site . url}}/assets/2017-11-21-randomTraversal.py)
 
