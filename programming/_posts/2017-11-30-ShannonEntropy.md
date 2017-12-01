@@ -113,6 +113,7 @@ Now let us consider breaking up these probabilities into a sequence of random de
 3. Choose between C and D.
 
 The tree for these decisions looks like the following:
+
 ![Pic of Decision Tree]({{site . url}}/assets/2017-11-30-probTree2.svg)
 
 We can split the entropy in steps like the following:
