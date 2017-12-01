@@ -22,10 +22,10 @@ A first approach might be to send "0" when we wish to send "A" and send "1" to s
 The main point is that "AAA" is the symbol block we send most often, so we will benefit from encoding it with less bits. For a real world example of variable length encoding, you need look no further than the short and long dashes of Morse code.
 
 So let us try to create such an encoding. How should we proceed? Let us first write down some probabilities (these are simply computed using a binomial distribution).
-* P(AAA) = 27/64
-* P(2 A's and 1 B) = 27/64
-* P(1 A and 2 B's) = 9/64
-* P(BBB) = 1/64
+* P(AAA) = 27/64.
+* P(2 A's and 1 B) = 27/64.
+* P(1 A and 2 B's) = 9/64.
+* P(BBB) = 1/64.
 
 So a large majority of our symbol blocks are from the set {AAA, AAB, ABA, BAA}. This is four states and can easily be encoded with two bits. However, we need to encode more states and need to know when our encoding is terminated. So we pick one of the 2A1B cases to leave out of the two bit encoding. So far we have:
 * 00 for AAA
@@ -48,11 +48,86 @@ The remaining set of possibilities {BBA, BAB, ABB, BBB} can now just be represen
 * 11111 for BBB
 
 Let us compute how many bits on average are needed for this block of 3 symbols. First, we note that
-* P(2 bits) = P({AAA, AAB, ABA}) = 27/64 + 2 * 9/64 = 45/64
-* P(3 bits) = P(BAA) = 9/64
+* P(2 bits) = P({AAA, AAB, ABA}) = 27/64 + 2 * 9/64 = 45/64.
+* P(3 bits) = P(BAA) = 9/64.
 * P(5 bits) = P({BBA, BAB ABB, BBB}) = 9/64 + 1/64 = 10/64. 
-* P(other bits) = 0
+* P(other bits) = 0.
 
 So, we get that the average number of bits is 2 * 45/64 + 3 * 9/64 + 5 * 10/64 bits; which is 167/64 = 2.61 bits. Since we are encoding 3 symbols at a time, this amounts to 0.87 bits per symbol on average! So we can beat 1 bit per symbol on average.
 
-Our method for deriving our encoding seemed sort of ad hoc; can we do better?
+Our method for deriving our encoding seemed sort of ad hoc; can we do better? Is there a limit to how well we can do? There is a limit, and it is given by Shannon's Entropy : Sum of -p<sub>i</sub>log<sub>2</sub>(p<sub>i</sub>) for all symbols. For our example, the entropy is 3/4 * log<sub>2</sub>(3/4) + 1/4 * log<sub>2</sub>(1/4) = 0.75 * 0.415 + 0.25 * 2 = 0.811. So we see that our encoding scheme does a pretty good job of being close to the theoretical minimum.
+
+## Why Shannon Entropy Has Its Formula
+
+The formula for entropy, i.e. the Sum of -p<sub>i</sub>log<sub>2</sub>(p<sub>i</sub>) for all symbols, is not aribitrary. As Shannon proves in the appendix to his paper, the entropy must be this formula if we require it to have some natural properties (technically it is up to some constant of proportionality, but we just take it to be 1 for simplicity).
+
+Several of the properties are really just sort of technicalities; however, one the properties is really important as it tells us how the entropy depends on breaking up the probabilities of our random symbols into a sequence of random choices. Let us consider an example. We will use notation similar to that in Shannon's paper.
+
+### Entropy Splitting for 3 Symbols
+
+Consider if our symbols are {A, B, C} with probabilities
+* P(A) = 1/2.
+* P(B) = 1/4.
+* P(C) = 1/4.
+
+Here is a picture of the tree of probabilities for these symbols.
+
+![Pic of Probability Tree]({{site . url}}/assets/2017-11-30-split3a.svg)
+
+However, let us consider the symbol to be determined by the following sequence of random decisions; each decision is between two outcomes of probability 1/2.
+1. First randomly decide to either use the symbol A or a symbol in {B, C}. If we choose A, then we are done; else, we continue on to step 2.
+2. Randomly decide between either symbol B or symbol C. 
+
+We can picture this process as a tree:
+
+![Pic of Decision Tree]({{site . url}}/assets/2017-11-30-split3b.svg)
+
+How do we determine the entropy from this splitting? Thinking of the entropy as the number of bits necessary to describe this process, we first need to use the number of bits necessary to describe the first decision. Then half the time, we need to use more bits to describe the second decision. Our intuitive assumption (which is one of the main properties of entropy) is that the average number of bits per symbol needed to describe our original use of A, B, or C, is exactly the same number of bits needed to describe this entire splitting process.
+So we get that
+
+H(A, B, C) = H(1/2, 1/2) + 1/2 \* H(1/2, 1/2) = 3/2 \* H(1/2, 1/2)
+
+Now, H(1/2, 1/2) is like deciding to use two symbols of the same probability. The symmetry of their probabilities gives us that we can't do better than 1 bit per second. So H(1/2, 1/2) = 1 bit. Therefore, H(A, B, C) = 3/2 Bits. 
+
+Let us check that this matches shannon's formula. 
+
+H(A, B, C) = -1/2 \* log<sub>2</sub>(1/2) - 1/4 \* log<sub>2</sub>(1/4) - 1/4 \* log<sub>2</sub>(1/4),
+           = 1/2 + 2/4 + 2/4 = 3/2 Bits.
+
+
+### Entropy Splitting for 4 Symbols
+
+Consider if our symbols are {A, B, C, D} with probabilities
+* P(A) = 1/2.
+* P(B) = 1/4.
+* P(C) = 1/8.
+* P(D) = 1/8.
+
+Here is a picture of the tree of probabilities for these symbols.
+
+![Pic of Probabily Tree]({{site . url}}/assets/2017-11-30-probTree.svg)
+
+Now let us consider breaking up these probabilities into a sequence of random decisions where each decision has two outcomes, both having probability 1/2.
+1. Choose between A or the symbol in {B, C, D}. In the former case, we are done; latter case, continue to step 2.
+2. Choose between B and symbol in {C, D}. Similar to step 1, stop or continue.
+3. Choose between C and D.
+
+The tree for these decisions looks like the following:
+![Pic of Decision Tree]({{site . url}}/assets/2017-11-30-probTree2.svg)
+
+We can split the entropy in steps like the following:
+1. H(A, B, C, D) = H(Decision 1) + 1/2 * H(B, C, D) = H(1/2, 1/2) + 1/2 * H(B, C, D).
+2. H(B, C, D) = H(Decision 2) + 1/2 * H(C, D) = H(1/2, 1/2) + 1/2 * H(C, D) = H(1/2, 1/2) + 1/2 * H(1/2, 1/2).
+3. H(A, B, C, D) = (1 + 1/2 + 1/4) * H(1/2, 1/2).
+4. H(1/2, 1/2) = 1 Bit.
+5. H(A, B, C, D) = 7/4 Bits.
+
+Let's check that this matches Shannon's formula.
+
+H(A, B, C, D) = -1/2 * log<sub>2</sub>(1/2) -1/4 * log<sub>2</sub>(1/4) -1/8 * log<sub>2</sub>(1/8) - 1/8 * log<sub>2</sub>(1/8),
+
+= 1/2 + 2/4 + 3/8 + 3/8,
+
+= 7/4 Bits.
+
+So we can see that Shannon entropy isn't arbitrary. Its value (i.e. its formula) is deeply related to our intuition of how information should be split as we break a process into pieces.
