@@ -16,6 +16,15 @@ nav ul, footer ul {
 nav ul li, footer ul li {
     display: inline;
     margin-right: 20px;
+    font-size: 1.0em
+}
+
+.container ul li, .container ol li {
+    font-size: 1.5em;
+}
+
+body ul ul {
+    font-size: 1.0em;
 }
 
 a {
