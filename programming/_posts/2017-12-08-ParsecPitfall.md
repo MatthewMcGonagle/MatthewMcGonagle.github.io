@@ -85,6 +85,76 @@ Later in the post, we will use many simple examples to examine how this process 
 
 ## Necessary Remarks on How Parsec Works
 
+Here let us make some remarks about how Parsec works internally, which at the time of this writing, isn't really clear from the documentation. We won't be going into great detail, but we will be discussing details that affects the behavior of Parsec parsers. We will be looking at some implementations inside `Text.Parsec.Prim.hs` and `Text.Parsec.Error.hs`. [Here is the version of Text.Parsec.Prim.hs]({{site . url}}/assets/2017-12-08-Prim.hs) we are looking at. [Here is the version of Text.Parsec.Error.hs]({{site . url}}/assets/2017-12-08-Error.hs) we are looking at.
+
+So what is a parser in Parsec? It is something that has a function to produce a new output based on the following parameters:
+1. Current stream state (and a user state which we will be ignoring).
+2. A function that provides instructions on the output to make if the parser is succesful AND consumes input.
+3. Instructions on the output to make if the parser has an error AND consumes input.
+4. Instructions on the output to make if the parser is successful AND does NOT consume input.
+5. Instructions on the output to make if the parser has an error AND does NOT consume input. 
+
+Explicitly, that `ParsecT` type is defined by the following inside Prim.hs:
+``` haskell
+-- This example code is from
+-- Module      :  Text.Parsec.Prim
+-- Copyright   :  (c) Daan Leijen 1999-2001, (c) Paolo Martini 2007
+-- License     :  BSD-style (see the LICENSE file)
+
+-- | ParserT monad transformer and Parser type
+
+-- | @ParsecT s u m a@ is a parser with stream type @s@, user state type @u@,
+-- underlying monad @m@ and return type @a@.  Parsec is strict in the user state.
+-- If this is undesirable, simply use a data type like @data Box a = Box a@ and
+-- the state type @Box YourStateType@ to add a level of indirection.
+
+newtype ParsecT s u m a
+    = ParsecT {unParser :: forall b .
+                 State s u
+              -> (a -> State s u -> ParseError -> m b) -- consumed ok
+              -> (ParseError -> m b)                   -- consumed err
+              -> (a -> State s u -> ParseError -> m b) -- empty ok
+              -> (ParseError -> m b)                   -- empty err
+              -> m b
+             }
+```
+
+As you can see, the functions for instructing what the parser what to do if it succeeds (in either the case of input consumed or NO input consumed) depends on a parameter of type `ParseError`. This is coming from the fact that parsers keep track of errors even if they are not stopping the operation of the parser. 
+
+For example, the parser `many (char 'a')` will keep parsing `char 'a'` until it doesn't find an `'a'` character. At this stopping point, the parser records an error despite the fact that it doesn't terminate as being in error. 
+
+So when we are analyzing the parsers we write, we need to think about what will happen in four scenarios:
+1. The parser succeeds while consuming input.
+2. The parser fails and consumes input.
+3. The parser succeeds and did not consume input. For example, this happens when the parser is happy to parse 0 or more occurences of some character.
+4. The parser fails and did not consume input. 
+
+It is important to note that for a given parser `p`, the parser `many p` will succeed if this last error is `p` fails WITHOUT consuming input. If during the process of repeatedly parsing `p`, if the parser `p` ever fails while consuming input, then `many p` is considered to have failed while consuming input. Understanding this point is important to understanding how to use `many` properly.
+
+Now, inorder to understand how errors reported by Parsec can be misdirecting you to the wrong place in the input stream, it helps to understand how errors are combined when using `parserBind` to combine parsers. The operation `parserBind` combines errors (including internal non-critical errors and critical parsing stopping errors) using function `mergeError` from Error.hs. Here is how it is defined inside Error.hs:
+
+``` haskell
+-- This example code is from
+-- Module      :  Text.Parsec.Error
+-- Copyright   :  (c) Daan Leijen 1999-2001, (c) Paolo Martini 2007
+-- License     :  BSD-style (see the LICENSE file)
+
+mergeError :: ParseError -> ParseError -> ParseError
+mergeError e1@(ParseError pos1 msgs1) e2@(ParseError pos2 msgs2)
+    -- prefer meaningful errors
+    | null msgs2 && not (null msgs1) = e1
+    | null msgs1 && not (null msgs2) = e2
+    | otherwise
+    = case pos1 `compare` pos2 of
+        -- select the longest match
+        EQ -> ParseError pos1 (msgs1 ++ msgs2)
+        GT -> e1
+        LT -> e2
+``` 
+So the parser only keeps the error that occurs in the largest position in the input stream. If they occur at the same location, then it combines them into one error. This method of deciding which error is correct is does NOT necessarily produce the real error. This is especially true if we aren't careful about how we write our parsers.
+
+Finally, I would just like to remark the the parser `char`, such as `char 'a'`, does NOT consume input if it fails.
+
 ## Simple Examples Without Misdirecting Error Messages
 
 Let us look at a simple example of running `many` on a parser of more than one character.
