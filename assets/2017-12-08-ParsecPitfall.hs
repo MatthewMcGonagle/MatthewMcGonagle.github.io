@@ -27,9 +27,9 @@ main = do
     -- Will have a consumption error (will consume spaces before making error at "C").
     parseTest (many spacesAb) " ab ab ab CD"
 
-    putStrLn "\nParsing ' ab ab ab cd' with (many $ try spacesAb)"
+    putStrLn "\nParsing ' ab ab ab CD' with (many $ try spacesAb)"
     -- Will parse successfully with consumption.
-    parseTest (many $ try spacesAb) " ab ab ab cd"
+    parseTest (many $ try spacesAb) " ab ab ab CD"
    
     let cd = char 'C' >> char 'D'
 
@@ -70,6 +70,23 @@ main = do
     -- an error at "C" when looking for space or "a".
     parseTest ( do
                     many $ try (spaces >> char 'a' >> char 'b') 
+                    char 'C'
+                    char 'D' 
+              )
+              "ab ab ab CD" 
+
+    putStrLn $  "\nParsing 'ab ab ab CD' with\n"
+             ++ "(do\n"
+             ++ "      many $ try (spaces >> char 'a' >> char 'b')\n"
+             ++ "      spaces\n"
+             ++ "      char 'C'\n"
+             ++ "      char 'D'\n"
+             ++ ")"
+    -- Will have a consumption error at the space before "CD", BUT it will report an
+    -- an error at "C" when looking for space or "a".
+    parseTest ( do
+                    many $ try (spaces >> char 'a' >> char 'b') 
+                    spaces
                     char 'C'
                     char 'D' 
               )
