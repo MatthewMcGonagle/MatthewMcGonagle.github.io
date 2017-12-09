@@ -92,3 +92,37 @@ main = do
               )
               "ab ab ab CD" 
 
+    putStrLn $  "\nParsing 'ab ab ab CD' with\n"
+             ++ "(do\n"
+             ++ "      spaces\n"
+             ++ "      many $ try (ab >> spaces)\n"
+             ++ "      char 'C'\n"
+             ++ "      char 'D'\n"
+             ++ ")"
+    -- Will succesfully parse.
+    parseTest ( do
+                    spaces
+                    many $ try (ab >> spaces) 
+                    char 'C'
+                    char 'D'
+              )
+              "ab ab ab CD" 
+
+    putStrLn $  "\nParsing 'ab ab ab aCD' with\n"
+             ++ "(do\n"
+             ++ "      spaces\n"
+             ++ "      many $ try (ab >> spaces)\n"
+             ++ "      char 'C'\n"
+             ++ "      char 'D'\n"
+             ++ ")"
+    -- Will fail to parse at 'C', but this time it is possible that the sub-string " aCD"
+    -- was supposed to be " abCD" or " CD". So there is no midirection, and the user 
+    -- should be able to decide which. 
+    parseTest ( do
+                    spaces
+                    many $ try (ab >> spaces) 
+                    char 'C'
+                    char 'D'
+              )
+              "ab ab ab aCD" 
+

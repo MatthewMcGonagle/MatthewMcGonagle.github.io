@@ -85,7 +85,7 @@ Later in the post, we will use many simple examples to examine how this process 
 
 ## Necessary Remarks on How Parsec Works
 
-## Simple Examples
+## Simple Examples Without Misdirecting Error Messages
 
 Let us look at a simple example of running `many` on a parser of more than one character.
 
@@ -136,6 +136,8 @@ Parsing 'abababaD' with (many $ try ab)
 "bbb"
 ```
 Now the parser runs succesfully. Again, the error encountered by `char 'b'` trying to parse 'D' is still kept track of internally. 
+
+## Simple Examples with Misdirecting Error Messages
 
 So far the error messages have been pretty transparent; they haven't misdirected our attention in any way. We will create misdirection by introducing parsing of spaces (a perfectly natural thing to do).
 
@@ -203,5 +205,104 @@ expecting space or "a"
 ```
 Now, we see that we get a complete misdirection. The error message seems to be indicating that there is something wrong with the parsing `many $ try spacesAB`. However, this is not the case; the parsing `many $ try spacesAB` finishes correctly. The problem is that we aren't parsing the space in the sub-string " CD". So, then why does the error seem to be talking about parsing `many $ try spacesAB`? It is doing so, because it is the error that causes `many` to stop trying to parse `try spacesAB`.
 
-So why is the parser reporting this error instead of the real error that occurs when we try to parse the space in " CD" as the character 'C'? The answer lies in how `bindParser` deals with combining errors from parsers. For some reason,
+So why is the parser reporting this error instead of the real error that occurs when we try to parse the space in " CD" as the character 'C'? The answer lies in how `bindParser` deals with combining errors from parsers. For some reason, when `bindParser` makes a decision to keep either a previously found error or a newly created error. It doesn't do so based on the chronological order they are created. It does this by choosing the error that occurs at a larger position in the input stream. If they have the same position, then the errors are combined into one error.
+
+Okay, so let's now add in the parsing of spaces before we parse "CD".
+``` haskell
+    putStrLn $  "\nParsing 'ab ab ab CD' with\n"
+             ++ "(do\n"
+             ++ "      many $ try spacesAB\n"
+             ++ "      spaces >> cd\n"
+             ++ ")"
+    -- Will successfully parse with consumption.
+    parseTest ( do
+                    many $ try spacesAb
+                    spaces >> cd 
+              )
+              "ab ab ab CD" 
+```
+
+Now, when we run this we get the following output:
+```
+Parsing 'ab ab ab CD' with
+(do
+      many $ try spacesAB
+      spaces >> cd
+)
+'D'
+```
+
+The parser finishes succesfully, and the output is the last thing parsed, which is simply the character 'D'.
+
+## Reducing the Chance of this Pitfall
+
+So how can we reduce the chance that we have to deal with this error misdirection? In this case, the problem is created by running a parser like `many $ try (spaces >> ab)`. The problem here is that `spaces` is run before `ab`. Spaces will always successfully parse. So in the presence of spaces, we will always have an error occurring at a stream position ahead of where `many` returns to. That is, `many` returns to where the first space occurs, but the error will be after this.
+
+We can keep this from having by putting the `spaces` parsing behind the parsing of `ab`.
+``` haskell
+    putStrLn $  "\nParsing 'ab ab ab CD' with\n"
+             ++ "(do\n"
+             ++ "      spaces\n"
+             ++ "      many $ try (ab >> spaces)\n"
+             ++ "      char 'C'\n"
+             ++ "      char 'D'\n"
+             ++ ")"
+    -- Will succesfully parse.
+    parseTest ( do
+                    spaces
+                    many $ try (ab >> spaces) 
+                    char 'C'
+                    char 'D'
+              )
+              "ab ab ab CD" 
+```
+When we run this, we get the following output
+```
+Parsing 'ab ab ab CD' with
+(do
+      spaces
+      many $ try (ab >> spaces)
+      char 'C'
+      char 'D'
+)
+'D'
+```
+
+So the parser actually parses it correctly. Now let's try it on a different input, one that will result in failure.
+``` haskell
+    putStrLn $  "\nParsing 'ab ab ab aCD' with\n"
+             ++ "(do\n"
+             ++ "      spaces\n"
+             ++ "      many $ try (ab >> spaces)\n"
+             ++ "      char 'C'\n"
+             ++ "      char 'D'\n"
+             ++ ")"
+    -- Will fail to parse at 'C', but this time it is possible that the sub-string " aCD"
+    -- was supposed to be " abCD" or " CD". So there is no midirection, and the user 
+    -- should be able to decide which. 
+    parseTest ( do
+                    spaces
+                    many $ try (ab >> spaces) 
+                    char 'C'
+                    char 'D'
+              )
+              "ab ab ab aCD" 
+
+```
+We get the following output:
+```
+Parsing 'ab ab ab aCD' with
+(do
+      spaces
+      many $ try (ab >> spaces)
+      char 'C'
+      char 'D'
+)
+parse error at (line 1, column 11):
+unexpected "C"
+expecting "b"
+```
+
+So now we get an error at 'C' where the parser says it is expecting 'b'. Now, the parser didn't really fail looking for a 'b'. It failed when it tried to parse `char 'C'` at character 'a' in the sub-string "aCD". However, the error message isn't a misdirection. It is reasonable that the input sub-string "aCD" should be either "abCD" or just "CD". The user can reasonable decide which it should be.
+
 ## [Download the Source Code for this Post]({{site . url}}/assets/2017-12-08-ParsecPitfall.hs)
