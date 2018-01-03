@@ -51,6 +51,55 @@ title: Matthew McGonagle's Portfolio
     <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
     </tr>
 
+    <tr>
+    <th> Quadratic Field Extension </th>
+    <td> <table>
+        <tr>
+        <td> Repository </td>
+        <td> <a href = "https://github.com/MatthewMcGonagle/QuadraticFieldExtension">https://github.com/MatthewMcGonagle/QuadraticFieldExtension</a> </td>
+        </tr> 
+
+        <tr>
+        <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+        </tr>
+
+        <tr>
+        <td> Language </td>
+        <td> C++ </td>
+        </tr>
+
+        <tr>
+        <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+        </tr>
+
+        <tr>
+        <td> Purpose </td>
+        <td> Do infinite precision arithmetic for numbers that are made of fractions and any number of square roots. 
+             For example, numbers such as <code>1 + sqrt(1/2 + sqrt(2))</code>, where <code>sqrt()</code> is short for the square root function.
+        </td>
+        </tr>
+
+        <tr>
+        <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+        </tr>
+
+
+        <tr>
+        <td> Description </td>
+        <td> Handles arithmetic for numbers created from fractions by applying any number of square roots. For example, numbers such as <code>1 + sqrt(2)</code> or <code>1/3 + 2 * sqrt(1/2 + sqrt(2))</code>, where <code>sqrt()</code> is the square root function. </br></br>
+             Library allows one to keep adding square roots of previously added numbers to perform operations. For example, the class starts off with handling only fractions. One could then add <code>sqrt(2)</code> to the numbers the class can handle; note that <code>sqrt(2)</code> is NOT a fraction (this is a math fact). Now the class can handle numbers like <code> 1/3 + 2/3 * sqrt(2) </code>. </br></br>
+             You can then increase the numbers handled by the class by adding a new square root. For example, you could add <code>sqrt(1 + sqrt(2))</code>. Now the class can handle numbers such as <code> 1 + 3 * sqrt(1 + sqrt(2)) + 3/5 * sqrt(2) * sqrt(1 + sqrt(2))</code>. Note that the root we added, <code>sqrt(1 + sqrt(2))</code> isn't expressible in terms of the numbers previously handled by the class (again, another math fact). </br></br>
+             The class can also determine if the square root of one the numbers it can handle can be expressed as a number it can already handle. For example, <code>sqrt(6 + 2 * sqrt(2)) = 2 + sqrt(2)</code>, so we don't need to add more numbers to the class to deal with <code>sqrt(6 + 2 * sqrt(2))</code>. When the class can find a square root in terms of numbers it already knows, then it is capable of telling you the square root. 
+             
+        </td>
+        </tr>
+    </table></td>
+    </tr>
+
+    <tr>
+    <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+    </tr>
+
 
     <tr>
     <th> Hilbert Draw </th>
