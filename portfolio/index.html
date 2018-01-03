@@ -47,6 +47,10 @@ title: Matthew McGonagle's Portfolio
         </tr>
     </table> </td>
     </tr>
+    <tr>
+    <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+    </tr>
+
 
     <tr>
     <th> Hilbert Draw </th>
@@ -78,7 +82,7 @@ title: Matthew McGonagle's Portfolio
         <tr>
         <td> Description </td>
         <td> The Hilbert curve is a space filling curve, i.e. a continuous curve that fills an entire square. The Hilbert curve is constructed using different levels of Hilbert pseudo-curves, which have a fractal-like self-similar nature. </br></br>
-             The library turns a picture (e.g. a .png file) into a representation using one continuous curve whose sections are different levels of Hilbert pseudo-curves. This works best for pictures of cartoon like subject that don't have too much detail. This best seen using an example picture. </br></br> 
+             The library turns a picture (e.g. a .png file) into a representation using one continuous non-self intersecting curve whose sections are different levels of Hilbert pseudo-curves. This works best for pictures of cartoon like subject that don't have too much detail. This best seen using an example picture. </br></br> 
              For example, consider the following (manually edited) cartoon-like picture of the mathematician David Hilbert and its conversion using the library: </br></br>
         <img src = "https://raw.githubusercontent.com/MatthewMcGonagle/HilbertDraw/master/hilbertcartoon.png" alt = "Cartoon Picture of David Hilbert from the repository of the project." width = "49%" height = "400">
         <img src = "https://raw.githubusercontent.com/MatthewMcGonagle/HilbertDraw/master/Outputbw.png" alt = "Conversion of cartoon Hilbert image." width = "49%" height = "400"> </br></br>
@@ -87,6 +91,40 @@ title: Matthew McGonagle's Portfolio
         </tr>
    </table> </td>
 
+    </tr>
+
+    <tr>
+    <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+    </tr>
+
+    <tr>
+    <th> Blog </th>    
+    <td> <table>
+        <tr>
+        <td> Link </td>
+        <td> <a href = "{{site.url}}/blog/">{{site.url}}/blog/ </a></td>
+        </tr>
+
+        <tr>
+        <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+        </tr>
+
+        <tr>
+        <td> Noteworthy Posts </td>
+        <td> <ul> 
+        <li> 30 Oct 2017 - <a href = "{{site . url}}/blog/2017/10/30/PictureEffects">Picture Effects in Tensor Flow </a> </br> 
+             Treat a picture as a function of two variables x and y. Then try to learn this function using a neural network in <code>tensorflow</code> to create a picture effect.
+        <li> 21 Nov 2017 - <a href = "{{site . url}}/blog/2017/11/21/randomTraversal">Random Traversal of a Binary Tree</a></br>
+             Uses numerical simulation to verify theoretical statistics of traversing a binary tree where at each node we independently and randomly choose between preorder traversal, inorder traversal, or postorder traversal. 
+        <li> 08 Dec 2017 - <a href = "{{site . url}}/blog/2017/12/08/ParsecPitfall">A Pitfall of Errors in Parsec Package for Haskell</a></br>
+             Discussion of parsing error messages when using the Parsec library and how to avoid a mistake that will cause your parsing error messages to be misleading.
+        <li> 03 Nov 2017 - <a href = "{{site . url}}/blog/2017/11/03/potentialTree">Drawing a Binary Tree Using Gradient Descent and a Potential Function</a></br>
+             Use gradient descent to take find an optimal way to space out nodes of a large binary tree so it is drawn neatly and clearly.
+        
+        </ul></td>
+        </tr>
+
+    </table> </td>
     </tr>
 </table>
 
