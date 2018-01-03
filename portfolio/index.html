@@ -4,3 +4,47 @@ title: Matthew McGonagle's Portfolio
 ---
 
 <h1> {{page . title}} </h1>
+
+<table>
+    <tr>
+    <th> CVWriter </th>
+    <td> <table>
+        <tr>
+        <td> Repository </td>
+        <td> <a href = "https://github.com/MatthewMcGonagle/CVWriter"> https://github.com/MatthewMcGonagle/CVWriter</a> </td>
+        </tr>
+        <tr>
+        <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+        </tr>
+
+
+
+        <tr>
+        <td> Language </td>
+        <td> Haskell </td>
+        </tr>
+        <tr>
+        <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+        </tr>
+
+        <tr>
+        <td> Purpose </td>
+        <td> Create two output formats for a CV based on one input file of CV information.</td>
+        </tr>
+        <tr>
+        <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+        </tr>
+   
+        <tr>
+        <td> Description </td>
+        <td> Library that parses a file with a particular XML-like formatting that contains information to put into a CV. The format is discussed in the README.md located in the repository. 
+             After parsing, this information can be converted into two different file formats: a .html Jekyll compatible file or a .tex LaTeX file. </br> </br>
+
+             The .html file is meant to be processed by Jekyll to create a web-page CV. I use this to make <a href = "{{site . url}}/cv/"> the webpage version of my CV </a>. </br> </br>
+
+             The .tex LaTeX file is meant to be processed using <code>pdflatex</code> to create a .pdf version of the CV. I use this to make <a href = "{{site . url}}/cv/MatthewMcGonagleCV.pdf">the pdf version of my CV</a>. </br> </br>
+        </td> 
+        </tr>
+    </table> </td>
+    </tr>
+</table>
