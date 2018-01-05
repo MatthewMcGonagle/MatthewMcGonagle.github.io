@@ -1,3 +1,10 @@
+'''
+Author: Matthew McGonagle
+
+Create .wav audio files containing tones whose durations match the interval lengths of the different iterates
+leading to the Cantor set.
+'''
+
 import wave
 import numpy as np
 import matplotlib.pyplot as plt
@@ -15,16 +22,62 @@ class ToneManipulator:
     self.framerate : Integer
         The number of frames (elements of array) per second.
     '''    
+
     def __init__(self, framerate):
+        '''
+        Initializer
+        
+        Records the desired framerate. This is used to calculate desired number of frames for a given duration
+        in seconds.
+
+        Parameters
+        ----------
+        self: 
+            Self-reference to instance.
+        framerate: Integer.
+            The number of frames per second for the desired .wav file.
+        '''
+
         self.framerate = framerate
 
     def createZeroSeries(self, duration):
+        '''
+        Create a numpy array of zeroes that represents a given amount of time (in seconds).
+        
+        Parameters
+        ---------- 
+        
+        self : 
+            Self-reference to class instance.
+        duration : Float
+            Duration of time in seconds that array represents. This is used to calculate the number
+            of frames in the array.
+        '''
 
         nframes = int(self.framerate * duration)
         return np.zeros(nframes)
 
     def addWave(self, tSeries, tStart, frequency, amplitude, duration):
+        '''
+        Add a wave (giving a certain tone) into a waveform time series.
 
+        Parameters
+        ----------
+        self : 
+            Self-reference to class instance.
+        tSeries : Numpy array.
+            A numpy array for the waveform that the new wave (new tone) will be added to.
+        tStart : Float
+            The time that the new wave should start (0.0 is the 0th element of tSeries).
+        frequency : Float
+            The frequency of the wave in Hz (periods per second).
+        amplitude : Float
+            The amplitude to give the new wave.
+        duration : Float
+            How long to make the wave in seconds. This will be converted to the correct number of frames.
+            It is up to the user to make sure the wave will fit inside tSeries, else you will get an exception
+            from Numpy where arrays of different shapes can't be cast together.
+        '''
         angularSpeed = 2.0 * np.pi * frequency / self.framerate
         nframes = int(self.framerate * duration)
         frameStart = int(self.framerate * tStart)
@@ -33,6 +86,17 @@ class ToneManipulator:
         tSeries[frameStart:frameStart + nframes] += wave
 
     def convertToWaveData(self, tSeries):
+        '''
+        Take a numpy array, normalize the values to the 2 byte integer values for .wav file,
+        and then compactify it into a proper byte array.
+        
+        Parameters
+        ----------
+        self : 
+            Self-reference to class instance.
+        tSeries : Numpy array.
+            The waveform to create into a data form appropriate to put into .wav file.
+        '''
       
         # First normalize 
 
@@ -42,33 +106,77 @@ class ToneManipulator:
         data = (tSeries - mid) / (seriesMax - seriesMin) * 2.0
 
         # Multiply by max
-        sampleWidth = 2 # Restrict to using 2 byte integers for .wav file.
-        self.maxsize = 2**(8 * sampleWidth - 1) - 1 # Max value for signed integer. 
 
-        data *= self.maxsize
+        sampleWidth = 2 # Restrict to using 2 byte integers for .wav file.
+        maxsize = 2**(8 * sampleWidth - 1) - 1 # Max value for signed integer. 
+
+        data *= maxsize
 
         # Convert to Integer
+
         data = data.astype(np.int16)
         data = data.tobytes()
         return data
 
     def _addCantorLevel(self, tSeries, tStarts, duration, levelFreqs, amp):
+        '''
+        Private function for doing recursion of adding Cantor levels. Difference between
+        public function addCantorLevel is that _addCantorLevel uses an array of starting
+        times.
+        Members
+        -------
+        self : 
+            Self-reference to class instance.
+        tSeries : Numpy array.
+            Waveform to add Cantor tones to.
+        duration : Float
+            The duration of each interval of this cantor level in seconds.
+        levelFreqs: Array
+            The frequencies for this level and the following levels.
+        amp : Float
+            The amplitude to use at each level.
+        ''' 
+
+        # If there are no more frequencies to add, then we stop.
 
         if len(levelFreqs) < 1:
             return
 
+        # Frequency for this level is just the first frequency in levelFreqs.
         freq = levelFreqs[0]
 
         nextStarts = []
         nextduration = duration / 3.0
+        
+        # As we add in waves for each starting point of this level, we also find
+        # the starting times of the next level.
         for start in tStarts:        
             self.addWave(tSeries, start, freq, amp, duration)  
             nextStarts.append(start)
             nextStarts.append(start + 2 * nextduration)
 
+        # Now get the next level; only pass tail of levelFreqs.
+
         self._addCantorLevel(tSeries, nextStarts, nextduration, levelFreqs[1:], amp)
 
     def addCantorTones(self, tSeries, tStart, duration, levelFreqs, amplitude):
+        '''
+        Public function to add cantor tones into a waveform.
+        Members
+        -------
+        self : 
+            Self-reference to class instance.
+        tSeries : Numpy Array.
+            Waveform that cantor tones are added to.
+        duration : Float
+            The length that the cantor tones last overall in seconds. It is up to the user to make sure the 
+            cantor tones fits into tSeries.
+        levelFreqs: Array
+            An array of frequencies for the tones at each level. The length of the array determines the
+            number of levels to add.
+        amplitude : Float
+            The amplitude to use for all of the tones.
+        '''
         tStarts = np.array([tStart])
         self._addCantorLevel(tSeries, tStarts, duration, levelFreqs, amplitude) 
         
