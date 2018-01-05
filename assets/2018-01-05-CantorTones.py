@@ -5,12 +5,14 @@ Create .wav audio files containing tones whose durations match the interval leng
 leading to the Cantor set.
 '''
 
+# The use of sine waves for building tones in a .wav file using the wave.py module comes from the 
+# following answer on stack overflow:
+# https://stackoverflow.com/questions/33879523/python-how-can-i-generate-a-wav-file-with-beeps/33913403#33913403
+# However, we use numpy arrays for our waveforms instead of regular python lists.
+
 import wave
 import numpy as np
 import matplotlib.pyplot as plt
-
-# Based on answer on stackoverflow:
-# https://stackoverflow.com/questions/33879523/python-how-can-i-generate-a-wav-file-with-beeps/33913403#33913403
 
 class ToneManipulator:
     '''
@@ -179,17 +181,24 @@ class ToneManipulator:
         '''
         tStarts = np.array([tStart])
         self._addCantorLevel(tSeries, tStarts, duration, levelFreqs, amplitude) 
-        
-minFramesPerPeriod = 10
-maxFreq = 790
+
+# Determine our framerate based on some basic considerations.        
+
+minFramesPerPeriod = 10 # We want atleast 10 frames for each period.
+maxFreq = 790 # Hz, i.e. periods per second.
 framerate = minFramesPerPeriod * maxFreq 
 print("Using framerate = ", framerate)
 
-nchannels = 1
-sampleWidth = 2
-duration = 3
+# Parameters for .wav file.
 
+nchannels = 1 
+sampleWidth = 2
+duration = 3 # in seconds
+
+# First we will create a .wav file playing notes in a C chord (as found on a guitar) in progression. 
+# So we set up variables to hold information for each tone.
 # Reference for frequencies of notes are https://www.seventhstring.com/resources/notefrequencies.html 
+
 chordFreqs = [261.6, 329.6, 392.0, 523.3, 659.3] # Frequencies of C chord on guitar.
 tStarts = [0.0, 0.5, 1.0, 1.5, 2.0]
 durations = [5.0, 3.5, 2.5, 1.5, 0.5]
@@ -199,10 +208,12 @@ waveform = manip.createZeroSeries(durations[0])
 
 for freq, tStart, duration in zip(chordFreqs, tStarts, durations):
 
-    print("Adding frequency ", freq)
+    print("Adding frequency ", freq, " to C chord waveform.")
     manip.addWave(waveform, tStart = tStart, frequency = freq, amplitude = 1.0, duration = duration)  
 
 data = manip.convertToWaveData(waveform)
+
+# Open a .wav file and write in the data.
 
 wave_writer = wave.open('2018-01-05-output/cchord.wav', 'w')
 wave_writer.setnchannels(nchannels)
@@ -211,15 +222,20 @@ wave_writer.setframerate(framerate)
 wave_writer.writeframesraw(data)
 wave_writer.close()
 
+# Graph what the waveform looks like
+
 plt.plot(waveform)
 plt.show()
 
-duration = 5.0
-# framerate = 44.1 * 10**3 # CD quality 
-manip = ToneManipulator(framerate)
+# Now let's try set of Cantor tones; the frequency to use at each level will be a frequency 
+# from the guitar C chord.
+
+duration = 5.0 # Now let the .wav file last 5 seconds.
 waveform = manip.createZeroSeries(duration)
 manip.addCantorTones(waveform, tStart = 0, duration = duration, levelFreqs = chordFreqs, amplitude = 1.0) 
 data = manip.convertToWaveData(waveform)
+
+# Write the .wav file.
 
 wave_writer = wave.open('2018-01-05-output/cantor.wav', 'w')
 wave_writer.setnchannels(nchannels)
@@ -228,10 +244,15 @@ wave_writer.setframerate(framerate)
 wave_writer.writeframesraw(data)
 wave_writer.close()
 
+# Graph the waveform.
+
 plt.plot(waveform)
 plt.show()
 
-# C-F-G chord progression reference is https://www.uberchord.com/blog/5-popular-common-guitar-chord-progressions-song-writers/
+# Now let's put in a series of Cantor tones. We will use a C-F-G chord progression. So the tones of the first
+# Cantor tones come from the C chord. The second come from an F chord. The third come from the G chord.
+# Our C-F-G chord progression reference is:
+# https://www.uberchord.com/blog/5-popular-common-guitar-chord-progressions-song-writers/
 chords = [[261.6, 329.6, 392.0, 523.3, 659.3], # C Chord on Guitar
           [174.6, 261.6, 349.2, 440.0, 523.3, 349.2], # F Chord on Guitar
           [196.0, 246.9, 293.7, 392.0, 587.3, 784.0]] # G Chord on Guitar 
@@ -240,12 +261,16 @@ for start, chord in zip(duration * np.arange(3), chords):
     manip.addCantorTones(waveform, tStart = start, duration = duration, levelFreqs = chord, amplitude = 1.0) 
 data = manip.convertToWaveData(waveform)
 
+# Write the .wav file.
+
 wave_writer = wave.open('2018-01-05-output/cantorProgression.wav', 'w')
 wave_writer.setnchannels(nchannels)
 wave_writer.setsampwidth(sampleWidth)
 wave_writer.setframerate(framerate)
 wave_writer.writeframesraw(data)
 wave_writer.close()
+
+# Grapht the waveform.
 
 plt.plot(waveform)
 plt.show()
