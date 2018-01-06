@@ -257,8 +257,17 @@ plt.show()
 chords = [[261.6, 329.6, 392.0, 523.3, 659.3], # C Chord on Guitar
           [174.6, 261.6, 349.2, 440.0, 523.3, 349.2], # F Chord on Guitar
           [196.0, 246.9, 293.7, 392.0, 587.3, 784.0]] # G Chord on Guitar 
-waveform = manip.createZeroSeries(duration * 3)
-for start, chord in zip(duration * np.arange(3), chords):
+chords = [[220.0, 349.2, 440.0, 523.3, 659.3], # Am chord on guitar.
+          [261.6, 329.6, 392.0, 523.3, 659.3], # C chord on guitar.
+          [293.7, 440.0, 587.3, 740.0], # D chord on guitar.
+          [349.2, 440.0, 523.3, 698.5], # F chord on guitar
+          [220.0, 349.2, 440.0, 523.3, 659.3], # Am chord on guitar.
+          [164.8, 246.9, 329.6, 415.3, 493.9, 659.3], # E chord on guitar.
+          [220.0, 349.2, 440.0, 523.3, 659.3], # Am chord on guitar.
+          [164.8, 246.9, 329.6, 415.3, 493.9, 659.3]] # E chord on guitar.
+
+waveform = manip.createZeroSeries(duration * 6)
+for start, chord in zip(duration * np.arange(6), chords):
     manip.addCantorTones(waveform, tStart = start, duration = duration, levelFreqs = chord, amplitude = 1.0) 
 data = manip.convertToWaveData(waveform)
 
