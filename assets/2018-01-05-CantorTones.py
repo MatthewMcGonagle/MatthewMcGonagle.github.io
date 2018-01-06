@@ -253,6 +253,7 @@ plt.show()
 # Cantor tones come from the C chord. The second come from an F chord. The third come from the G chord.
 # Our C-F-G chord progression reference is:
 # https://www.uberchord.com/blog/5-popular-common-guitar-chord-progressions-song-writers/
+
 chords = [[261.6, 329.6, 392.0, 523.3, 659.3], # C Chord on Guitar
           [174.6, 261.6, 349.2, 440.0, 523.3, 349.2], # F Chord on Guitar
           [196.0, 246.9, 293.7, 392.0, 587.3, 784.0]] # G Chord on Guitar 
