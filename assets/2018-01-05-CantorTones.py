@@ -84,8 +84,13 @@ class ToneManipulator:
         nframes = int(self.framerate * duration)
         frameStart = int(self.framerate * tStart)
 
-        wave = amplitude * np.sin(angularSpeed * np.arange(nframes))
-        tSeries[frameStart:frameStart + nframes] += wave
+        if frameStart > len(tSeries):
+            return
+
+        endFrame = min(len(tSeries), frameStart + nframes)
+
+        wave = amplitude * np.sin(angularSpeed * np.arange(endFrame - frameStart))
+        tSeries[frameStart:endFrame] += wave
 
     def convertToWaveData(self, tSeries):
         '''
@@ -193,7 +198,6 @@ print("Using framerate = ", framerate)
 
 nchannels = 1 
 sampleWidth = 2
-duration = 3 # in seconds
 
 # First we will create a .wav file playing notes in a C chord (as found on a guitar) in progression. 
 # So we set up variables to hold information for each tone.
@@ -201,7 +205,7 @@ duration = 3 # in seconds
 
 chordFreqs = [261.6, 329.6, 392.0, 523.3, 659.3] # Frequencies of C chord on guitar.
 tStarts = [0.0, 0.5, 1.0, 1.5, 2.0]
-durations = [5.0, 3.5, 2.5, 1.5, 0.5]
+durations = [4.5, 3.5, 2.5, 1.5, 0.5]
 
 manip = ToneManipulator(framerate)
 waveform = manip.createZeroSeries(durations[0])
@@ -249,14 +253,10 @@ wave_writer.close()
 plt.plot(waveform)
 plt.show()
 
-# Now let's put in a series of Cantor tones. We will use a C-F-G chord progression. So the tones of the first
-# Cantor tones come from the C chord. The second come from an F chord. The third come from the G chord.
-# Our C-F-G chord progression reference is:
-# https://www.uberchord.com/blog/5-popular-common-guitar-chord-progressions-song-writers/
+# Now let's put in a series of Cantor tones. We will use the chord progression from the beginning of the song "House of the Rising Sun" by The Animals as described in the guitar tabs contained at https://tabs.ultimate-guitar.com/tab/the_animals/house_of_the_rising_sun_tabs_45131.
 
-chords = [[261.6, 329.6, 392.0, 523.3, 659.3], # C Chord on Guitar
-          [174.6, 261.6, 349.2, 440.0, 523.3, 349.2], # F Chord on Guitar
-          [196.0, 246.9, 293.7, 392.0, 587.3, 784.0]] # G Chord on Guitar 
+duration = 3.0 # Each cantor progression will last 3 seconds.
+
 chords = [[220.0, 349.2, 440.0, 523.3, 659.3], # Am chord on guitar.
           [261.6, 329.6, 392.0, 523.3, 659.3], # C chord on guitar.
           [293.7, 440.0, 587.3, 740.0], # D chord on guitar.
@@ -266,21 +266,23 @@ chords = [[220.0, 349.2, 440.0, 523.3, 659.3], # Am chord on guitar.
           [220.0, 349.2, 440.0, 523.3, 659.3], # Am chord on guitar.
           [164.8, 246.9, 329.6, 415.3, 493.9, 659.3]] # E chord on guitar.
 
-waveform = manip.createZeroSeries(duration * 6)
-for start, chord in zip(duration * np.arange(6), chords):
-    manip.addCantorTones(waveform, tStart = start, duration = duration, levelFreqs = chord, amplitude = 1.0) 
-data = manip.convertToWaveData(waveform)
-
-# Write the .wav file.
+# Open the .wav file to write.
 
 wave_writer = wave.open('2018-01-05-output/cantorProgression.wav', 'w')
 wave_writer.setnchannels(nchannels)
 wave_writer.setsampwidth(sampleWidth)
 wave_writer.setframerate(framerate)
-wave_writer.writeframesraw(data)
+
+# For each list of chord frequencies in chords, add an arrangement of Cantor tones for the chord.
+
+for chord in chords:
+
+    # Re-zero our waveform.
+    waveform = manip.createZeroSeries(duration)
+
+    # We will be adding waveform to the end of the .wav file, so tStart is just 0.0 seconds.
+    manip.addCantorTones(waveform, tStart = 0.0, duration = duration, levelFreqs = chord, amplitude = 1.0) 
+    data = manip.convertToWaveData(waveform)
+    wave_writer.writeframesraw(data)
+
 wave_writer.close()
-
-# Grapht the waveform.
-
-plt.plot(waveform)
-plt.show()
