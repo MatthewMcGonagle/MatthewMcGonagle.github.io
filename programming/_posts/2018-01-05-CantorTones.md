@@ -92,7 +92,8 @@ class ToneManipulator:
 
     def addWave(self, tSeries, tStart, frequency, amplitude, duration):
         '''
-        Add a wave (giving a certain tone) into a waveform time series.
+        Add a wave (giving a certain tone) into a waveform time series. It will only add in the part of the wave
+        that actually fits into the waveform time series.
 
         Parameters
         ----------
@@ -108,15 +109,32 @@ class ToneManipulator:
             The amplitude to give the new wave.
         duration : Float
             How long to make the wave in seconds. This will be converted to the correct number of frames.
-            It is up to the user to make sure the wave will fit inside tSeries, else you will get an exception
-            from Numpy where arrays of different shapes can't be cast together.
+            If the wave won't fit into the time series, then the part that doesn't fit will be cut off and 
+            not added in.
         '''
+
+        # If the start of the wave is before 0.0, then cut off the part of the wave that happens 
+        # before 0.0. If there is nothing left of the wave, then just exit.
+
+        if tStart < 0.0:
+           duration += tStart
+           tStart = 0.0
+           if duration < 0.0:
+              return 
+
+        # Now set up necessary parameters.
+
         angularSpeed = 2.0 * np.pi * frequency / self.framerate
         nframes = int(self.framerate * duration)
         frameStart = int(self.framerate * tStart)
 
-        wave = amplitude * np.sin(angularSpeed * np.arange(nframes))
-        tSeries[frameStart:frameStart + nframes] += wave
+        if frameStart > len(tSeries):
+            return
+
+        endFrame = min(len(tSeries), frameStart + nframes)
+
+        wave = amplitude * np.sin(angularSpeed * np.arange(endFrame - frameStart))
+        tSeries[frameStart:endFrame] += wave
 
     def convertToWaveData(self, tSeries):
         '''
@@ -194,7 +212,9 @@ class ToneManipulator:
 
     def addCantorTones(self, tSeries, tStart, duration, levelFreqs, amplitude):
         '''
-        Public function to add cantor tones into a waveform.
+        Public function to add cantor tones into a waveform. It will only add in the part of the Cantor Tones
+        that actually fits into the waveform time series.
+
         Members
         -------
         self : 
@@ -202,8 +222,8 @@ class ToneManipulator:
         tSeries : Numpy Array.
             Waveform that cantor tones are added to.
         duration : Float
-            The length that the cantor tones last overall in seconds. It is up to the user to make sure the 
-            cantor tones fits into tSeries.
+            The length that the cantor tones last overall in seconds. If the duration does not fit into
+            the time series then the amount that doesn't fit will be cut off. 
         levelFreqs: Array
             An array of frequencies for the tones at each level. The length of the array determines the
             number of levels to add.
@@ -226,5 +246,155 @@ maxFreq = 790 # Hz, i.e. periods per second.
 framerate = minFramesPerPeriod * maxFreq 
 print("Using framerate = ", framerate)
 ```
+We get the following output
+```
+Using framerate =  7900
+```
+
+Now let's write in the notes of the chord and convert the numpy array of our waveform to data usable in a .wav file.
+``` python
+# Parameters for .wav file.
+
+nchannels = 1 
+sampleWidth = 2
+
+# First we will create a .wav file playing notes in a C chord (as found on a guitar) in progression. 
+# So we set up variables to hold information for each tone.
+# Reference for frequencies of notes are https://www.seventhstring.com/resources/notefrequencies.html 
+
+chordFreqs = [261.6, 329.6, 392.0, 523.3, 659.3] # Frequencies of C chord on guitar.
+tStarts = [0.0, 0.5, 1.0, 1.5, 2.0]
+durations = [4.5, 3.5, 2.5, 1.5, 0.5]
+
+manip = ToneManipulator(framerate)
+waveform = manip.createZeroSeries(durations[0])
+
+for freq, tStart, duration in zip(chordFreqs, tStarts, durations):
+
+    print("Adding frequency ", freq, " to C chord waveform.")
+    manip.addWave(waveform, tStart = tStart, frequency = freq, amplitude = 1.0, duration = duration)  
+
+data = manip.convertToWaveData(waveform)
+```
+
+Now let's open a .wav file and write the data to file.
+``` python
+# Open a .wav file and write in the data.
+
+wave_writer = wave.open('2018-01-05-output/cchord.wav', 'w')
+wave_writer.setnchannels(nchannels)
+wave_writer.setsampwidth(sampleWidth)
+wave_writer.setframerate(framerate)
+wave_writer.writeframesraw(data)
+wave_writer.close()
+```
+If you wish, you can [download cchord.wav (72kB)]({{site . url}}/assets/2018-01-05-output/cchord.wav) to hear what it sounds like. 
+
+Now, let's graph the waveform to get an idea of what it looks like.
+``` python
+# Graph what the waveform looks like
+
+times = np.arange(len(waveform)) / framerate
+fig = plt.figure(figsize = (6,3))
+plt.plot(times, waveform)
+plt.title('Waveform for cchord.wav')
+plt.ylabel('Waveform Value')
+plt.xlabel('Time (s)')
+plt.tight_layout()
+plt.savefig('2018-01-05-output/cchord.png')
+```
+Here is the graph of the waveform for cchord.wav. Note, that we periods of the individual tones are too small to see at the graph's scale. However, we can see the waves in their amplitudes when they are added together (which if you will recall from trigonometry, is actually at a much lower frequency than the original waves).
+
+![Waveform of cchord.wav]({{site . url}}/assets/2018-01-05-output/cchord.png)
+
+## Testing a Cantor Progression
+
+Now let's test our function for adding in a Cantor progression of tones.
+
+``` python
+# Now let's try set of Cantor tones; the frequency to use at each level will be a frequency 
+# from the guitar C chord.
+
+duration = 5.0 # Now let the .wav file last 5 seconds.
+waveform = manip.createZeroSeries(duration)
+manip.addCantorTones(waveform, tStart = 0, duration = duration, levelFreqs = chordFreqs, amplitude = 1.0) 
+data = manip.convertToWaveData(waveform)
+
+# Write the .wav file.
+
+wave_writer = wave.open('2018-01-05-output/cantor.wav', 'w')
+wave_writer.setnchannels(nchannels)
+wave_writer.setsampwidth(sampleWidth)
+wave_writer.setframerate(framerate)
+wave_writer.writeframesraw(data)
+wave_writer.close()
+```
+
+You can [download cantor.wav (80 kB)]({{site . url}}/assets/2018-01-05-output/cantor.wav) to hear the result.
+
+Next, let's graph the waveform.
+``` python
+# Graph the waveform.
+
+plt.clf()
+times = np.arange(len(waveform)) / framerate
+plt.plot(times, waveform)
+plt.xlabel('Time (s)')
+plt.ylabel('Waveform Value')
+plt.title('Waveform for cantor.wav')
+plt.tight_layout()
+plt.savefig('2018-01-05-output/cantorwaveform.png')
+```
+Here is a graph of the waveform:
+
+![Waveform for cantor.wav]({{site . url}}/assets/2018-01-05-output/cantorwaveform.png)
+
+## Multiple Cantor Progressions
+
+Now let's do a chord progression using a Cantor arrangement for each chord. We will use the chord progression for the beginning of the song "House of the Rising Sun" by The Animals. We will use the chord progression found in [this guitar tab](https://tabs.ultimate-guitar.com/tab/the_animals/house_of_the_rising_sun_tabs_45131)
+
+``` python
+# Now let's put in a series of Cantor tones. We will use the chord progression from the beginning of 
+# the song "House of the Rising Sun" by The Animals as described in the guitar tabs contained at 
+# https://tabs.ultimate-guitar.com/tab/the_animals/house_of_the_rising_sun_tabs_45131.
+
+duration = 3.0 # Each cantor progression will last 3 seconds.
+
+# Frequencies of notes on guitar for different chords.
+
+chordFreqs = {'Am' : [220.0, 349.2, 440.0, 523.3, 659.3],
+              'C' : [261.6, 329.6, 392.0, 523.3, 659.3],
+              'D' : [293.7, 440.0, 587.3, 740.0],
+              'F' : [349.2, 440.0, 523.3, 698.5],
+              'E' : [164.8, 246.9, 329.6, 415.3, 493.9, 659.3] }
+
+# The chord progression.
+
+chords = ['Am', 'C', 'D', 'F', 'Am', 'E', 'Am', 'E']
+
+# Open the .wav file to write.
+
+wave_writer = wave.open('2018-01-05-output/cantorProgression.wav', 'w')
+wave_writer.setnchannels(nchannels)
+wave_writer.setsampwidth(sampleWidth)
+wave_writer.setframerate(framerate)
+
+# For each list of chord frequencies in chords, add an arrangement of Cantor tones for the chord.
+
+for chord in chords:
+
+    # Re-zero our waveform.
+    waveform = manip.createZeroSeries(duration)
+
+    # We will be adding waveform to the end of the .wav file, so tStart is just 0.0 seconds.
+    manip.addCantorTones(waveform, tStart = 0.0, duration = duration, 
+                         levelFreqs = chordFreqs[chord], amplitude = 1.0) 
+    data = manip.convertToWaveData(waveform)
+    wave_writer.writeframesraw(data)
+
+wave_writer.close()
+```
+
+You can [download cantorProgression.wav (372 kB)]({{site . url}}/assets/2018-01-05-output/cantorProgression.wav) to hear the result.
 
 ## [Download the Source Code for this Post]({{site . url}}/assets/2018-01-05-CantorTones.py)
