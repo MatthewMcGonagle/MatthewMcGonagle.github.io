@@ -280,18 +280,25 @@ plt.title('Waveform for cantor.wav')
 plt.tight_layout()
 plt.savefig('2018-01-05-output/cantorwaveform.png')
 
-# Now let's put in a series of Cantor tones. We will use the chord progression from the beginning of the song "House of the Rising Sun" by The Animals as described in the guitar tabs contained at https://tabs.ultimate-guitar.com/tab/the_animals/house_of_the_rising_sun_tabs_45131.
+# Now let's put in a series of Cantor tones. We will use the chord progression from the beginning of 
+# the song "House of the Rising Sun" by The Animals as described in the guitar tabs contained at 
+# https://tabs.ultimate-guitar.com/tab/the_animals/house_of_the_rising_sun_tabs_45131.
 
 duration = 3.0 # Each cantor progression will last 3 seconds.
 
-chords = [[220.0, 349.2, 440.0, 523.3, 659.3], # Am chord on guitar.
-          [261.6, 329.6, 392.0, 523.3, 659.3], # C chord on guitar.
-          [293.7, 440.0, 587.3, 740.0], # D chord on guitar.
-          [349.2, 440.0, 523.3, 698.5], # F chord on guitar
-          [220.0, 349.2, 440.0, 523.3, 659.3], # Am chord on guitar.
-          [164.8, 246.9, 329.6, 415.3, 493.9, 659.3], # E chord on guitar.
-          [220.0, 349.2, 440.0, 523.3, 659.3], # Am chord on guitar.
-          [164.8, 246.9, 329.6, 415.3, 493.9, 659.3]] # E chord on guitar.
+# Frequencies of notes on guitar for different chords.
+
+chordFreqs = {'Am' : [220.0, 349.2, 440.0, 523.3, 659.3],
+              'C' : [261.6, 329.6, 392.0, 523.3, 659.3],
+              'D' : [293.7, 440.0, 587.3, 740.0],
+              'F' : [349.2, 440.0, 523.3, 698.5],
+              'E' : [164.8, 246.9, 329.6, 415.3, 493.9, 659.3] }
+
+# The chord progression.
+
+chords = [chordFreqs['Am'], chordFreqs['C'], chordFreqs['D'],
+          chordFreqs['F'], chordFreqs['Am'], chordFreqs['E'],
+          chordFreqs['Am'], chordFreqs['E']]
 
 # Open the .wav file to write.
 
