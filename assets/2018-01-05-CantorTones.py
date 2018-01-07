@@ -61,7 +61,8 @@ class ToneManipulator:
 
     def addWave(self, tSeries, tStart, frequency, amplitude, duration):
         '''
-        Add a wave (giving a certain tone) into a waveform time series.
+        Add a wave (giving a certain tone) into a waveform time series. It will only add in the part of the wave
+        that actually fits into the waveform time series.
 
         Parameters
         ----------
@@ -77,9 +78,21 @@ class ToneManipulator:
             The amplitude to give the new wave.
         duration : Float
             How long to make the wave in seconds. This will be converted to the correct number of frames.
-            It is up to the user to make sure the wave will fit inside tSeries, else you will get an exception
-            from Numpy where arrays of different shapes can't be cast together.
+            If the wave won't fit into the time series, then the part that doesn't fit will be cut off and 
+            not added in.
         '''
+
+        # If the start of the wave is before 0.0, then cut off the part of the wave that happens 
+        # before 0.0. If there is nothing left of the wave, then just exit.
+
+        if tStart < 0.0:
+           duration += tStart
+           tStart = 0.0
+           if duration < 0.0:
+              return 
+
+        # Now set up necessary parameters.
+
         angularSpeed = 2.0 * np.pi * frequency / self.framerate
         nframes = int(self.framerate * duration)
         frameStart = int(self.framerate * tStart)
@@ -168,7 +181,9 @@ class ToneManipulator:
 
     def addCantorTones(self, tSeries, tStart, duration, levelFreqs, amplitude):
         '''
-        Public function to add cantor tones into a waveform.
+        Public function to add cantor tones into a waveform. It will only add in the part of the Cantor Tones
+        that actually fits into the waveform time series.
+
         Members
         -------
         self : 
@@ -176,8 +191,8 @@ class ToneManipulator:
         tSeries : Numpy Array.
             Waveform that cantor tones are added to.
         duration : Float
-            The length that the cantor tones last overall in seconds. It is up to the user to make sure the 
-            cantor tones fits into tSeries.
+            The length that the cantor tones last overall in seconds. If the duration does not fit into
+            the time series then the amount that doesn't fit will be cut off. 
         levelFreqs: Array
             An array of frequencies for the tones at each level. The length of the array determines the
             number of levels to add.
