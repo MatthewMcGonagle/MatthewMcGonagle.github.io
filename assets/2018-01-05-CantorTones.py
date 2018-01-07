@@ -243,8 +243,14 @@ wave_writer.close()
 
 # Graph what the waveform looks like
 
-plt.plot(waveform)
-plt.show()
+times = np.arange(len(waveform)) / framerate
+fig = plt.figure(figsize = (6,3))
+plt.plot(times, waveform)
+plt.title('Waveform for cchord.wav')
+plt.ylabel('Waveform Value')
+plt.xlabel('Time (s)')
+plt.tight_layout()
+plt.savefig('2018-01-05-output/cchord.png')
 
 # Now let's try set of Cantor tones; the frequency to use at each level will be a frequency 
 # from the guitar C chord.
@@ -265,8 +271,14 @@ wave_writer.close()
 
 # Graph the waveform.
 
-plt.plot(waveform)
-plt.show()
+plt.clf()
+times = np.arange(len(waveform)) / framerate
+plt.plot(times, waveform)
+plt.xlabel('Time (s)')
+plt.ylabel('Waveform Value')
+plt.title('Waveform for cantor.wav')
+plt.tight_layout()
+plt.savefig('2018-01-05-output/cantorwaveform.png')
 
 # Now let's put in a series of Cantor tones. We will use the chord progression from the beginning of the song "House of the Rising Sun" by The Animals as described in the guitar tabs contained at https://tabs.ultimate-guitar.com/tab/the_animals/house_of_the_rising_sun_tabs_45131.
 
