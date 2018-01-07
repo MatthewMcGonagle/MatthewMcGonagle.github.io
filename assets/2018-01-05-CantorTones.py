@@ -296,9 +296,7 @@ chordFreqs = {'Am' : [220.0, 349.2, 440.0, 523.3, 659.3],
 
 # The chord progression.
 
-chords = [chordFreqs['Am'], chordFreqs['C'], chordFreqs['D'],
-          chordFreqs['F'], chordFreqs['Am'], chordFreqs['E'],
-          chordFreqs['Am'], chordFreqs['E']]
+chords = ['Am', 'C', 'D', 'F', 'Am', 'E', 'Am', 'E']
 
 # Open the .wav file to write.
 
@@ -315,7 +313,8 @@ for chord in chords:
     waveform = manip.createZeroSeries(duration)
 
     # We will be adding waveform to the end of the .wav file, so tStart is just 0.0 seconds.
-    manip.addCantorTones(waveform, tStart = 0.0, duration = duration, levelFreqs = chord, amplitude = 1.0) 
+    manip.addCantorTones(waveform, tStart = 0.0, duration = duration, 
+                         levelFreqs = chordFreqs[chord], amplitude = 1.0) 
     data = manip.convertToWaveData(waveform)
     wave_writer.writeframesraw(data)
 
