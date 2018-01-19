@@ -33,11 +33,11 @@ Now we are left with two possibilities:
 
 * The parent `P` of node `N` is also red; the red-black structure is damaged and we must fix it. 
 
-So now let us continue with the assumption that we are in the scenario that `P` is also red. Let us label the (possible empty) sibling sub-tree of `N` as `A`. So we are in the following scenario:
+So now let us continue with the assumption that we are in the scenario that `P` is also red. Let us label the (possible empty) sibling sub-tree of `N` as `Z` (sub-trees on pictures of the level of `P` and `N` will always be labeled with `X`, `Y`, and `Z`). So we are in the following scenario:
 
 ![Parent Also Red]({{site . url}}/assets/2018-01-20-pics/redParent.svg)
 
-Note that we have colored the lower part of the sub-tree as red and black as we don't know the color of any of the nodes that occur there (if there are any). However, the root of `A` must be black (if it exists) so it is colored black. We will use a similar convention throughout our discussion.
+Note that we have colored the lower part of the sub-tree as red and black as we don't know the color of any of the nodes that occur there (if there are any). However, the root of `Z` must be black (if it exists) so it is colored black. We will use a similar convention throughout our discussion.
 
 Okay, so the problem with our red-black tree is that we now have a red node `P` with a red child `N`. Well, this is an easy fix; just color `P` black. We do so, but this creates an imbalance in the black nodes. So we trade one problem with the red-black structure for another. So we are now in the following situation:
 
@@ -53,7 +53,7 @@ Since `P` was originally red, its parent `G` (i.e. the grandparent of `N`) must 
 
 ![Unbalanced P Sibling Red]({{site . url}}/assets/2018-01-20-pics/unbalancedBlack2B.svg)
 
-Note that the black box and "+1" indicates that the left paths below `G` contain one extra black node. We have also chosen to relabel the sub-trees using `A`, `B`, `C`, and `D`.
+Note that the black box and "+1" indicates that the left paths below `G` contain one extra black node. We have also chosen to label the sub-trees on the level of `P` and `G` using `A`, `B`, `C`, and `D`.
 
 The fix here is easy: switch the color of `G` and `U`. This removes a black node from the left paths while keeping the number of black nodes in the right path the same. So we get:
 
@@ -75,7 +75,9 @@ Next, let's consider the case that `U` is black.
 
 ## First Step `P`'s Sibling is Black
 
-Now consider the case that `U` is black. Note that we now don't know the color of `U`'s children. For now, forget the color of `N`; let's see if we can fix the imbalance in black nodes without using this information. So we have the following situation:
+Now consider the case that `U` is black. Also, assume that `P` is the left child of `G`; we will assume this for the rest of post. For the other case, see the brief discussion in the last section at the bottom of this post.
+
+Note that we now don't know the color of `U`'s children. For now, forget the color of `N`; let's see if we can fix the imbalance in black nodes without using this information. So we have the following situation:
 
 ![P Sibling Also Black]({{site . url}}/assets/2018-01-20-pics/unbalancedBlack3B.svg) 
 
