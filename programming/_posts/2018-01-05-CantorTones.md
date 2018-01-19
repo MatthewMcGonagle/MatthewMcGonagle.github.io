@@ -1,7 +1,7 @@
 ---
 layout: post
 title: Making an Audio .wav File of Cantor Tones
-data: 2018-01-05
+date: 2018-01-05
 ---
 
 ## [Download the Source Code for this Post]({{site . url}}/assets/2018-01-05-CantorTones.py) 
