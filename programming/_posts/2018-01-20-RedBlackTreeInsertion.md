@@ -99,4 +99,65 @@ So we see that
 
 * Paths through sub-tree `A` lose one of the green node.
 * Paths through sub-tree `B` (the sub-tree we "rotate" around) don't change their color count.
-* Paths through sub-trees `C` and `D` gain one the blue node.
+* Paths through sub-trees `C` and `D` gain one of the blue node.
+
+Next, let's try using a rotation as the next step in fixing the unbalance for the case of `P`'s sibling being a black node.
+
+## Second Step for `P`'s Sibling is Black
+
+In our last step, our last action was to change `G` to a red node, resulting in the right child paths through `G` missing one black node. Paths that go through sub-tree `B` are already balanced; so sub-tree `B` is a good candidate for a rotation. Since `G` is red, the rotation doesn't affect the black balance of paths going through sub-tree `A`. 
+The rightward paths going through node `U` will then pick up the black node they are missing. So we get:
+
+![Rotated P's Sibling Black]({{site . url}}/assets/2018-01-20-pics/unbalancedBlack3B3.svg)
+
+Now all of the black nodes are balanced, BUT the left child of `G` could potentially create a problem with the red-black property that no red node should have a red child. This is highlighted with the magenta connection in the diagram. 
+So we need to know more information about the root of sub-tree `B` in order to make sure that we fix the red-black property; we need to make sure this root node is black (if it exists). So our recursion/inductive step needs to be a little bit stronger than simply inserting a red node. Let's take a look at the correct version in the next section. 
+
+## True Recursion/Inductive Step
+
+For our inductive step, we need to make sure we know information about the children of `N`. So we assume that:
+
+* We are inserting a red node `N`.
+* The child sub-trees of `N` are red-black trees (allow the possibility of empty trees). In particular, the children of `N` are black (when they exist). 
+* The black height of `N`'s children matches the black height of `N`'s new sibling (i.e. `P`'s other child).
+
+That is, we are in the following situation:
+
+![True Recursion]({{site . url}}/assets/2018-01-20-pics/trueRecursion.svg)
+
+Now, the cases we succesfully resolved before will be successfully resovled again; these don't take much effort to recheck, so we won't discuss them again. Let's return to the rest of the case where `P`'s sibling is a black node.
+
+## Finishing Case of `P`'s Sibling is Black
+
+Now, we return to the beginning of the case of `P`'s sibling `U` being black. We have two cases to consider.
+
+### Node `N` is a Left Child of `P`
+
+Consider the case that node `N` is a left child of `P`. In that case `P`'s right child is black (if it exists). After changing `P` to black we are in the following situation:
+
+![Solvable One Rotation]({{site . url}}/assets/2018-01-20-pics/unbalancedBlack3BSolvable.svg)
+
+Recall that the next two steps it to change `G` to red and then rotate. When considering the result of our rotation, we have that the child-subtree `B` of `G` has a black root. Therefore, the red-black properties are fixed and we are done.
+
+### Node `N` is a Right Child of `P`
+
+Consider the case that the node `N` is a right child of `P`. So we are in the following situation:
+
+![N is Right Child]({{site . url}}/assets/2018-01-20-pics/wrongSide3B.svg)
+
+In this case, if we continue as before, then `N` is the root node of the sub-tree `B` underneath `G` after the rotation. Then the red node `G` will have a red child, which violates one of the red-black properties.
+
+So, before we proceed with the steps we used before, we need to somehow put a black node where `N` is currently.
+We can do this without screwing up the black balance further by using a rotation about sub-tree `B`. After doing so we get:
+
+![After Rotation]({{site . url}}/assets/2018-01-20-pics/wrongSide3B2.svg)
+
+Now the node `N` is the red parent of the red node `P`, but aside from this role reversal, we are in the previous case we considered before. So we color node `N` to get:
+
+![Black N on Top]({{site . url}}/assets/2018-01-20-pics/wrongSide3B3.svg)
+
+Then we proceed as before by coloring `G` to be red and then performing a rotation to fix the black balance. The red-black properties will be fixed, and we are done.
+
+## Other Relative Positions 
+
+By symmetry we can consider the other possiblities for the positioning of the relative positions of `N`, `P`, and `G`. The important thing to note is that we need two rotations when `N` is inserted on the "inner most" possibility.
