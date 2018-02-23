@@ -1,0 +1,134 @@
+\documentclass{article}
+\usepackage{amsmath, amssymb}
+
+\newcommand{\pRun}{p}
+\newcommand{\expTermi}{e^{- \lambda T_i}}
+\newcommand{\commonDenom}{1 - \pRun + \pRun \expTermi} 
+
+\title{Regression for Randomly Running A Poisson Process}
+\author{Matthew McGonagle}
+
+\begin{document}
+
+\maketitle
+
+Here we record the calculations for doing a regression on the combination of doing a Bernoulli trial to determine whether to run a Poisson process on a length of time \(T\). When we don't run the poisson process, we have a resulting count of 0.
+
+\begin{itemize}
+\item Let \(\pRun\) be the probability of choosing to run the Poisson Process.
+\item Let \(\lambda\) be the poisson density. That is, for a length of time \(T\), the poisson rate is \(\lambda T\).
+\item Let \(k\) denote the count (i.e. outcome) of a Poisson process.
+\item The sum \(\sum_{k_i = 0}\) will denote a sum over all relevant data samples \((T_i, k_i)\) where the count \(k_i\) is 0. 
+
+Similary the sum \(\sum_{k_i > 0}\) will denote a sum over all samples where the count is non-zero. 
+\end{itemize}
+
+We will perform the regression by finding the values of \(p\) and \(\lambda\) that maximize the log-likelihood for a given set of data.
+
+\section{The Log-Likelihood}
+
+First, note that when our Bernoulli trial decides that we don't run a poisson process, we get a count of 0. 
+The probabitlity of this occurring is independent of the poisson density \(\lambda\) and the length of time \(T\). 
+So we have that: 
+
+\begin{align}
+ P(0 | \pRun, \lambda, T) & = P(\text{No Poisson} | \pRun, \lambda) 
+    + P(\text{Poisson }k = 0 | \pRun, \lambda, T), \\
+& = 1 - \pRun + \pRun e^{-\lambda T}. 
+\end{align}
+
+Next, we have that for counts \(k > 0\) that we must run a Poisson process. So we have that 
+\begin{equation}
+P(k | \pRun, \lambda) = \frac{\pRun (\lambda T)^k}{k!} e^{-\lambda T}. 
+\end{equation}
+
+Our data \(X\) consists of time interval lengths \(T_i\) and response counts \(k_i\).
+We maximize the log-likelihoods \(L\) for the data \(\{(t_i, k_i)\}\). 
+The log-likelihoods are given by 
+\begin{align}
+L(X | \pRun, \lambda) & = \sum\limits_{k_i = 0} \log(1 - \pRun + \pRun \expTermi) \\
+& + \sum\limits_{k_i > 0} \left( \log \pRun + k_i \log \lambda + k_i \log T_i
+- \lambda T_i - \log k_i! \right). 
+\end{align}
+
+Note that the last summand in the second sum, \(\log k_i !\) is independent of \(\pRun\) and \(\lambda\).
+
+\section{Gradient of Log-Likelihood}
+
+Now we compute the gradient of the log-likelihoods.
+\begin{align}
+\partial L / \partial \lambda & = -\pRun \sum\limits_{k_i = 0} \frac{T_i \expTermi}{\commonDenom}
+    + \sum\limits_{k_i > 0} \left( \frac{k_i}{\lambda} - T_i\right). \\
+\partial L / \partial \pRun & =  - \sum\limits_{k_i = 0} \frac{1 - \expTermi}{\commonDenom} + \frac{1}{\pRun}\sum\limits_{k_i > 0} 1. 
+\end{align}
+
+The equations for the gradient of \(L\) look complicated, but they can be accurately summarized as two equations for the unknown variables \(\pRun\) and \(\lambda\).
+Every other term is known from the data. 
+However, the solution of these equations is not of a closed form, and so we will need to resort to numerical methods to solve them. 
+We will use the Newton method to solve for where the gradient vanishes. 
+
+\section{Hessian of Log-likelihood}
+
+To use the Newton method, we will need to compute another derivative of \(L\), i.e. the Hessian of \(L\).
+We compute
+
+\begin{align}
+\frac{\partial^2 L} {\partial \lambda^2} & = \pRun \sum\limits_{k_i = 0} \left(\frac{T_i^2 \expTermi}{\commonDenom} 
+- \frac{\pRun T_i^2 e^{-2\lambda T_i}}{\left(\commonDenom\right)^2}\right) - \frac{1}{\lambda^2}\sum\limits_{k_i > 0} k_i, \\
+& = \pRun(1 - \pRun) \sum\limits_{k_i = 0} \frac{T_i^2 \expTermi}{\left(\commonDenom\right)^2} - \frac{1}{\lambda^2} \sum\limits_{k_i > 0} k_i. 
+\end{align}
+
+We compute the next second derivative:
+\begin{align}
+\frac{\partial^2 L} {\partial \pRun^2} & = - \sum\limits_{k_i = 0} \frac{\left(1 - \expTermi\right)^2}{\left(\commonDenom\right)^2} - \frac{1}{\pRun^2} \sum\limits_{k_i > 0} 1. 
+\end{align}
+
+Next, we compute the mixed second derivatives:
+\begin{align}
+\frac{\partial^2 L} {\partial \pRun \partial \lambda} & = - \sum\limits_{k_i = 0} \left( \frac{T_i \expTermi}{\commonDenom} 
+    + \frac{\pRun T_i \left(1 - \expTermi\right) \expTermi}{\left(\commonDenom\right)^2}\right), \\
+& = - \sum\limits_{k_i = 0} \frac{T_i \expTermi}{\left(\commonDenom\right)^2}.   
+\end{align}
+
+\section{Newton Step}
+
+We start with initial guesses \(\lambda_0\) and \(\pRun_0\). To motivate some convenient guesses, note that for data points where the count is non-zero, we know that a Poisson process occurred. So as a first guess, let's just use the mean count per mean length for the portion of the data set with non-zero counts. 
+
+Once we have a guess of the density \(\lambda_0\), we use the mean length to give an expectation that a Poisson process results in a count of zero. Then we can adjust the proportion of non-zero counts to more accurately reflect the probability of running a poisson process.
+
+Therefore, convenient initial guesses are
+\begin{align}
+\lambda_0 & = \frac{\sum_{k_i > 0} k_i}{\sum_{k_i > 0} T_i}, \\
+\pRun_0 & = \frac{\sum_{k_i > 0} 1}{\left(1 - e^{-\lambda_0 \sum_i T_i / \sum_i 1}\right)\sum_{\text{all data}} 1}.
+\end{align}
+
+Now let us consider the induction step of Newton's method. We are given the current approximations \(\lambda_i\) and \(\pRun_i\). We compute new approximations \(\lambda_{i+1}\) and \(\pRun_{i+1}\) in the following manner.
+
+First recall the Hessian
+\begin{equation}
+H = 
+\begin{pmatrix}
+\frac{\partial^2 L}{\partial \lambda^2} & \frac{\partial^2 L}{\partial\lambda \partial \pRun} \\
+\frac{\partial^2 L}{\partial \lambda \partial \pRun} & \frac{\partial^2 L}{\partial \pRun^2}
+\end{pmatrix}.
+\end{equation}
+
+We solve for an update vector \(\vec u\) given by
+\begin{equation}
+H \vec u = - \begin{pmatrix} \partial L / \partial \lambda \\ \partial L / \partial \pRun \end{pmatrix}.
+\end{equation}
+
+So we get 
+\begin{equation}
+\vec u = - H^{-1} \begin{pmatrix} \partial L / \partial \lambda \\ \partial L / \partial \pRun \end{pmatrix}.
+\end{equation}
+Note that \(H\) is a \(2\times2\) matrix and so its inverse is readily found using a formula.
+
+Then we find our updated approximations from 
+\begin{equation}
+\begin{pmatrix} \lambda_{i+1} \\ \pRun_{i+1} \end{pmatrix} = 
+\vec u + \begin{pmatrix} \lambda_i \\ \pRun_i \end{pmatrix}.
+\end{equation}
+
+We repeat until we get enough convergence to approximate values of our parameters. This can be seen by looking at the history of the changes in the parameters every time we run the update step.
+\end{document}
