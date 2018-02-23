@@ -431,10 +431,12 @@ print(samples.head())
 
 samples.lengths.hist()
 plt.gca().set_title('Histogram of Lengths of Time')
+plt.savefig('2018-02-21-graphs/lengths.svg')
 plt.show()
 
 samples.counts.hist()
 plt.gca().set_title('Histogram of Counts')
+plt.savefig('2018-02-21-graphs/counts.svg')
 plt.show()
 
 # Now let's find some initial guesses for the poisson density and the probability of running a poisson process.
@@ -473,10 +475,12 @@ plt.plot(results.T[0])
 plt.title('Iterations of Fitted Poisson Density')
 plt.gca().set_xlabel('Step')
 plt.gca().set_ylabel('Fitted Poisson Density')
+plt.savefig('2018-02-21-graphs/density.svg')
 plt.show()
 
 plt.plot(results.T[1])
 plt.title('Iterations of Fitted Probability of Running Poisson')
 plt.gca().set_xlabel('Step')
 plt.gca().set_ylabel('Fitted Probability of Running Poisson')
+plt.savefig('2018-02-21-graphs/probPoisson.svg')
 plt.show()
