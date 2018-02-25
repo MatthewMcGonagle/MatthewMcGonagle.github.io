@@ -1,26 +1,225 @@
-'''
-Do regression for samples from a random process where we first randomly decide whether or not to run a Poisson Process.
+---
+layout: post
+date: 2018-02-21
+title: Regression for Randomly Choosing To Run A Poisson Process
+---
 
-For each sample, the decision is made by doing a Bernoulli trial with specified probability runProb.
-Each sample has an independent variable giving the length of time T that the Poisson process is run on. 
-The poisson rate for a length T is given by a constant Poisson rate density (denoted by pDensity) times T. 
-The response (or dependent variable) is a count of observations seen. When there is no Poisson process run,
-the count is 0. 
+## [Download the Source Code for this Post]({{site . url}}/assets/2018-02-21-RandomlyChoosingPoisson.py)
+## [Download the Notes for Calculations for the Algorithm in This Post]({{site . url}}/assets/2018-02-21-calculations.pdf)
+## [Download the LaTeX Source for the Calculation Notes]({{site . url}}/assets/2018-02-21-calculations.tex)
 
-The regression is done by numerically finding the values of runProb and pDensity that maximize the
-log-likelihoods associated with the sample data. This is done using formulas for the log-likelihoods
-and their first and second order derivatives to run the Newton method to find a critical point of the log-likelihoods.
+We will be looking at doing regression for a random process that depends on a length of time `T`; the process is done in two steps:
 
-Theoretical calculations related to how the functions in the program work can be found in the file '2018-02-21-calculations.pdf'. The
-LaTeX source for the calculations are in '2018-02-21-calculations.tex'.
-'''
+1. First run a Bernoulli trial to determine whether or not to run a Poisson process. We will denote the probability that we run
+a Poisson process by `pRun`. If we do not run a poisson process, then we just return a count of 0; else, we continue on to step 2.
 
+2. We now run a Poisson process with fixed poisson density denoted by `pDensity`; so the Poisson rate is the product `T * pDensity`. So our model simply
+uses a Poisson rate that scales linearly with the length of the interval of time `T`. 
+
+We will explicitly generate samples from such a random process, fixing the parameters to be of `pRun = 0.75` and `pDensity = 0.015`. The lengths of time `T` for each data point will be drawn
+from a uniform distribution from `T = 0` to `T = 100`. We will make `5000` samples.
+
+Then using simply the data of times and counts, we will use regression to try to reproduce the true values of `pRun` and `pDensity`. The regression will be done by 
+maximizing the log-likelihoods of the two parameters given the data samples. This optimization is done using the Newton method to find where gradient vanishes.
+
+After the regression we will find fitted values of our parameters to be 
+
+```
+Fitted pRun = 0.75413365449
+Fitted pDensity = 0.0145516689881
+```
+
+We will need to import the following modules for this post:
+
+```python
 import numpy as np    # Necessary for calculations.
 import matplotlib.pyplot as plt    # For plotting results.
 import pandas as pd    # For histogram creation.
+```
+## Generating Samples of the Random Process
 
+Now let's generate the samples for our random process. First, let's fix a random seed for consistency:
+
+```python
 np.random.seed(20180223)
+```
 
+Now let's fix the parameters used to generate the samples of our random process:
+
+```python
+# Set up parameters for sampling the time lengths and the parameters for the model.
+
+maxLength = 100
+pDensity = 1.5 / maxLength  
+probDoPoisson = 0.75
+nSamples = 5000
+
+print('True poisson density = ', pDensity)
+print('True probability of running poisson = ', probDoPoisson)
+```
+
+We have that
+```
+True poisson density =  0.015
+True probability of running poisson =  0.75
+```
+
+Now let's generate the samples of lengths of time `T`:
+
+```python
+# Set up sample of length by using a uniform distribution from 0 to maxLength.
+
+lengths = np.random.uniform(0, maxLength, size = nSamples)
+```
+
+When we set up the counts, we create samples of uniform distribution and samples of poisson distribution for all samples. The uniform distribution
+is our Bernoulli trial to determine whether to run a Poisson process. So for each uniform sample in the correct range of values, we keep the poisson sample
+as the count. For those uniform samples that are not in the right range, we just set the count to be zero.
+
+```python
+# Now set up the samples of the counts. First set up samples of bernoulli trial.
+counts = np.random.uniform(size = lengths.shape)
+
+# Now set up whether to include a poisson sample based on probDoPoisson. If not, then just make the count 0.
+
+doPoissonMask = counts < probDoPoisson
+counts[~doPoissonMask] = 0
+poissons = [np.random.poisson(pDensity * x) for x in lengths]
+counts[doPoissonMask] = np.array(poissons)[doPoissonMask]
+```
+
+Let's put our sample into a pandas dataframe to make histograms of what they look like.
+
+``` python
+# Put the samples in a pandas dataframe to make some histograms.
+
+samples = pd.DataFrame(counts, columns = ['counts'])
+samples['lengths'] = lengths
+print(samples.head())
+
+samples.lengths.hist()
+plt.gca().set_title('Histogram of Lengths of Time')
+plt.savefig('2018-02-21-graphs/lengths.svg')
+plt.show()
+
+samples.counts.hist()
+plt.gca().set_title('Histogram of Counts')
+plt.savefig('2018-02-21-graphs/counts.svg')
+plt.show()
+```
+
+We find that we get:
+
+![Histogram of Lengths]({{site . url}}/assets/2018-02-21-graphs/lengths.svg)
+
+![Histogram of Counts]({{site . url}}/assets/2018-02-21-graphs/counts.svg)
+
+Next, let's look at getting some necessary initial guesses for the parameters `pRun` and `pDensity` from just the data.
+
+## Initial Guesses
+
+For a just a poisson process, we can just look at the total counts divided by the total lengths in the data set to get an estimator for `pDensity`. However, now the data with zero-counts
+aren't necessarily coming from a poisson process. They could simply be the result of the Bernoulli trial deciding to do nothing and return a count of 0. So, as a simple initial guess,
+we don't sum over all data points; we just sum over those with non-zero count.
+
+Once we have a guess for `pDensity`, we can use it to make a guess for `pRun`. We take the proportion of data samples with a count of 0, and adjust this proportion to account for Poisson process
+producing counts of 0. As a simple initial guess, we simply look at using a poisson rate that is the product of our guess for `pDensity` with the mean length `T`.
+
+``` python
+# Now let's find some initial guesses for the poisson density and the probability of running a poisson process.
+
+zeroMask = counts < 1 
+densityGuess = counts[~zeroMask].sum() / lengths[~zeroMask].sum()
+pRunGuess = (counts > 0).sum() / (1 - np.exp(-densityGuess * lengths.mean()))
+pRunGuess = pRunGuess / counts.sum()
+print('Initial Poisson Density Guess = ', densityGuess)
+print('Initial Probability Running Poisson Guess = ', pRunGuess)
+```
+
+We have:
+
+```
+Initial Poisson Density Guess =  0.0244753634256
+Initial Probability Running Poisson Guess =  0.92165214327
+```
+
+Compared to the true values of `pDensity = 0.015` and `pRun` = 0.75`, we can see that these initial estimates aren't relatively close to the true values. Now let's look at improving them with our regression.
+
+## Doing the Regression
+
+We will construct a class `RandomlyRunPoisson` for doing the regression on our data. Later we will go into the exact construction of the class, but for now we want to just discuss using it to do our regression and take a look at the results.
+
+When we initialize an instance of `RandomlyRunPoisson`, we feed it our initial guesses. However, for some reason, giving an initial guess of `pRun` that is significantly higher than the true value causes
+the regression algorithm to diverge to garbage values. So it is safer to give an estimate that is LOWER than the true values of `pRun`. So we will intentionally feed it a value that we know suspect is much smaller.
+
+``` python
+# For some reason, model tends to diverge if the guess for the probability of running the poisson process
+# is higher than the actual value. So it seems safer to just put in a guess that is lower.
+
+model = RandomlyRunPoisson(pDensityGuess = densityGuess, pRunGuess = pRunGuess / 2)
+```
+
+Now, when we run the algorithm to fit the regression, it will iterate over values it finds to approximate the true values. The output of our fit will be the history of values it has found.
+So we will be able to view this history and get an idea of the convergence.
+
+``` python
+# Now fit the model to the data. Using 50 steps seems to work well enough.
+
+results = model.fit(lengths, counts, nSteps = 50)
+print('Final Poisson Density = ', results[-1, 0])
+print('Final Probability of Running Poisson = ', results[-1, 1])
+```
+
+We get that:
+```
+Final Poisson Density =  0.0145516689881
+Final Probability of Running Poisson =  0.75413365449
+```
+
+Now, let's take a look at the graphs of the parameters over the history of the iterations.
+
+``` python
+# Now let's plot how the parameters changed over time during the fitting of the model.
+
+plt.plot(results.T[0])
+plt.title('Iterations of Fitted Poisson Density')
+plt.gca().set_xlabel('Step')
+plt.gca().set_ylabel('Fitted Poisson Density')
+plt.savefig('2018-02-21-graphs/density.svg')
+plt.show()
+
+plt.plot(results.T[1])
+plt.title('Iterations of Fitted Probability of Running Poisson')
+plt.gca().set_xlabel('Step')
+plt.gca().set_ylabel('Fitted Probability of Running Poisson')
+plt.savefig('2018-02-21-graphs/probPoisson.svg')
+plt.show()
+```
+
+The graphs are:
+
+![Graph of Fitted pRun over History of Iterations]({{site . url}}/assets/2018-02-21-graphs/probPoisson.svg)
+
+![Graph of Fitted pDensity over History of Iterations]({{site . url}}/assets/2018-02-21-graphs/density.svg)
+
+Next, let's take a look of the details of the class `RandomlyRunPoisson`.
+
+## Detail of Class `RandomlyRunPoisson`
+
+An important part of understanding the implementation details is understanding the calculations that go into finding the maximum of the log-likelihoods.4
+I don't have MathJax enabled on this post, so the only nice way of discussing these calculations is to put them in a LaTeX file and create a pdf file. The 
+[pdf file of the calculations is here]({{site . url}}/assets/2018-02-21-calculations.pdf) and the [LaTex source is here]({{site .url}}/assets/2018-02-21-calculations.tex);
+the calculations require understanding vector calculus and some basics on log-likelihood. 
+
+Now, for the class `RandomlyRunPoisson`, we make some user facing functions for finding the log-likelihood, its gradient, and its hessian given the current approximate values and the data set.
+These public facing methods are not meant to be efficient. They are mostly for debugging purposes or for presenting results. 
+
+The internal process of fitting the regression is done in such a way as to reduce the need for redundant calculations. This involves recording information for each data point in arrays as the fitting
+process is done. However the references to these arrays are freed when the fitting process is done. So after the fitting is done, the instance of the class should not be holding onto large sections of
+memory.
+
+Now, for the actual details:
+``` python
 class RandomlyRunPoisson:
     '''
     Defines an instance of a model that given a non-negative length of time T, it randomly finds a
@@ -393,94 +592,9 @@ class RandomlyRunPoisson:
         self.denoms2  = None
          
         return np.array(results)
+```
 
+## [Download the Source Code for this Post]({{site . url}}/assets/2018-02-21-RandomlyChoosingPoisson.py)
+## [Download the Notes for Calculations for the Algorithm in This Post]({{site . url}}/assets/2018-02-21-calculations.pdf)
+## [Download the LaTeX Source for the Calculation Notes]({{site . url}}/assets/2018-02-21-calculations.tex)
 
-########################################
-#### Main executable ###################
-########################################
-
-# Set up parameters for sampling the time lengths and the parameters for the model.
-
-maxLength = 100
-pDensity = 1.5 / maxLength  
-probDoPoisson = 0.75
-nSamples = 5000
-
-print('True poisson density = ', pDensity)
-print('True probability of running poisson = ', probDoPoisson)
-
-# Set up sample of length by using a uniform distribution from 0 to maxLength.
-
-lengths = np.random.uniform(0, maxLength, size = nSamples)
-
-# Now set up the samples of the counts. First set up samples of bernoulli trial.
-counts = np.random.uniform(size = lengths.shape)
-
-# Now set up whether to include a poisson sample based on probDoPoisson. If not, then just make the count 0.
-
-doPoissonMask = counts < probDoPoisson
-counts[~doPoissonMask] = 0
-poissons = [np.random.poisson(pDensity * x) for x in lengths]
-counts[doPoissonMask] = np.array(poissons)[doPoissonMask]
-
-# Put the samples in a pandas dataframe to make some histograms.
-
-samples = pd.DataFrame(counts, columns = ['counts'])
-samples['lengths'] = lengths
-print(samples.head())
-
-samples.lengths.hist()
-plt.gca().set_title('Histogram of Lengths of Time')
-plt.savefig('2018-02-21-graphs/lengths.svg')
-plt.show()
-
-samples.counts.hist()
-plt.gca().set_title('Histogram of Counts')
-plt.savefig('2018-02-21-graphs/counts.svg')
-plt.show()
-
-# Now let's find some initial guesses for the poisson density and the probability of running a poisson process.
-
-zeroMask = counts < 1 
-densityGuess = counts[~zeroMask].sum() / lengths[~zeroMask].sum()
-pRunGuess = (counts > 0).sum() / (1 - np.exp(-densityGuess * lengths.mean()))
-pRunGuess = pRunGuess / counts.sum()
-print('Initial Poisson Density Guess = ', densityGuess)
-print('Initial Probability Running Poisson Guess = ', pRunGuess)
-
-# For some reason, model tends to diverge if the guess for the probability of running the poisson process
-# is higher than the actual value. So it seems safer to just put in a guess that is lower.
-
-model = RandomlyRunPoisson(pDensityGuess = densityGuess, pRunGuess = pRunGuess / 2)
-
-# Take a look at what the log-likelihood and its derivaties are for our guess.
-
-ll = model.getLL(lengths, counts)
-grad = model.getLLGrad(lengths, counts)
-hess = model.getLLHessian(lengths, counts)
-
-print('ll = ', ll)
-print('Grad = \n', grad, '\nRelative Grad = \n', grad / ll)
-print('Hess = \n', hess)
-
-# Now fit the model to the data. Using 50 steps seems to work well enough.
-
-results = model.fit(lengths, counts, nSteps = 50)
-print('Final Poisson Density = ', results[-1, 0])
-print('Final Probability of Running Poisson = ', results[-1, 1])
-
-# Now let's plot how the parameters changed over time during the fitting of the model.
-
-plt.plot(results.T[0])
-plt.title('Iterations of Fitted Poisson Density')
-plt.gca().set_xlabel('Step')
-plt.gca().set_ylabel('Fitted Poisson Density')
-plt.savefig('2018-02-21-graphs/density.svg')
-plt.show()
-
-plt.plot(results.T[1])
-plt.title('Iterations of Fitted Probability of Running Poisson')
-plt.gca().set_xlabel('Step')
-plt.gca().set_ylabel('Fitted Probability of Running Poisson')
-plt.savefig('2018-02-21-graphs/probPoisson.svg')
-plt.show()
