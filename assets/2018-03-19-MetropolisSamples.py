@@ -322,7 +322,7 @@ makeUniformStep = lambda : np.random.uniform(low = -walkR, high = walkR)
 # variance of 1/2.
 
 peakCenter = 1.5
-getNormalDensity = lambda x : np.exp(-(x-peakCenter)**2) + np.exp(-(x+peakCenter)**2)
+getDesiredDensity = lambda x : np.exp(-(x-peakCenter)**2) + np.exp(-(x+peakCenter)**2)
 
 # The normalization constant for the probability distribution.
 
@@ -330,10 +330,11 @@ normalization = 1 / np.sqrt(np.pi) * 0.5
 
 # Plot what the probability distribution looks like.
 
-xvals = np.arange(-6, 6, 0.01)
-plt.plot(xvals, getNormalDensity(xvals) * normalization)
+xvals = np.arange(-6, 6, 0.1)
+plt.plot(xvals, getDesiredDensity(xvals) * normalization)
 plt.gca().set_title('True Probability Density')
 plt.gca().set_ylabel('Density')
+plt.savefig('2018-03-19-graphs/desired.svg')
 plt.show()
 
 # Set up parameters for doing Metropolis sampling.
@@ -360,27 +361,27 @@ print('wait = ', wait)
 # Get samples that are dependent.
 
 print('\nRunning Metropolis Walk')
-walk = MetropolisWalk(start, nSamples, getDensity = getNormalDensity, makeStep = makeUniformStep)
+walk = MetropolisWalk(start, nSamples, getDensity = getDesiredDensity, makeStep = makeUniformStep)
 steps = list(walk)
 steps = pd.DataFrame(steps, columns = ['position'])
 
 # Get independent samples by waiting enough steps to take a sample. 
 
 print('\nRunning Independent Metropolis Sampler')
-indMet = IndependentMetropolis(start, nSamples, getDensity = getNormalDensity, makeStep = makeUniformStep, wait = wait)
+indMet = IndependentMetropolis(start, nSamples, getDensity = getDesiredDensity, makeStep = makeUniformStep, wait = wait)
 indSteps = list(indMet)
 indSteps = pd.DataFrame(indSteps, columns = ['position'])
 
 # Some parameters used for graphing the results.
 
-dx = 0.05
+dx = 0.1
 dBin = 0.25
 bins = np.arange(-6, 6, 0.25)
 trueX = np.arange(-6, 6, dx)
 
 # Compute the true curve for the size of this population.
 
-true = getNormalDensity(trueX) * normalization * dBin * len(steps.position) 
+true = getDesiredDensity(trueX) * normalization * dBin * len(steps.position) 
 
 # Do a combination of histogram of walk values and true curve.
 
@@ -388,6 +389,7 @@ steps.position.hist(bins = bins)
 plt.plot(trueX, true, color = 'red', linewidth = 3)
 plt.legend(['True Values'])
 plt.gca().set_title('Dependent Samples')
+plt.savefig('2018-03-19-graphs/depHist.svg')
 plt.show()
 
 # Do a combination of histogram of independent samples and the true curve.
@@ -396,11 +398,12 @@ indSteps.position.hist(bins = bins)
 
 # Get the true curve.
 
-true = getNormalDensity(trueX) * normalization * dBin * len(indSteps.position)
+true = getDesiredDensity(trueX) * normalization * dBin * len(indSteps.position)
 
 plt.plot(trueX, true, color = 'red', linewidth = 3)
 plt.legend(['True Values'])
 plt.gca().set_title('Independent Metropolis')
+plt.savefig('2018-03-19-graphs/indHist.svg')
 plt.show()
 
 print('Let\'s look at the running mean for the different cases')
