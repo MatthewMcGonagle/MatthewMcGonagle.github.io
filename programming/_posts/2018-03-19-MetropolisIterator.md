@@ -27,6 +27,18 @@ We will make use of two iterator classes: `MetropolisWalk` and `IndependentMetro
 Consecutive samples from `MetropolisWalk` are not truly independent. As the name implies, the samples are drawn from a "walk." That is, one shouldn't expect two consecutive samples
 to be very far from each other.
 
+Before we begin, let's import the necessary modules and set a random seed for consistency:
+
+``` python
+import numpy as np
+import matplotlib.pyplot as plt
+import pandas as pd
+
+# Set up the random seed for numpy for consistent results.
+
+np.random.seed(20180306)
+```
+
 In the next section we will take a look at how to use these iterators, and we will investigate how the samples from `IndependentMetropolis` are better than `MetropolisWalk`.
 
 ## Using the Iterators
@@ -127,8 +139,8 @@ Now, let's use the iterators to draw samples from our desired distribution. We s
 
 print('\nRunning Metropolis Walk')
 walk = MetropolisWalk(start, nSamples, getDensity = getDesiredDensity, makeStep = makeUniformStep)
-steps = list(walk)
-steps = pd.DataFrame(steps, columns = ['position'])
+depSteps = list(walk)
+depSteps = pd.DataFrame(depSteps, columns = ['position'])
 
 # Get independent samples by waiting enough steps to take a sample. 
 
@@ -150,11 +162,11 @@ trueX = np.arange(-6, 6, dx)
 
 # Compute the true curve for the size of this population.
 
-true = getDesiredDensity(trueX) * normalization * dBin * len(steps.position) 
+true = getDesiredDensity(trueX) * normalization * dBin * len(depSteps.position) 
 
 # Do a combination of histogram of walk values and true curve.
 
-steps.position.hist(bins = bins)
+depSteps.position.hist(bins = bins)
 plt.plot(trueX, true, color = 'red', linewidth = 3)
 plt.legend(['True Values'])
 plt.gca().set_title('Dependent Samples')
@@ -187,5 +199,443 @@ will more rigorously investigate this by computing the running means and varianc
 
 ## Look at Running Means and Variances
 
-To look at the 
-## Code
+To look at the running means and variances for both sets of samples, we will create them using an iterator class for computing running means; recall that the variance of a random variable `X` can be
+computed as the difference of two means: `E(X^2) - E(X)^2`. We will call our iterator class `RunningMeans`. 
+
+Before we see the definition of `RunningMeans`, let's see how it is used to get the running statitistics of our samples:
+
+``` python
+print('Let\'s look at the running mean for the different cases')
+
+# Compute the running mean and the running variances.
+
+running = {}
+for posList, name in zip([depSteps.position, indSteps.position], ['Dep', 'Ind']):
+    newKey = 'means' + name
+    running[newKey] = list(RunningMeans(posList))
+    running[newKey] = np.array(running[newKey])
+
+    newKey2 = 'vars' + name
+    running[newKey2] = list(RunningMeans(posList**2))
+    running[newKey2] = np.array(running[newKey2]) - running[newKey]**2
+```
+
+Now, let's checkout the results of finding the running means:
+
+``` python
+true = {'means' : 0.0,
+        'vars' : 0.5 + peakCenter**2 }
+
+# Graph the running means and variations.
+
+for stat, name in zip(['means', 'vars'], ['Means', 'Variances']):
+
+    print('True value of ' + stat + ' = ', true[stat])
+    print('Last Running Mean of Dependent ' + stat + ' = ', running[stat + 'Dep'][-1])
+    print('Last Running Mean of Independent ' + stat + ' = ', running[stat + 'Ind'][-1])
+
+    # Plot the running stats.
+
+    plt.plot(running[stat + 'Dep'])
+    plt.plot(running[stat + 'Ind'])
+    plt.gca().axhline(true[stat], color = 'red')
+    plt.legend(['Dependent Samples', 'Independent Samples', 'True Value'], loc = (0.5, 0.05))
+    plt.gca().set_title('Running ' + name + ' vs Sample Number')
+    plt.gca().set_xlabel('Sample Number')
+    plt.gca().set_ylabel('Running ' + name)
+    plt.savefig('2018-03-19-graphs/running' + name + '.svg')
+    plt.show()
+
+    # Get the plot of log errors.
+
+    for dependency in ['Dep', 'Ind']:
+        absError = np.abs(running[stat + dependency] - true[stat])
+        logError = np.log(absError) / np.log(10)
+        plt.plot(logError)
+    plt.gca().set_title('Log Base 10 of Error of Running ' + name)
+    plt.gca().set_xlabel('Sample Number')
+    plt.gca().set_ylabel('Log Error')
+    plt.gca().legend(['DependentSamples', 'Independent Samples'], loc = (0.5, 0.05))
+    plt.savefig('2018-03-19-graphs/logErrors' + name + '.svg')
+    plt.show()
+```
+
+Let's take a look at the results. Here is a graph of the running means:
+
+![Graph of Running Means]({{site . url}}/assets/2018-03-19-graphs/runningMeans.svg)
+
+It is clear from the graph that the running means of the independent samples drawn by the class `IndependentMetropolis` are converging
+much better and faster to the true mean of `0`. We can get an idea of how many decimal places of accuracy these running means achieve by
+looking at the base 10 logarithms of the absolute errors:
+
+![Graph of Log Errors Running Means]({{site . url}}/assets/2018-03-19-graphs/logErrorsMeans.svg)
+
+So it looks like we have about two decimal places of accuracy for the independent samples. We can check this with the last running mean of the samples:
+
+```
+True value of means =  0.0
+Last Running Mean of Dependent means =  0.154066380049
+Last Running Mean of Independent means =  0.00536688753315
+```
+
+Its almost accurate to two decimal places, it actually rounds up to `0.01`, but it is pretty close to roughly two decimal places.
+
+Now let's check the variances:
+
+![Graph of Running Variances]({{site . url}}/assets/2018-03-19-graphs/runningVariances.svg)
+
+We see that the independent samples again have much better convergence to the true value. Let's check the log-errors:
+
+![Graph of Log Errors of Running Variances]({{site . url}}/assets/2018-03-19-graphs/logErrorsVariances.svg)
+
+So the variance of the independent samples seem to only be accurate to one decimal place. Let's check this:
+
+```
+True value of vars =  2.75
+Last Running Mean of Dependent vars =  2.49395119812
+Last Running Mean of Independent vars =  2.70635846612
+```
+
+We see that yes, it is only accurate to one decimal place (i.e. 2 significant digits).
+
+Next, let's see how to find the running means using an iterator class.
+
+## Code for Running Means
+
+At initialization, the class `RunningMeans` takes an iterable list and makes itself into an iterator for each running mean of the values in the list:
+
+``` python
+class RunningMeans:
+    '''
+    Iterator class for finding the running means of a time series of data. 
+
+    Members
+    -------
+    self.valIter : Iterator Class
+        Iterator for the time series data. 
+
+    self.valSum : Float
+        Current running sum of the data.
+
+    self.i : Int
+        The number of samples from the time series processed so far. 
+    '''
+
+    def __init__(self, valList):
+        '''
+        Initializer. 
+        
+        Parameters
+        ----------
+        valList : Iterable Object
+            Time series data. Should be able to create an iterator based on valList.
+
+        '''
+        self.valIter = iter(valList)
+        self.valSum = 0.0
+        self.i = 0
+
+    def __iter__(self):
+        '''
+        Returns self as reference to iterator.
+        '''
+        return self
+
+    def __next__(self):
+        '''
+        Get the next running mean.
+
+        Returns
+        -------
+        Float
+            The next running mean.
+        '''
+
+        # First try to get the next value from the time series. If there is no next value,
+        # then we are done, and we raise an exception to stop the iteration.
+
+        try:
+            val = next(self.valIter)
+
+        except StopIteration:
+            raise StopIteration()
+
+        # Update the necessary members and return the mean.
+
+        self.valSum += val
+        self.i += 1
+       
+        return self.valSum / self.i
+``` 
+
+Next, let's take a brief look at how the Metropolis algorithm works.
+
+## How Metropolis Works
+
+The idea is that you randomly walk around the domain of your desired probability distribution using some other simple probability distribution that we know how to draw samples from.
+In our case, this is a uniform distribution.
+
+Each step of this random walk results in a "proposal". The next sample is determined by a simple process:
+
+1. If the probability density at the proposal is higher than the last step, then the proposal is accepted.
+2. When the probability density at the proposal is NOT higher, then we randomly accept the proposal with probability given the ratio of the proposal density to the last location density. 
+3. If the proposal was accepted, then we move to the proposal location and the proposal is a new sample. If the proposal was rejected, then we stay in the same location and the new sample
+is our previous sample AGAIN.
+
+Note that in the case of rejection in step 3, we repeat our previous sample. As pointed out in the original paper by Metropolis, etal., this is absolutely necessary for the flow of probabilities
+in this markov process to balance out to the correct equilibrium state. Without this repetition, there will not be convergence.
+
+To obtain truly independent samples, we need to wait long enough for our random walk over the domain to move far enough (or at least have the opportunity to move far enough). So as described in 
+a previous section, we need to wait enough iterations of the Metropolis algorithm to collect a truly independent sample.
+
+Next, let's look at implementing the dependent sample walk part of the Metropolis algorithm.
+
+## Code for `MetropolisWalk`
+
+``` python
+class MetropolisWalk:
+    '''
+        Iterator class for generating a walk of the metropolis algorithm, i.e. it doesn't introduce waiting
+        between samples. The metropolis algorithm is used to generate samples for a probability distribution
+        when the probability density is explicitly known. The samples are generated by a walk depending on a 
+        distribution that we know how to sample from, e.g. uniform probability distribution.
+
+        Class Members
+        -------------
+        self.i : Int
+            The current sample number.
+        self.n : Int
+            The total number of samples to collect.
+        self.position : Float
+            The initial position to start the Metropolis algorithm at.
+
+        self.density : Float
+            The probability density at the current position. We record the value at the current point in
+            case probability density evaluation is expensive. 
+
+        self.getDensity : Function Reference
+            The density function for the probability distribution that we wish to draw samples from. 
+
+            Parameters
+            ----------
+            pos : Float
+            The position at which to evaluate the probability density.
+
+            Returns
+            -------
+            Float
+                The probability density at this point. Note that this does not have to be between 0 and 1, but it
+                should be non-negative.
+
+        self.makeStep : Function reference
+            The function for making the next step in the walk that we know how to draw samples from. Explicitly,
+            it should give the displacement to move the current position. The displacement should be drawn from 
+            a probability distribution that we know how to sample. For example, makeStep could return the result
+            of sampling from some fixed uniform distribution. 
+            
+            Parameters
+            ----------
+            None
+
+            Returns
+            -------
+            Float
+                The displacement to move from the current position.
+
+        self.nAccepted : Int
+            Records the number of times our walk of the metropolis algorithm has accepted a move. Can be used to
+            get an idea of the rate with which the Metropolis algorithm is rejecting moves proposed by the 
+            underlying random walk. If the rate is too high, then the walk may need to take smaller steps.
+            The trade off is that the waiting time for independent samples increases. 
+
+            The class MetropolisWalk doesn't handle waiting, but it is used to generate samples in the class  
+            IndependentMetropolis that does.
+    '''
+
+    def __init__(self, start, n, getDensity, makeStep): 
+        '''
+
+        Initializer. Initialize self.i to 0, set self.density to getDensity(start), and set self.nAccepted to 0.
+
+        Parameters
+        ----------
+        start : Float
+            Initial position to start the Metropolis walk at.
+
+        n : Int
+            The total number of samples to draw.
+
+        getDensity : Function Reference 
+            The function to use for finding the probability density at a given point. For details on how the
+            function should behave, see the docstring for self.getDensity for the class MetropolisWalk.
+
+        makeStep : Function Reference
+            The function to use for sampling the displacement from the current position in the underlying random
+            walk. For details on how the function should behave, see the docstring for self.makeStep for the
+            class MetropolisWalk.
+        '''
+
+        self.i = 0
+        self.n = n
+        self.position = start
+
+        # Get the density at the initial position.
+
+        self.density = getDensity(start)
+
+        self.getDensity = getDensity 
+        self.makeStep = makeStep 
+
+        # Initialized the number of accepted moves as zero.
+
+        self.nAccepted = 0
+
+    def __iter__(self):
+        '''
+        Called to get reference to an iterator, which is just itself.
+
+        Returns
+        -------
+        Reference to self.
+        '''
+
+        return self
+
+    def __next__(self):
+        '''
+        Called to generate next sample in the iterator.
+
+        Returns
+        -------
+        Float
+            Returns the next sample position.
+        '''
+
+        # First handle check to see if there are more samples that need to be drawn.
+
+        if self.i < self.n:
+
+            # Generate a proposed move.
+
+            proposal = self.position + self.makeStep()
+
+            # As per the Metropolis algorithm, if the probability density at the proposal is higher
+            # than the density at the current position, we automatically move to the proposal. 
+            
+            # On the other hand, if the proposal density is lower, then we use a random Bernoulli trial
+            # to decide whether to accept the proposal or stay where we are. The probability of moving
+            # is the ratio of the proposal density to the current density. The random Bernoulli trial 
+            # is accomplished using a uniform distribution. 
+
+            propDensity = self.getDensity(proposal) 
+            if propDensity > self.density:
+                accepted = True
+
+            else:
+                sample = np.random.uniform()
+                accepted = sample < (propDensity / self.density)
+
+            if accepted:
+                self.nAccepted += 1
+                self.position = proposal
+                self.density = propDensity
+
+            # Increase the sample counter.
+ 
+            self.i += 1
+
+            # As per Metropolis, we return the current position as a sample, even if we rejected 
+            # the proposal.            
+            return self.position
+
+        # If we have drawn enough samples, then we raise an excpetion to stop the iteration.
+
+        else:
+            raise StopIteration()
+```
+
+Next, let's look at the code for drawing independent samples using the Metropolis algorithm.
+
+## Code for class `IndependentMetropolis`
+
+Finally, let's look at the code for the class `IndependentMetropolis`.
+``` python
+class IndependentMetropolis(MetropolisWalk):
+    '''
+    Iterator class for getting independent samples of a given probability distribution using the Metropolis
+    algorithm. This class uses the class MetropolisWalk to draw a user specified number of dependent samples
+    (the number of such samples is also called the waiting time). Hopefully, if the user has specified a 
+    long enough waiting time, then the walk has had enough time to cover the domain of the distribution. 
+    So hopefully, the last sample from the class MetropolisWalk will be independent of the last
+    sample collected by the class IndependentMetropolis. So the class IndependentMetropolis only keeps
+    the last sample collected by the class MetropolisWalk. 
+
+    The class IndependentMetropolis inherits a large part of its initialization and members from
+    the class IndependentMetropolis.
+
+    Members
+    -------
+    self.wait : Int
+        Non-negative number of samples to draw from class MetropolisWalk before keeping a new sample. This is
+        used to help make sure the samples are closer to independent.
+
+    See members for class MetropolisWalk. 
+
+    '''
+
+    def __init__(self, start, n, getDensity, makeStep, wait): 
+        '''
+        Initializer. Calls the baseclass initializer MetropolisWalk.__init__. Also sets up the wait time
+        for drawing indpendent samples.
+
+        Parameters
+        ----------
+        See parameters for MetropolisWalk.__init__.
+
+        self.wait : Int
+            Non-negative number of samples from MetropolisWalk to ignore before keeping the sample. This is
+            used to help the samples be independent by giving the underlying random walk a chance to cover
+            the enough of the domain of the probability distribution.
+        '''
+
+        MetropolisWalk.__init__(self, start, n, getDensity, makeStep)
+        self.wait = wait
+
+    def __next__(self):
+        '''
+        Get the next independent sample from the probability distribution using the Metropolis algorithm with
+        waiting.
+
+        Returns
+        -------
+        Float
+            The next independent sample from the distribution. 
+        '''      
+
+        # If we don't have enough samples, then we need to do a Metropolis walk for a number
+        # of samples equalling the waiting time. 
+
+        if self.i < self.n:
+ 
+            walk = MetropolisWalk(self.position, self.wait, self.getDensity, self.makeStep)
+            nextSample = None
+    
+            # We don't record the samples of the walk before the end of the waiting time, but
+            # we still need to step through the iterator.
+
+            for nextSample in walk:
+               pass 
+
+            self.i += 1
+            self.position = nextSample
+
+            return nextSample
+
+        # If we already have enough samples, then raise an exception to stop iteration.
+        else:
+
+            raise StopIteration()
+```
+
+## [Download the Source Code for this Post]({{site . url}}/assets/2018-03-19-MetropolisSamples.py)
+
