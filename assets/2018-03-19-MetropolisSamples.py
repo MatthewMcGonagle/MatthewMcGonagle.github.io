@@ -362,8 +362,8 @@ print('wait = ', wait)
 
 print('\nRunning Metropolis Walk')
 walk = MetropolisWalk(start, nSamples, getDensity = getDesiredDensity, makeStep = makeUniformStep)
-steps = list(walk)
-steps = pd.DataFrame(steps, columns = ['position'])
+depSteps = list(walk)
+depSteps = pd.DataFrame(depSteps, columns = ['position'])
 
 # Get independent samples by waiting enough steps to take a sample. 
 
@@ -381,11 +381,11 @@ trueX = np.arange(-6, 6, dx)
 
 # Compute the true curve for the size of this population.
 
-true = getDesiredDensity(trueX) * normalization * dBin * len(steps.position) 
+true = getDesiredDensity(trueX) * normalization * dBin * len(depSteps.position) 
 
 # Do a combination of histogram of walk values and true curve.
 
-steps.position.hist(bins = bins)
+depSteps.position.hist(bins = bins)
 plt.plot(trueX, true, color = 'red', linewidth = 3)
 plt.legend(['True Values'])
 plt.gca().set_title('Dependent Samples')
@@ -411,7 +411,7 @@ print('Let\'s look at the running mean for the different cases')
 # Compute the running mean and the running variances.
 
 running = {}
-for posList, name in zip([steps.position, indSteps.position], ['Dep', 'Ind']):
+for posList, name in zip([depSteps.position, indSteps.position], ['Dep', 'Ind']):
     newKey = 'means' + name
     running[newKey] = list(RunningMeans(posList))
     running[newKey] = np.array(running[newKey])
@@ -425,11 +425,13 @@ true = {'means' : 0.0,
 
 # Graph the running means and variations.
 
-for stat, name in zip(['means', 'vars'], ['Means', 'Variations']):
+for stat, name in zip(['means', 'vars'], ['Means', 'Variances']):
 
     print('True value of ' + stat + ' = ', true[stat])
     print('Last Running Mean of Dependent ' + stat + ' = ', running[stat + 'Dep'][-1])
     print('Last Running Mean of Independent ' + stat + ' = ', running[stat + 'Ind'][-1])
+
+    # Plot the running stats.
 
     plt.plot(running[stat + 'Dep'])
     plt.plot(running[stat + 'Ind'])
@@ -438,7 +440,10 @@ for stat, name in zip(['means', 'vars'], ['Means', 'Variations']):
     plt.gca().set_title('Running ' + name + ' vs Sample Number')
     plt.gca().set_xlabel('Sample Number')
     plt.gca().set_ylabel('Running ' + name)
+    plt.savefig('2018-03-19-graphs/running' + name + '.svg')
     plt.show()
+
+    # Get the plot of log errors.
 
     for dependency in ['Dep', 'Ind']:
         absError = np.abs(running[stat + dependency] - true[stat])
@@ -448,4 +453,5 @@ for stat, name in zip(['means', 'vars'], ['Means', 'Variations']):
     plt.gca().set_xlabel('Sample Number')
     plt.gca().set_ylabel('Log Error')
     plt.gca().legend(['DependentSamples', 'Independent Samples'], loc = (0.5, 0.05))
+    plt.savefig('2018-03-19-graphs/logErrors' + name + '.svg')
     plt.show()
