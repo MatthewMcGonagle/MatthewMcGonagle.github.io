@@ -10,6 +10,13 @@ In this post we will look at implementing the Metropolis algorithm using iterato
 The Metropolis algorithm allows one to create samples for a probability distribution where you know the probability density at any given point. 
 We will give a brief overview of how the Metropolis algorithm works in a later section. 
 
+Note that we will be considering the more restrictive case of symmetric steps; so we are just using the Metropolis algorithm and not the more general Metropolis-Hastings algorithm. 
+Therefore, especially since we are interested in keeping our class names short, we will use the name "Metropolis" instead of "Metropolis-Hastings". So, hopefully the knowledgeable
+reader will not take any offense at our ommission of "Hastings". 
+
+If you are interested in a nice (and legally free!) reference on the Metropolis algorithm, please see [*Information Theory, Inference, and Learning Algorithms* by David MacKay](http://www.inference.org.uk/itprnn/book.pdf). 
+However, we will give a very brief overview of the Metropolis algorithm later.
+
 Now let us briefly describe iterators in python. Iterators are classes that are defined to be iterable so that you can make use of the function `next()`. Iterators make sense for
 the Metropolis algorithm as the function `next()` should just give the next random sample from our probability distribution. 
 
