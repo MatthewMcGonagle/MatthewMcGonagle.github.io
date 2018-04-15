@@ -836,7 +836,7 @@ plt.show()
 
 nVert = 2000
 initTemp = 2 / np.sqrt(nVert)
-nSteps = 8 * 10**6 
+nSteps = 10 * 10**6 
 decimalCool = 2.0
 cooling = np.exp(-np.log(10) * decimalCool / nSteps) 
 nPrint = 200
