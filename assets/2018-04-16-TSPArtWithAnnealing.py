@@ -705,6 +705,14 @@ nVert = 103 # This example works best if you use a prime number of vertices. Thi
             # is to make sure the intial path bounces around a lot. It has nothing
             # to do with the simulated annealing itself.
 
+# Now get a set of angles on the circle that in order tend to bounce around the circle a lot.
+
+angles = np.arange(0, nVert, dtype = 'int')
+angles = np.mod(angles * int(nVert/2), nVert) * 2 * np.pi / nVert
+vertices = np.stack([np.cos(angles), np.sin(angles)], axis = -1) 
+
+# Now set up parameters for simulated annealing.
+
 initTemp = 10**3 / np.sqrt(nVert) # The initial temperature.
 nSteps = 10**5  # Total number of steps to run annealing for circle example.
 decimalCool = 4 # The number of decimal places to cool the temperature
@@ -713,15 +721,12 @@ cooling = np.exp(-np.log(10) * decimalCool / nSteps)  # The calculated cooling f
 nPrint = 75  # The number of runs of the annealing process to break the entire process 
                 # into. Used for printing out progress.
 
-# Now get a set of angles on the circle that in order tend to bounce around the circle a lot.
-
-angles = np.arange(0, nVert, dtype = 'int')
-angles = np.mod(angles * int(nVert/2), nVert) * 2 * np.pi / nVert
-vertices = np.stack([np.cos(angles), np.sin(angles)], axis = -1) 
-
 # Set up our annealing steps iterator.
 
 annealingSteps = AnnealingTSP(nSteps / nPrint, vertices, initTemp, cooling)
+
+# Get some intial information.
+
 initEnergy = annealingSteps.energy
 print('initEnergy = ', initEnergy)
 print('initTemp = ', initTemp) 
@@ -766,6 +771,8 @@ plt.show()
 ##########################################################
 # Now do simulated annealing for picture of "TSP" letters.
 ##########################################################
+
+# Parameters
 
 nVert = 600
 initTemp = 2 / np.sqrt(nVert)
