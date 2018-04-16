@@ -841,6 +841,8 @@ plt.show()
 # This takes a while.
 ####################################################
 
+# Parameters for von Neumann example.
+
 nVert = 2000
 initTemp = 2 / np.sqrt(nVert)
 nSteps = 10 * 10**6 
@@ -912,9 +914,9 @@ plt.show()
 # Good settings for inverted tsp.png
 nVert = 3000
 initTemp = 2 / np.sqrt(nVert)
-nSteps = 15 * 10**6 # 10 * 10**6 
+nSteps = 15 * 10**6 
 decimalCool = 1.5 # 2.0
-nPrin = 200
+nPrint = 200
 
 # Open file tsp.png, invert the colors, and convert to numpy array.
 
