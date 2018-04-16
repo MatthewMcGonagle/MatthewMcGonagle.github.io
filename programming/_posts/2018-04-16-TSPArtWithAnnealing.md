@@ -46,8 +46,56 @@ np.random.seed(20180327)
 
 ## The Travelling Salesman Problem
 
+The travelling salesman problem, as we will use it, is simply that we have a list of vertices and we wish to find a closed circuit (i.e. a cycle) that visits each
+vertex exactly once and is of minimal length. The name comes from the idea that the problem represents the optimal way a travelling salesman can visit a list of cities.
+
+Ultimately our goal is really to construct images using a continuous, closed, non-self-intersecting curve. A true solution to the travelling salesman problem should provide
+this as it can't cross itself. Unfortunately, our method of simulated annealing should really only be expected to give approximate solutions. So we will still have
+self-intersections, but their number should be small(ish). 
+
 ## Simulated Annealing for the Travelling Salesman Problem
 
+Simulated annealing tries to randomly find a minimum for an energy function by imitating the statistical nature of a thermodynamic system undergoing cooling. Again, I would like
+to mention the article [The Evolution of Markov Chain Monte Carlo Methods](http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.295.4478&rep=rep1&type=pdf) by Matthew Richey. 
+
+We randomly explore the state space using a random walk very similar to that in the Metropolis method of sampling. Let us discuss what this means for the travelling salesman problem.
+
+For the travelling salesman problem, our states are the different possible cycles; these can alternatively be understood to be the different possible orderings of
+our vertices (i.e. what order do we visit them). The energy function will simply be the length of the current cycle.
+
+How should we walk around our space of possible states? The idea is that we can reach any permutation through a sequence of flipping the order of continuous chains. This is best explained
+through example. Consider the case of six vertices denoted by `V[0]`, `V[1]`, ..., and `V[5]` as in the picture below:  
+
+![Initial Path]({{site . url}}/assets/2018-04-16-pics/TSPAnnealing1.svg)
+
+We randomly select two indices `i` and `j` to be the endpoints of the chain that we wish to flip. We don't explicitly require `i < j`. For example, in the next picture we have
+selected `i = 1` and `j = 3`. Now there is a small catch as the chain "between" `V[i]` and `V[j]` could be either `V[1], V[2], V[3]` or `V[3], V[4], V[5], V[0], V[1]`. However,
+which one we select to change doesn't change the effect on the length of the cycle. In fact, there is an even stronger statement that there is a symmetry between
+all of the possible later moves from either decision. We won't go into any detail, but the point is that it doesn't matter which we choose. We choose `V[1], V[2], V[3]` as circled in the
+following picture:
+
+![Random Selected Pair]({{site . url}}/assets/2018-04-16-pics/TSPAnnealing2.svg)
+
+Then we make a flip of the chain `V[1], V[2], V[3]`. That is the old `V[1]` becomes the new `V[3]`, and the old `V[3]` becomes the new `V[1]`:
+
+![After Reversal]({{site . url}}/assets/2018-04-16-pics/TSPAnnealing3.svg)
+
+Notice the source of the change in the cycle length is only coming from our endpoints `V[i]` and `V[j]` switching one of their neighbors. This is great news, because
+it means we can calculate how the length (i.e. energy) changes by only working with `V[i]`, `V[j]`, and their neighbors. We don't need to do calculations for the entire
+cycle. In more technical terms, we can find the change in length using an `O(1)` operation instead of a `O(N)` operation.
+
+Now, for simulated annealing, we don't always accept such proposed moves. How we accept these proposed flips is given by the following rules:
+1. If the length decreases, then the move is accepted and the flip occurs.
+2. Else if the length increases, then we randomly accept the move with probability `np.exp(- changeLength / temperature)`, here temperature is a parameter that
+we cool over time.
+
+So we have a probability of going "uphill" as we run simulated annealing; that way we don't get stuck in a local minimum. Typically one starts with a high enough temperature
+so all states have similar probabilities and the algorithm is free to explore the space of all possible states without restriction. Then as the temperature is cooled
+(we will opt to do so through geometric progression), the annealing favors more and more to move in the directions of smaller energy. 
+Some care must be taken to not cool too fast or the algorithm can get stuck in an unfavorable state.
+
+Let us next take a look at examples of using our classes and functions to find approximate solutions to the travelling salesman problem.
+ 
 ## Example of Points on a Circle
 
 For this example, we won't be using rejection sampling as we aren't working with a picture. This example functions more as a double check that everything is working properly.
@@ -503,7 +551,7 @@ def plotEnergies(energies, title):
     ax = plt.gca()
     ax.set_title(title)
     ax.set_xlabel('Nth Run of Annealing')
-    ax.set_ylabel('Energy')
+    ax.set_ylabel('Log Base 10 of Energy')
 
 def plotSamples(vertices, title):
     '''

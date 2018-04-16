@@ -602,7 +602,7 @@ def plotEnergies(energies, title):
     ax = plt.gca()
     ax.set_title(title)
     ax.set_xlabel('Nth Run of Annealing')
-    ax.set_ylabel('Energy')
+    ax.set_ylabel('Log Base 10 of Energy')
 
 def plotSamples(vertices, title):
     '''
