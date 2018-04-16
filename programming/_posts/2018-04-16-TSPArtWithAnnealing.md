@@ -419,7 +419,7 @@ First, let's set up some parameters:
 # Good settings for inverted tsp.png
 nVert = 3000
 initTemp = 2 / np.sqrt(nVert)
-nSteps = 15 * 10**6 
+nSteps = 17 * 10**6 
 decimalCool = 1.5 # 2.0
 nPrint = 200
 ```
