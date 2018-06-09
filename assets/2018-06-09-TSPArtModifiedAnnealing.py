@@ -1558,6 +1558,7 @@ def main():
     
     cycle = annealingSteps.getCycle()
     plotCycle(cycle, 'Final Path for Size Scale Annealing', doScatter = False, figsize = cycleFigSize)
+    plt.tight_layout()
     savePNG('2018-06-09-graphs/afterSizeScale.png')
     plt.show()   
 
@@ -1604,6 +1605,7 @@ def main():
     
     cycle = annealingSteps.getCycle()
     plotCycle(cycle, 'Final Path for Neighbors Annealing', doScatter = False, figsize = cycleFigSize)
+    plt.tight_layout()
     savePNG('2018-06-09-graphs/afterNbrs.png')
     plt.show()   
 
