@@ -1479,6 +1479,7 @@ def main():
     # Set the figure size for graphs of cycles.
 
     cycleFigSize = (8, 8)
+    finalCycleSize = (10, 10)
 
     # Open the image.
 
@@ -1604,7 +1605,7 @@ def main():
     # Plot the final cycle of the annealing process.
     
     cycle = annealingSteps.getCycle()
-    plotCycle(cycle, 'Final Path for Neighbors Annealing', doScatter = False, figsize = cycleFigSize)
+    plotCycle(cycle, 'Final Path for Neighbors Annealing', doScatter = False, figsize = finalCycleSize)
     plt.tight_layout()
     savePNG('2018-06-09-graphs/afterNbrs.png')
     plt.show()   
