@@ -787,7 +787,7 @@ class NeighborsAnnealer:
 ### Greedy Guesser
 ############################
 
-class GreedyGuesser3:
+class GreedyGuesser:
     '''
     Make an initial greedy guess for a solution to the Traveling Salesman Problem. If there is an odd number of vertices, then
     this method will drop the last vertex to make an even number of vertices; the idea being that we wish to work with
@@ -1446,7 +1446,7 @@ def preprocessVertices(vertices):
     '''
 
     vertices = normalizeVertices(vertices)
-    guesser = GreedyGuesser3()
+    guesser = GreedyGuesser()
     vertices = guesser.makeGuess(vertices)
     vertices = np.roll(vertices, 100, axis = 0)
 
