@@ -131,6 +131,13 @@ made from either the beginning endpoint for ending endpoint of the curve.
 considered a cycle by simply thinking of there being a connection between the beginning endpoint and the
 ending endpoint.
 
+The following pictures illustrate the steps of our greedy guess.
+
+![Original Vertices]({{site . url}}/assets/2018-06-09-graphs/greedyExample0.svg)
+![Initial Pairing]({{site . url}}/assets/2018-06-09-graphs/greedyExample1.svg)
+![First Pass Step 2]({{site . url}}/assets/2018-06-09-graphs/greedyExample2.svg)
+![Second Pass Step 2]({{site . url}}/assets/2018-06-09-graphs/greedyExample3.svg)
+
 The reason that we don't connect a single curve to more than one other curve in step 2 is that we try 
 to grow the size of the individual curves uniformly. Now, if at the beginning of step 2 there is an odd number
 of curves, then we will necessarily have a difference in curve sizes when we finish. However, this
