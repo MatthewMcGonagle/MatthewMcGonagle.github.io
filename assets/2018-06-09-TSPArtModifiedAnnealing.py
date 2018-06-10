@@ -1513,6 +1513,14 @@ def main():
     plt.title('Vertices From Dithering')
     plt.show()
 
+    # Plot the result of the greedy guess and other preprocessing.
+
+    cycle = np.concatenate([vertices, [vertices[0]]], axis = 0)
+    plotCycle(cycle, 'Greedy Guess Path', doScatter = False, figsize = cycleFigSize) 
+    plt.tight_layout()
+    savePNG('2018-06-09-graphs/greedyGuess.png')
+    plt.show()
+
     ######################################
     ############# Annealing based on size
     ######################################
@@ -1539,11 +1547,11 @@ def main():
     
     # Plot the intial cycle.
     
-    cycle = annealingSteps.getCycle()
-    plotCycle(cycle, 'Greedy Guess Path', doScatter = False, figsize = cycleFigSize) 
-    plt.tight_layout()
-    savePNG('2018-06-09-graphs/greedyGuess.png')
-    plt.show()
+    # cycle = annealingSteps.getCycle()
+    # plotCycle(cycle, 'Greedy Guess Path', doScatter = False, figsize = cycleFigSize) 
+    # plt.tight_layout()
+    # savePNG('2018-06-09-graphs/greedyGuess.png')
+    # plt.show()
     
     energies = doAnnealingJobs(annealingSteps, nJobs)
  
