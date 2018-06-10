@@ -209,6 +209,11 @@ As you can see, the greedy guess is far from perfect.
 
 ## Annealing Based on Size Scale
 
+![Initial Cycle]({{site . url}}/assets/2018-06-09-graphs/sizeScale0.svg)
+![First Vertex Pool]({{site . url}}/assets/2018-06-09-graphs/sizeScale1.svg)
+![After Annealing on Pool]({{site . url}}/assets/2018-06-09-graphs/sizeScale2.svg)
+![New Vertex Pool]({{site . url}}/assets/2018-06-09-graphs/sizeScale3.svg)
+
 ![Cycle After Annealing Based on Size Scale]({{site . url}}/assets/2018-06-09-graphs/afterSizeScale.png)
 
 ## Annealing Based on k-Nearest Neighbors
