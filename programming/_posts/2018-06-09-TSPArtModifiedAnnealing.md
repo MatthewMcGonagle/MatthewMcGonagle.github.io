@@ -115,6 +115,99 @@ So we see that we get alot of vertices!
 
 ## Making a Greedy Guess
 
+One caveat of our greedy guess is that our algorithm will drop a vertex if we give it an odd number of vertices;
+our aim is to process a large number of vertices, so this single vertex shouldn't affect the final quality much. The
+reason for this drop is that our algorithm first pairs up the vertices, and it is easier to just drop the left
+out vertex.
+
+Our greedy guess is made in the following manner:
+1. Going through the vertices in order, pair them up with the nearest neighbor out of all vertices that
+haven't paired with a partner yet. Each pair of partners gives us a curve consisting of just two vertices
+(so a line segment).
+2. We iterate going through the curves in order, connecting them to another curve that hasn't been connected
+in this step yet and such that it will make the smallest connecting length. This connection can be
+made from either the beginning endpoint for ending endpoint of the curve.
+3. We repeat step 2 until we are left with a single curve passing through every vertex. This curve is 
+considered a cycle by simply thinking of there being a connection between the beginning endpoint and the
+ending endpoint.
+
+The reason that we don't connect a single curve to more than one other curve in step 2 is that we try 
+to grow the size of the individual curves uniformly. Now, if at the beginning of step 2 there is an odd number
+of curves, then we will necessarily have a difference in curve sizes when we finish. However, this
+difference will be minimized (at least heuristically).
+
+The reason we grow the curves uniformly is that it heuristically should make the interiors of the curves close
+to correct. The problem will be made by connecting large curves by their endpoints. For example, if instead we
+had chosen to grow one single curve, then as we progress, how vertices are are added depend more and more
+on the order that previous vertices were added. 
+
+To make our greedy guess, we make a class `GreedyGuesser`. We won't discuss the implementation details of the class,
+but we will show how to use it. First, we have other preprocessing that we want to do. To keep the length of
+the curve from being too large, we scale the image so that the y-coordinates are between 0 and 1. To do so,
+we create the function `normalizeVertices`; its implementation is relatively straight forward so we won't 
+discuss it.
+
+Also, after we make our greedy guess, we roll the array to put the endpoints in the interior. Most likely
+there is a large gap between these two points, and our algorithms will be better able to handle it
+if it is explicitly in the interior of the array.
+
+We put the greedy guess along with the normalization inside the function `preprocessVertices`; it is defined as
+``` python
+def preprocessVertices(vertices):
+    '''
+    Normalize vertices and make our intial greedy guess as to the solution of the Traveling Salesman Problem.
+    If there is an odd number of vertices, then our greedy guess will drop the last vertex.
+
+    Parameters
+    ----------
+    vertices : Numpy array of shape (nVertices, 2)
+        The xy-coordinates of the vertices.
+
+    Returns
+    -------
+    Numpy array of shape (newNVertices, 2)
+        The xy-coordinates of our processed vertices.
+    '''
+
+    vertices = normalizeVertices(vertices)
+    guesser = GreedyGuesser()
+    vertices = guesser.makeGuess(vertices)
+    vertices = np.roll(vertices, 100, axis = 0)
+
+    return vertices
+```
+Now we are ready to run the preprocessing, including the greedy guess:
+``` python
+print('Preprocessing Vertices')
+vertices = preprocessVertices(vertices)
+print('Preprocessing Complete')
+```
+
+Let's take a look at the cycle created by the greedy guess (we have created a function `plotCycle` to
+help with plotting our cycles). 
+``` python
+# Plot the result of the greedy guess and other preprocessing.
+
+cycle = np.concatenate([vertices, [vertices[0]]], axis = 0)
+plotCycle(cycle, 'Greedy Guess Path', doScatter = False, figsize = cycleFigSize) 
+plt.tight_layout()
+savePNG('2018-06-09-graphs/greedyGuess.png')
+plt.show()
+```
+The greedy guess cycle is:
+
+![Greedy guess cycle]({{site . url}}/assets/2018-06-09-graphs/greedyGuess.png)
+
+As you can see, the greedy guess is far from perfect.
+
+## Annealing Based on Size Scale
+
+![Cycle After Annealing Based on Size Scale]({{site . url}}/assets/2018-06-09-graphs/afterSizeScale.png)
+
+## Annealing Based on k-Nearest Neighbors
+
+![Cycle After Annealing Based on Neares Neighbors]({{site . url}}/assets/2018-06-09-graphs/afterNbrs.png)
+
 ## [Download the Source Code for This Post]({{site . url}}/assets/2018-06-09-TSPArtModifiedAnnealing.py)
 ## [GitHub Repo for Upto Date Code](https://github.com/MatthewMcGonagle/TSP_PictureMaker)
 
