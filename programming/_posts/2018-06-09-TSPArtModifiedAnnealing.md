@@ -209,12 +209,112 @@ As you can see, the greedy guess is far from perfect.
 
 ## Annealing Based on Size Scale
 
+Now we perform a modified version of simulated annealing. The idea is that we only consider switching the order
+of the cycle between vertices that are touching edges with large enough length; this way we
+first deal with the largest edges in the cycle. What counts as large enough is given
+by the user as a length scale. This will help us avoid rejections in the simulated annealing algorithm, thus
+increasing the efficiency of our annealing.
+
+The steps of the annealer can be summarized as:
+1. Given a length scale from the user, find which vertices touch an edge
+in the current cycle that is atleast as large as the length scale. NOTE:
+This vertex pool is NOT updated until a warm restart; it would be too
+costly to update it at every step.
+2. Perform simulated annealing where we only randomly choose vertices
+from the vertex pool found in Step 1.
+3. After we have performed enough simulated annealing steps to do a single
+annealing "job", we do a warm restart. That is we shrink the length scale
+and find our new vertex pool (i.e. repeat step 1). Note, we do not restart
+the temperature. 
+4. Repeat above until we have completed enough annealing "jobs", and we don't
+have enough improvement in the energy between each job.
+
+Below our some pictures illustrating some steps of this process:
+
 ![Initial Cycle]({{site . url}}/assets/2018-06-09-graphs/sizeScale0.svg)
 ![First Vertex Pool]({{site . url}}/assets/2018-06-09-graphs/sizeScale1.svg)
 ![After Annealing on Pool]({{site . url}}/assets/2018-06-09-graphs/sizeScale2.svg)
 ![New Vertex Pool]({{site . url}}/assets/2018-06-09-graphs/sizeScale3.svg)
 
+We create a class `AnnealerTSPSizeScale` to help up perform this modified simulated annealing. Again, we won't discuss the implementation
+details, but let us show how to use the class to perform the annealing. First, let us set up a helper
+function `doAnnealingJobs` to run our annealing jobs (this function will actually work with both of our annealer classes):
+``` python
+def doAnnealingJobs(annealer, nJobs):
+    '''
+    Do the annealing jobs (or annealing runs) for a particular annealer. This will perform a
+    warm restart of the annealer between each job.
+
+    After each job, it collects information on energy and prints information on the job. 
+
+    Parameters
+    ----------
+    annealer : An annealing iterator class
+        The annealer to do the job.
+
+    nJobs : Int
+        The number of jobs to run.
+
+    Returns
+    -------
+        The energies (or length) of the path at the end of each job.
+    '''
+
+    energies = [annealer.getEnergy()]
+    
+    for i in np.arange(nJobs):
+        print('Annealing Job ', i)
+       
+        annealer.doWarmRestart() 
+        for step in annealer:
+            continue
+   
+        energy = annealer.getEnergy() 
+        energies.append(energy)
+
+        print(annealer.getInfoString())
+    
+    energies = np.array(energies)
+
+    return energies
+```
+
+Now let us see how to use `AnnealerTSPSizeScale` to do the size scale annealing: 
+``` python
+# Set up parameters for annealing based on size scale.
+nVert = len(vertices) 
+initTemp = 0.1 * 1 / np.sqrt(nVert) / np.sqrt(np.pi) 
+nSteps = 5 * 10**5 
+decimalCool = 1.5
+cooling = np.exp(-np.log(10) * decimalCool / nSteps) 
+nJobs = 200
+
+# Size scale parameters are based on statistics of sizes of current edges.
+
+distances = np.linalg.norm(vertices[1:] - vertices[:-1], axis = -1)
+initScale = np.percentile(distances, 99.9)
+finalScale = np.percentile(distances, 90.8)
+sizeCooling = np.exp(np.log(finalScale / initScale) /nSteps)
+
+# Set up our annealing steps iterator.
+
+annealingSteps = AnnealerTSPSizeScale(nSteps / nJobs, vertices, initTemp, cooling, initScale, sizeCooling)
+print('Initial Configuration:\n', annealingSteps.getInfoString())
+
+energies = doAnnealingJobs(annealingSteps, nJobs)
+
+print('Finished running annealing jobs') 
+```
+The energies after each job are shown in the graph below.
+
+![Energies During Size Scale Annealing]({{site . url}}/assets/2018-06-09-graphs/sizeScaleEnergies.png)
+
+The resulting is pictured below: 
 ![Cycle After Annealing Based on Size Scale]({{site . url}}/assets/2018-06-09-graphs/afterSizeScale.png)
+
+So we see that there is improvement from the greedy guess, but it still doesn't look "neat and tidy".
+Next we will push the improvements even further with a modification of simulated annealing based
+on k-Nearest Neighbors.
 
 ## Annealing Based on k-Nearest Neighbors
 

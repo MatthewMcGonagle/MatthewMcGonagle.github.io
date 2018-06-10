@@ -1545,14 +1545,6 @@ def main():
     annealingSteps = AnnealerTSPSizeScale(nSteps / nJobs, vertices, initTemp, cooling, initScale, sizeCooling)
     print('Initial Configuration:\n', annealingSteps.getInfoString())
     
-    # Plot the intial cycle.
-    
-    # cycle = annealingSteps.getCycle()
-    # plotCycle(cycle, 'Greedy Guess Path', doScatter = False, figsize = cycleFigSize) 
-    # plt.tight_layout()
-    # savePNG('2018-06-09-graphs/greedyGuess.png')
-    # plt.show()
-    
     energies = doAnnealingJobs(annealingSteps, nJobs)
  
     print('Finished running annealing jobs') 
