@@ -309,7 +309,8 @@ The energies after each job are shown in the graph below.
 
 ![Energies During Size Scale Annealing]({{site . url}}/assets/2018-06-09-graphs/sizeScaleEnergies.png)
 
-The resulting is pictured below: 
+The resulting cycle is pictured below: 
+
 ![Cycle After Annealing Based on Size Scale]({{site . url}}/assets/2018-06-09-graphs/afterSizeScale.png)
 
 So we see that there is improvement from the greedy guess, but it still doesn't look "neat and tidy".
