@@ -318,6 +318,57 @@ on k-Nearest Neighbors.
 
 ## Annealing Based on k-Nearest Neighbors
 
+Now we look at another modification of simulated annealing. Again we are looking to reduce our rejection rate.
+After running our size scale based annealing, we should have that most of the problems with our current
+cycle are on a "small scale". So it doesn't make much sense to randomly try switching the cycle between
+two vertices that are far apart. So we make a modification to simulated annealing utilizing k-Nearest Neighbors.
+
+The steps of our modified simulated annealing can be summarized as:
+1. First fit `sklearn.NearestNeighbors` to the set of all the vertices in the cycle. We only have to do this once. 
+2. Decide on an initial number of neighbors `kNbrs`. 
+3. Run simulated annealing with a modified process of randomly choosing vertex pairs:
+    1. Uniformly choose a random vertex `v0` from all vertices in the cycle.
+    2. Uniformly choose the second vertex from the `kNbrs`-nearest neighbors of `v0`. 
+4. As we go we shrink the number of neighbors `kNbrs`. We choose to do this geometrically by
+using a floating point `kNbrs` and then rounding when finding the number of neighbors. Also
+note that the temperature is cooled just like in the regular simulated annealing algorithm.
+
+To perform this modified simulated annealing, we create the class `NeighborsAnnealer`. We won't
+go into the implementation details, but we will look at how to use the class to perform the annealing:
+``` python
+# Set up parameters for annealing based on neighbors.
+
+nVert = len(vertices) 
+initTemp = 0.1 * 1 / np.sqrt(nVert) / np.sqrt(np.pi) 
+nSteps = 5 * 10**5 
+decimalCool = 1.5
+cooling = np.exp(-np.log(10) * decimalCool / nSteps) 
+nJobs = 200
+
+# Neighbor parameters are set up by trial and error.
+
+initNbrs = int(nVert * 0.01)
+initNbrs = 50
+finalNbrs = 3 
+nbrsCooling = np.exp(np.log(finalNbrs / initNbrs) / nSteps) 
+
+# Set up our annealing steps iterator.
+
+annealingSteps = NeighborsAnnealer(nSteps / nJobs, vertices, initTemp, cooling, initNbrs, nbrsCooling)
+print('Initial Configuration:\n', annealingSteps.getInfoString())
+
+# Now run the annealing steps for the vonNeumann.png example.
+
+energies = doAnnealingJobs(annealingSteps, nJobs) 
+print('Finished running annealing jobs') 
+```
+The energies between each job are graphed below:
+
+![Energies for Neighbors Annealing]({{site.url}}/assets/2018-06-09-graphs/nbrsEnergies.png)
+
+We see that is much more improvement in the energy for the neighbors annealing than the size scale annealing.
+We now have our final cycle:
+
 ![Cycle After Annealing Based on Neares Neighbors]({{site . url}}/assets/2018-06-09-graphs/afterNbrs.png)
 
 ## [Download the Source Code for This Post]({{site . url}}/assets/2018-06-09-TSPArtModifiedAnnealing.py)
