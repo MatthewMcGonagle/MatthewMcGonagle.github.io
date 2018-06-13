@@ -4,3 +4,5 @@
 *.swl
 *.exe
 _site
+assets/2018-06-13-code/build/
+*.pyd
