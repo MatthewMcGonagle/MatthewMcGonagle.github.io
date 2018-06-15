@@ -5,4 +5,6 @@
 *.exe
 _site
 assets/2018-06-13-code/build/
+assets/2018-06-15-files/build/
+assets/2018-06-15-files/__pycache__
 *.pyd
