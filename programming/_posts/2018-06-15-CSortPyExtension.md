@@ -21,7 +21,7 @@ element at the beginning of the array.
 Before we dive into the implementation details, let us use the next section to take a look at how to use the functions and obtain benchmarks
 their performance.
 
-## Benchmarking `cSort` and `pSort` Quicksort Functions.
+## Benchmarking `cSort` and `pySort` Quicksort Functions.
 
 The benchmarks are perfomed in `benchmark.py`; before we get started we need to import the appropriate modules and set up
 the seed for our random number generator.
