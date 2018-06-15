@@ -1,9 +1,43 @@
+'''
+pySort.py
+'''
+
 def doQuickSort(myList):
+    ''' 
+    Does a quicksort on a copy of the list.
+
+    Parameters
+    ----------
+    myList : Python list of Int
+        The list to sort.
+
+    Returns
+    -------
+        A sorted copy of the list.
+    '''
     newList = myList.copy()
     doQuickSortInPlace(newList, len(newList), offset = 0)
     return newList
 
 def doQuickSortInPlace(myList, size, offset):
+    '''
+    Function to perform quicksort in place on a subrange of a list.
+
+    Parameters
+    ----------
+    myList : Python list of Int
+        The list we are sorting.
+
+    size : Int
+        The size of the sub-list we are sorting.
+
+    offset : Int
+        The index of the first element in the sub-list. So if
+        offset is 5, then the first element of the sub-list is
+        myList[5].
+    '''
+
+    # First handle trivial cases
 
     if size < 2:
         return
@@ -31,6 +65,20 @@ def doQuickSortInPlace(myList, size, offset):
     doQuickSortInPlace(myList, size - leftSize - 1, offset = pivotLoc + 1)
 
 def swap(myList, loc1, loc2):
-        temp = myList[loc1]
-        myList[loc1] = myList[loc2]
-        myList[loc2] = temp
+    '''
+    Function to swap elements in a list of numbers (so that copy is unnecessary).
+
+    Parameters
+    ----------
+    myList : List of Int
+        The list holding the elements to swap.
+
+    loc1 : Int
+        The index of the first element to swap.
+
+    loc2 : Int
+        The index of the second element to swap.
+    '''
+    temp = myList[loc1]
+    myList[loc1] = myList[loc2]
+    myList[loc2] = temp
