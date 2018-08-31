@@ -725,6 +725,40 @@ Next, let's take a look at the graphs of the results.
 
 # The Results
 
+At the very beginning of the post, we already saw the timing information and the winners for the
+different cases of independent folds vs dependent folds.
+
+Next, let us look at the heap allocations results. Here `gcHeap` is for garbage collections.
+
+![Independent Folds Heap Allocations]({{site . url}}/assets/2018-09-01-files/Analysis/indAllocations.svg)
+![Dependent Folds Heap Allocations]({{site . url}}/assets/2018-09-01-files/Analysis/depAllocations.svg)
+
+For the independent folds, we see that the total heap allocations are all similar, but the right folds
+again are the winners for smallest garbage collection allocations.
+
+For the dependent folds, we have a clear winner all around with a double strict left fold.
+
+Next, let's look at the maximum residency results.
+
+![Independent Folds Max Residency]({{site . url}}/assets/2018-09-01-files/Analysis/indResidency.svg)
+![Dependent Folds Max Residency]({{site . url}}/assets/2018-09-01-files/Analysis/depResidency.svg)
+
+Results are the same as before.
+
+Finally, the productivities.
+
+![Independent Folds Productivities]({{site . url}}/assets/2018-09-01-files/Analysis/indProductivities.svg)
+![Dependent Folds Productivities]({{site . url}}/assets/2018-09-01-files/Analysis/depProductivities.svg)
+
+For the independent folds we see that right folds dominate the total producitivity. Similarly, for the dependent
+case, the double strict left fold dominates total productivity.
+
+# Conclusions
+
+So we can see that in the case of independent operations, right folds perform very well (despite the common advice
+to avoid right folds). However, when there is a form of dependent chaining of operations, the strict left folds
+do best.
+
 ## [Download MakeFolds.hs here]({{site . url}}/assets/2018-09-01-files/MakeFold.hs).
 ## [Download AggregateStats.hs here]({{site . url}}/assets/2018-09-01-files/AggregateStats.hs)
 ## [Download analysis.py here]({{site . url}}/assets/2018-09-01-files/analysis.py)
