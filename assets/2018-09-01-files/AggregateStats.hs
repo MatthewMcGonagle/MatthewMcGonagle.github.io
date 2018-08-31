@@ -1,3 +1,11 @@
+{- |
+
+Module : AggregateStats.hs
+
+Gathers the statistics we are interested in from the different run-time statistics reports generated
+by GHC profiler.
+-}
+
 module Main where
 
 import Text.ParserCombinators.Parsec 
@@ -34,6 +42,7 @@ byteStatsSection =
                , ("maxResidency (b)", maxResidency)
                , ("maxSlop (b)", maxSlop)
                ]
+
 -- | Parser for a line of the timing information section of the run time statistics file.
 --   Parser returns a pair of strings.
 
