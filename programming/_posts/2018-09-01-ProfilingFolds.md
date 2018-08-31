@@ -4,7 +4,7 @@ title : Profiling Compositions of Folds in Haskell
 date : 2018-08-30
 ---
 
-## [Download MakeFolds.hs here]({{site . url}}/assets/2018-09-01-files/MakeFold.hs).
+## [Download MakeFolds.hs here]({{site . url}}/assets/2018-09-01-files/MakeFolds.hs).
 ## [Download AggregateStats.hs here]({{site . url}}/assets/2018-09-01-files/AggregateStats.hs)
 ## [Download analysis.py here]({{site . url}}/assets/2018-09-01-files/analysis.py)
 
@@ -759,7 +759,7 @@ So we can see that in the case of independent operations, right folds perform ve
 to avoid right folds). However, when there is a form of dependent chaining of operations, the strict left folds
 do best.
 
-## [Download MakeFolds.hs here]({{site . url}}/assets/2018-09-01-files/MakeFold.hs).
+## [Download MakeFolds.hs here]({{site . url}}/assets/2018-09-01-files/MakeFolds.hs).
 ## [Download AggregateStats.hs here]({{site . url}}/assets/2018-09-01-files/AggregateStats.hs)
 ## [Download analysis.py here]({{site . url}}/assets/2018-09-01-files/analysis.py)
 
