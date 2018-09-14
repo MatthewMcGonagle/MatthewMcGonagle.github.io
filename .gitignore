@@ -7,4 +7,9 @@ _site
 assets/2018-06-13-code/build/
 assets/2018-06-15-files/build/
 assets/2018-06-15-files/__pycache__
+assets/2018-09-14-files/__pycache__
+assets/2018-09-14-files/graphs/prunedTree
+assets/2018-09-14-files/graphs/prunedpic.pdf
+*.dot
+*.dot.pdf
 *.pyd
