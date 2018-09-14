@@ -153,8 +153,8 @@ Cross Valuation Scores for unpruned tree are  [ 0.85  0.79  0.75  0.74  0.78]
 Mean accuracy score is  0.782
 Std accuracy score is  0.0386781592116
 ```
-Now, the data has a random error rate of 0.15, and we see that the mean accuracy score is more than two of its standard
-deviations below 0.85, the ideal accuracy rate. So let us take a look at what the model looks like if we train on 
+Now, the data has a random error rate of 0.1, and we see that the mean accuracy score is more than two of its standard
+deviations below 0.9, the ideal accuracy rate. So let us take a look at what the model looks like if we train on 
 the entire data set.
 ``` python
 # Let's train on the whole data set, and see what the model looks like.
