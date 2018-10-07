@@ -2,93 +2,112 @@
   title: On Lisp
   url: http://www.paulgraham.com/onlisp.html
   type: textbook
+  subject: programming
 
 - author: Hastie, Tibshirani, and Friedman
   title:  "Elements of Statistical Learning: Data Mining, Inference, and Prediction"
   url: https://web.stanford.edu/~hastie/ElemStatLearn/
   type: textbook
-
+  subject: data science
+ 
 - author: James, Witten, Hastie, and Tibshirani 
   title: "An Introduction to Statistical Learning: with Applications in R"
   url: https://www-bcf.usc.edu/~gareth/ISL/
   type: textbook
-
+  subject: data science
+ 
 - author: Blum, Hopcroft, and Kannan
   title: Foundations of Data Science 
   url: "https://www.cs.cornell.edu/jeh/book.pdf"
   type: textbook
-
+  subject: data science
+ 
 - author: Bishop
   title: Pattern Recognition and Machine Learning 
   type: textbook
+  subject: data science 
 
 - author: Shalev-Shwartz and Ben-David
   title: "Understanding Machine Learning: From Theory to Algorithms"
   url: https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/understanding-machine-learning-theory-algorithms.pdf
   type: textbook
-
+  subject: data science
+ 
 - author: Boyd and Vandenberghe
   title: Convex Optimization 
   url: https://web.stanford.edu/~boyd/cvxbook/
   type: textbook
-
+  subject: applied math
+ 
 - author: Rota and Baclawski
   title: An Introduction to Probability and Random Processes
   url: https://archive.org/details/GianCarlo_Rota_and_Kenneth_Baclawski__An_Introduction_to_Probability_and_Random_Processes
   type: textbook
-
+  subject: applied math
+ 
 - author: Vershynin
   title: "High-Dimensional Probability: An Introduction with Applications in Data Science"
-  url: https://www.math.uci.edu/~rvershyn/papers/HDP-book/HDP-book.html">https://www.math.uci.edu/~rvershyn/papers/HDP-book/HDP-book.html 
+  url: https://www.math.uci.edu/~rvershyn/papers/HDP-book/HDP-book.html"
   type: textbook
-
+  subject: data science
+ 
 - author: Wasserman
   title: "All of Statistics: A Concise Course in Statistical Inference"
   type: textbook
-
+  subject: data science
+ 
 - author: Evans
   title: Introduction to Mathematical Optimal Control Theory
   url: https://archive.org/details/Lawrence_Craig_Evans__An_Introduction_to_Mathematical_Optimal_Control_Theory
   type: textbook
-
+  subject: applied math
+ 
 - author: Evans
   title: Introduction to Stochastic Differential Equations 
   url: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.299.5323&rep=rep1&type=pdf
   type: textbook
-
+  subject: applied math
+ 
 - author: Boyd
   title: Chebyshev and Fourier Spectral Methods 
   type: textbook
-
+  subject: applied math
+ 
 - author: Berger
   title: A Panoramic View of Riemannian Geometry
   url: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.384.4746&rep=rep1&type=pdf"
   type: textbook
-
+  subject: geometry
+ 
 - author: Colding and Minicozzi
   title: A Course in Minimal Surfaces 
   type: textbook
-
+  subject: geometry
+ 
 - author: Simon
   title: Lectures on Geometric Measure Theory 
   url: https://maths-proceedings.anu.edu.au/CMAProcVol3/CMAProcVol3-Complete.pdf
   type: textbook
-
+  subject: geometry
+ 
 - author: Simon
   title: Introduction to Geometric Measure Theory 
   url: http://web.stanford.edu/class/math285/ts-gmt.pdf"
   type: textbook
-
+  subject: geometry
+ 
 - author: Rindler
   title: Introduction to the Modern Calculus of Variations 
   url: https://warwick.ac.uk/fac/sci/maths/people/staff/filip_rindler/ma4g6_17_ln.pdf
   type: textbook
-
+  subject: analysis
+ 
 - author: Muller
   title: Variational Models for Microstructure and Phase Transitions 
   url: https://www.mis.mpg.de/preprints/ln/lecturenote-0298.pdf
   type: textbook
-
+  subject: analysis
+ 
 - author: Drepper
   title: What Every Programmer Should Know About Memory 
   type: survey
@@ -257,106 +276,127 @@
   title: A History of Mathematics
   url: https://archive.org/details/AHistoryOfMathematics
   subject: history
+  subject2: math
 
 - author: Suzuki
   title: "The Lost Calculus (1637 - 1670): Tangency and Optimization without Limits"
   url: https://www.maa.org/sites/default/files/pdf/upload_library/22/Allendoerfer/suzuki339.pdf
   subject: history
+  subject2: calculus
 
 - author: Edwards
   title: The Historical Development of Calculus 
   subject: history
+  subject2: calculuc
 
 - author: Hawkins
   title: The Theory of Matrices in the 19th Century 
   url: https://pdfs.semanticscholar.org/fcc9/fd95a28a2f239f16be9d162d155a74fd09e8.pdf
   subject: history
+  subject2: algebra
 
 - author: Moore
   title: The Emergence of Open Sets, Closed Sets, and Limit Points in Analysis and Topology 
   url: https://www.sciencedirect.com/science/article/pii/S0315086008000050
   subject: history
+  subject2: topology 
 
 - author: Postnikov
   title: The Problem of Squarable Lunes 
   url: http://emoodle.emate.ucr.ac.cr/pluginfile.php/123266/mod_resource/content/1/Lunulas%20cuadrables.pdf
   subject: history
-
+  subject2: algebra 
+ 
 - author: Birkhoff and Kreyszig
   title: The Establishment of Functional Analysis 
   url: https://www.sciencedirect.com/science/article/pii/0315086084900363
   subject: history
-
+  subject2: analysis
+ 
 - author: Naumann
   title: Remarks on the Prehistory of Sobolev Spaces 
   url: https://edoc.hu-berlin.de/handle/18452/3267
   subject: history
-
+  subject2: analysis
+ 
 - author: Maurice Sion
   title: History of Measure Theory in the Twentieth Century 
   subject: history
-
+  subject2: analysis
+ 
 - author: Shafer and Vovk
   title: The Origins and Legacy of Kolmogorov's Grundbegriffe 
   url: https://arxiv.org/abs/1802.06071
   subject: history
-
+  subject2: probability
+ 
 - author: Fleming
   title: Geometric Measure Theory at Brown in the 1960s 
   url: https://pdfs.semanticscholar.org/f0b2/28988a36fc0cfa9c81b714327713c6334cf0.pdf
   subject: history
-
+  subject2: geometry
+ 
 - author: Stillwell
   title: Poincare and the Early History of 3-Manifolds 
   url: http://www.ams.org/journals/bull/2012-49-04/S0273-0979-2012-01385-X/S0273-0979-2012-01385-X.pdf
   subject: history
-
+  subject2: geometry
+ 
 - author: McMullen
   title: The Evolution of Geometric Structures on 3-Manifolds 
   url: http://www.ams.org/journals/bull/2011-48-02/S0273-0979-2011-01329-5/
   subject: history
-
+  subject2: geometry
+ 
 - author: Volkert
   title: "Lens Spaces in Dimension 3: A History" 
   url: http://www.boma.mpim-bonn.mpg.de/data/38print.pdf
   subject: history
-
+  subject2: geometry
+ 
 - author: Quinn
   title: The Triangulation of Manifolds 
   url: https://arxiv.org/abs/1310.7644
   subject: history
-
+  subject2: topology
+ 
 - author: Osserman
   title: How the Gateway Arch Got its Shape 
   url: http://www.msri.org/people/staff/osserman/papers/NNJ_v12n2_Osserman_pp167-189.pdf
   subject: history
-
+  subject2: geometry
+ 
 - author: Kleiner
   title: "The Evolution of Group Theory: A Brief Survey" 
   url: https://www.maa.org/programs/maa-awards/writing-awards/the-evolution-of-group-theory-a-brief-survey
   subject: history
-
+  subject2: algebra
+ 
 - author: Kleiner
   title: "Evolution of the Function Concept: A Brief Survey" 
   url: https://www.maa.org/programs/maa-awards/writing-awards/evolution-of-the-function-concept-a-brief-survey
   subject: history
-
+  subject2: analysis
+ 
 - author: Gautschi
   title: A Survey of Gauss-Christoffel Quadrature Formulae 
   url: https://pdfs.semanticscholar.org/1457/a643366642855c555bc0df4f2744316e0b55.pdf
   subject: history
-
+  subject2: analysis
+ 
 - author: Dolecki and Greco
   title: Amazing Oblivion of Peano's Contributions to Mathematics 
   url: http://dolecki.perso.math.cnrs.fr/Peano=vulgarization_1307.pdf
   subject: history
-
+  subject2: analysis
+ 
 - author: Hawkins
   title: Lebesgue's Theory of Integration 
   subject: history
-   
+  subject2: analysis   
+
 - author: Boman and Rogers
   title: "How We Got From There to Here: A Story of Real Analaysis" 
   url: http://textbooks.opensuny.org/how-we-got-from-there-to-here-a-story-of-real-analysis/
   subject: history
-
+  subject2: analysis 
