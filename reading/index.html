@@ -8,363 +8,55 @@ title: Reading List
 Here is a collection of reading material that I find interesting. I have made an effort to include as many
 legally, freely available material as possible.
 
+{% assign textbooks  = site.data.reading | where: "type", "textbook" %} 
+{% assign programmingSurveys = site.data.reading | where: "type", "survey" | where: "subject", "programming" %}
+{% assign mathSurveys = site.data.reading | where: "type", "survey" | where: "subject", "math" | sort: "subject2"%}
+{% assign histories = site.data.reading | where: "subject", "history"%}
+
 <h2> Textbooks </h2>
 
 <ul>
-
-    <li> Graham.
-    <i> On Lisp </i>.
-    <a href = "http://www.paulgraham.com/onlisp.html"> http://www.paulgraham.com/onlisp.html</a>
-    </li>
-
-    <li>Hastie, Tibshirani, and Friedman. <i>Elements of Statistical Learning: 
-    Data Mining, Inference, and Prediction</i>. 
-    URL: <a href = https://web.stanford.edu/~hastie/ElemStatLearn/>https://web.stanford.edu/~hastie/ElemStatLearn</a> 
-    </li>
-
-    <li> James, Witten, Hastie, and Tibshirani. 
-    <i>An Introduction to Statistical Learning: with Applications in R</i>.
-    URL: <a href = "https://www-bcf.usc.edu/~gareth/ISL/">https://www-bcf.usc.edu/~gareth/ISL/ </a>. </li>
-
-    <li> MacKay.
-    <i> Information Theory, Inference, and Learning Algorithms</i>.
-    URL: <a href = "https://www.inference.org.uk/itprnn/book.html">https://www.inference.org.uk/itprnn/book.html </a>.
-    </li>
-
-    <li> Blum, Hopcroft, and Kannan.
-    <i> Foundations of Data Science </i>
-    <a href = "https://www.cs.cornell.edu/jeh/book.pdf">https://www.cs.cornell.edu/jeh/book.pdf </a>.
-    </li>
-    <li> Bishop.
-    <i> Pattern Recognition and Machine Learning </i>.
-    </li>
-
-    <li> Shalev-Shwartz and Ben-David.
-    <i> Understanding Machine Learning: From Theory to Algorithms</i>.
-    URL: <a href = "https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/understanding-machine-learning-theory-algorithms.pdf">
-    https://www.cs.huji.ac.il/~shais/UnderstandingMachineLearning/understanding-machine-learning-theory-algorithms.pdf</a>.
-    </li>
-
-    <li> Boyd and Vandenberghe.
-    <i> Convex Optimization </i>.
-    URL: <a href = "https://web.stanford.edu/~boyd/cvxbook/">https://web.stanford.edu/~boyd/cvxbook/ </a>.
-    </li>
-
-    <li> Rota and Baclawski.
-    <i> An Introduction to Probability and Random Processes</i>. 
-    URL: <a href = "https://archive.org/details/GianCarlo_Rota_and_Kenneth_Baclawski__An_Introduction_to_Probability_and_Random_Processes">
-    https://archive.org/details/GianCarlo_Rota_and_Kenneth_Baclawski__An_Introduction_to_Probability_and_Random_Processes</a>.
-    </li>
-
-    <li> Vershynin.
-    <i> High-Dimensional Probability: An Introduction with Applications in Data Science</i>.
-    URL: <a href = "https://www.math.uci.edu/~rvershyn/papers/HDP-book/HDP-book.html">https://www.math.uci.edu/~rvershyn/papers/HDP-book/HDP-book.html </a>
-    </li>
-
-    <li> Wasserman.
-    <i> All of Statistics: A Concise Course in Statistical Inference</i>.
-    </li>
-
-    <li> Evans.
-    <i> Introduction to Mathematical Optimal Control Theory</i>.
-    URL: <a href = "https://archive.org/details/Lawrence_Craig_Evans__An_Introduction_to_Mathematical_Optimal_Control_Theory">
-    https://archive.org/details/Lawrence_Craig_Evans__An_Introduction_to_Mathematical_Optimal_Control_Theory</a>.
-    </li>
-
-    <li> Evans.
-    <i>An Introduction to Stochastic Differential Equations </i>.
-    URL: <a href = "http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.299.5323&rep=rep1&type=pdf">
-    http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.299.5323&rep=rep1&type=pdf</a>.
-    </li>
-
-    <li> Boyd.
-    <i> Chebyshev and Fourier Spectral Methods </i>.
-    </li>
-
-    <li> Berger.
-    <i> A Panoramic View of Riemannian Geometry</i>.
-    <a href = "http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.384.4746&rep=rep1&type=pdf">http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.384.4746&rep=rep1&type=pdf </a>.
-
-    <li> Colding and Minicozzi.
-    <i> A Course in Minimal Surfaces </i>.
-    </li>
-
-    <li> Simon.
-    <i> Lectures on Geometric Measure Theory </i>.
-    <a href = "https://maths-proceedings.anu.edu.au/CMAProcVol3/CMAProcVol3-Complete.pdf">
-    https://maths-proceedings.anu.edu.au/CMAProcVol3/CMAProcVol3-Complete.pdf </a>.
-    </li>
-
-    <li> Simon.
-    <i>Introduction to Geometric Measure Theory </i>.
-    <a href = "http://web.stanford.edu/class/math285/ts-gmt.pdf"> http://web.stanford.edu/class/math285/ts-gmt.pdf</a>.
-    </li>
-
-    <li> Rindler.
-    <i> Introduction to the Modern Calculus of Variations </i>.
-    <a href = "https://warwick.ac.uk/fac/sci/maths/people/staff/filip_rindler/ma4g6_17_ln.pdf">
-    https://warwick.ac.uk/fac/sci/maths/people/staff/filip_rindler/ma4g6_17_ln.pdf </a>.
-    </li>
-
-    <li> Muller.
-    <i> Variational Models for Microstructure and Phase Transitions </i>.
-    <a href = "https://www.mis.mpg.de/preprints/ln/lecturenote-0298.pdf"> https://www.mis.mpg.de/preprints/ln/lecturenote-0298.pdf</a>.
-    </li>
-
+    {% for reading in textbooks %}
+   <li> {{reading.author}}.
+   <i> {{reading.title}}</i>.
+   <a href = "{{reading.url}}">{{reading.url}}</a> 
+   </li>
+    {% endfor %}
 </ul>
 
 <h2> Programming </h2>
 
 <ul>
-    <li> Drepper.
-    <i> What Every Programmer Should Know About Memory </i>.
-    </li>
+    {% for reading in programmingSurveys %}
+   <li> {{reading.author}}.
+   <i> {{reading.title}}</i>.
+   <a href = "{{reading.url}}">{{reading.url}}</a> 
+   </li>
+    {% endfor %}
 </ul>
 
 <h2> Mathematical Surveys </h2>
 
 <ul>
-    <li> Riviere. 
-    <i>Exploring the Unknown: the Work of Louis Nirenberg on Partial Differential Equations</i>.
-    URL: <a href = "https://arxiv.org/abs/1505.04930">https://arxiv.org/abs/1505.04930 </a>
-    <p>In addition to discussing the work of Louis Nirenberg, this survey contains a lot of information
-       on the history of PDE and topics in PDE. </p>
-    </li>
 
-    <li> Kazdan.
-    <i> Applications of Partial Differential Equations to Problems in Geometry </i>.
-    URL: <a href = "https://www.math.upenn.edu/~kazdan/japan/japan.pdf">https://www.math.upenn.edu/~kazdan/japan/japan.pdf </a> 
-    <p> Gives a brief and condensed account of PDE in geometry. </p>
+    {% for reading in mathSurveys %}
+    <li> {{reading.author}}.
+    <i> {{reading.title}}</i>.
+    <a href = "{{reading.ulr}}">{{reading.url}}</a>
     </li>
-
-    <li> Chen, Bang-Yen.
-    <i> Riemannian Submanifolds: A Survey </i>.
-    URL: <a href = "https://arxiv.org/abs/1307.1875">https://arxiv.org/abs/1307.1875 </a>.
-    </li>
-
-    <li> Chen, Bang-Yen.
-    <i>Riemannian Geometry of Lagrangian Submanifolds</i>.
-    URL: <a href = "https://projecteuclid.org/download/pdf_1/euclid.twjm/1500574989">https://projecteuclid.org/download/pdf_1/euclid.twjm/1500574989 </a>.
-    </li>
-
-    <li> Almgren.
-    <i> Questions and Answers about Area-Minimizing Surfaces and Geometric Measure Theory</i>.
-    </li>
-
-    <li> Ambrosio.
-    <i> Regularity Theory for Mass-Minimizing Currents (After Almgren-De Lellis-Spadaro)</i>.
-    <a href = "http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.662.3707&rep=rep1&type=pdf">
-    http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.662.3707&rep=rep1&type=pdf </a>.
-    <li>
-
-    <li> Richey.
-    <i> The Evolution of Markov Chain Monte Carlo Methods </i>
-    URL: <a href = "http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.295.4478&rep=rep1&type=pdf">
-    http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.295.4478&rep=rep1&type=pdf </a>.
-    </li>
-
-    <li> Cabre.
-    <i> Elliptic PDEs in Probability and Geometry. Symmetry and Regularity of Solutions </i>.
-    URL: <a href = "http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.154.1881">
-    http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.154.1881 </a>.
-    </li>
-
-    <li> Vazquez.
-    <i> The Mathematical Theories of Diffusion. Nonlinear and Fractional Diffusion </i>.
-    URL: <a href = "https://arxiv.org/abs/1706.08241"> https://arxiv.org/abs/1706.08241</a>.
-    </li>
-
-    <li> Schonert.
-    <i> A Walking Tour of Microlocal Analysis </i>.
-    URL: <a href = "http://www.math.uchicago.edu/~may/VIGRE/VIGRE2006/PAPERS/Schonert.pdf">
-    http://www.math.uchicago.edu/~may/VIGRE/VIGRE2006/PAPERS/Schonert.pdf </a>
-    </li>
-
-    <li> Mingione.
-    <i> Regularity of Minima: An Invitation to the Dark Side of the Calculus of Variations </i>.
-    <a href = "http://am.math.cas.cz/full/51/4/am51_4_4.pdf"> http://am.math.cas.cz/full/51/4/am51_4_4.pdf</a>.
-    </li>
-
-    <li> Heinonen.
-    <i> Nonsmooth Calculus </i>.
-    <a href = "http://www.ams.org/journals/bull/2007-44-02/S0273-0979-07-01140-8/S0273-0979-07-01140-8.pdf">
-     http://www.ams.org/journals/bull/2007-44-02/S0273-0979-07-01140-8/S0273-0979-07-01140-8.pdf</a>.
-    </li>
-
-    <li> Fonseca and Leoni.
-    <i> Calculus of Variations </i>.
-    <a href = "http://cvgmt.sns.it/paper/2438/"> http://cvgmt.sns.it/paper/2438/</a>.
-    </li>
-
-    <li> Olver.
-    <i> Complex Analysis and Conformal Mapping </i>.
-    URL: <a href = "http://www-users.math.umn.edu/~olver/ln_/cml.pdf"> http://www-users.math.umn.edu/~olver/ln_/cml.pdf</a>.
-    </li>
-
-    <li> Arcozzi and Baldi.
-    <i> From Grushin to Heisenberg  via an Isoperimetric Problem </i>.
-    <a href = "https://www.sciencedirect.com/science/article/pii/S0022247X07009742">
-    https://www.sciencedirect.com/science/article/pii/S0022247X07009742 </a>.
-    </li>
-
-    <li> Ball.
-    <i> An Elementary Introduction to Modern Convex Geometry </i>.
-    <a href = "http://library.msri.org/books/Book31/files/ball.pdf"> http://library.msri.org/books/Book31/files/ball.pdf</a>.
-    </li>
-
-    <li> Pierre.
-    <i> Introduction to Differential Games </i>.
-    <a href = "https://www.ceremade.dauphine.fr/~cardaliaguet/CoursJeuxDiff.pdf">
-    https://www.ceremade.dauphine.fr/~cardaliaguet/CoursJeuxDiff.pdf </a>.
-    </li>
-
-    <li> Yeung and Petrosjan.
-    <i> Cooperative Stochastic Differential Games </i>.
-    "Chapter 2".
-    <a href = "https://www.springer.com/cda/content/document/cda_downloaddocument/9780387276205-c1.pdf?SGWID=0-0-45-166505-p56229392">
-     https://www.springer.com/cda/content/document/cda_downloaddocument/9780387276205-c1.pdf?SGWID=0-0-45-166505-p56229392</a>.
-    </li>
-
-    <li> Gardner.
-    <i> The Brunn-Minkowski Inequality </i>.
-    <a href = "https://www.ams.org/journals/bull/2002-39-03/S0273-0979-02-00941-2/">
-    https://www.ams.org/journals/bull/2002-39-03/S0273-0979-02-00941-2/ </a>.
-    </li>
-
-    <li> Osserman.
-    <i> The Isoperimetric Inequality </i>.
-    <a href = "https://www.ams.org/journals/bull/1978-84-06/S0002-9904-1978-14553-4/">
-    https://www.ams.org/journals/bull/1978-84-06/S0002-9904-1978-14553-4/ </a>.
-    </li>
-
-    <li> Sotomayor and Garcia.
-    <i>Lines of Curvature on Surfaces, Historical Comments, and Recent Developments </i>.
-    <a href = "https://www.ime.usp.br/~spjm/articlepdf/384.pdf">https://www.ime.usp.br/~spjm/articlepdf/384.pdf </a>.
-    </li>
-
-    <li> McCann and Guillen.
-    <i>Five Lectures on Optimal Transportation: Geometry, Regularity, and Applications </i>.
-    <a href = "http://www.math.toronto.edu/mccann/papers/FiveLectures.pdf">http://www.math.toronto.edu/mccann/papers/FiveLectures.pdf </a>.
-    </li>
+    {% endfor %}
 </ul>
 
 <h2> History of Mathematics </h2>
 
 <ul>
-    <li> Boyer.
-    <i> A History of Mathematics</i>.
-    URL: <a href = "https://archive.org/details/AHistoryOfMathematics">https://archive.org/details/AHistoryOfMathematics </a>.
+
+    {% for reading in histories %}
+    <li> {{reading.author}}.
+    <i> {{reading.title}}</i>.
+    <a href = "{{reading.ulr}}">{{reading.url}}</a>
     </li>
-
-    <li> Suzuki.
-    <i> The Lost Calculus (1637 - 1670): Tangency and Optimization without Limits</i>.
-    URL: <a href = "https://www.maa.org/sites/default/files/pdf/upload_library/22/Allendoerfer/suzuki339.pdf">https://www.maa.org/sites/default/files/pdf/upload_library/22/Allendoerfer/suzuki339.pdf </a>
-    </li> 
-
-    <li> Edwards.
-    <i> The Historical Development of Calculus </i>.
-    </li>
-
-    <li> Hawkins.
-    <i> The Theory of Matrices in the 19th Century </i>.
-    URL: <a href = "https://pdfs.semanticscholar.org/fcc9/fd95a28a2f239f16be9d162d155a74fd09e8.pdf">https://pdfs.semanticscholar.org/fcc9/fd95a28a2f239f16be9d162d155a74fd09e8.pdf </a>.
-    </li>
-
-    <li> Moore.
-    <i> The Emergence of Open Sets, Closed Sets, and Limit Points in Analysis and Topology </i>.
-    URL: <a href = "https://www.sciencedirect.com/science/article/pii/S0315086008000050">https://www.sciencedirect.com/science/article/pii/S0315086008000050 </a>.
-    </li>
-
-   <li> Postnikov.
-   <i> The Problem of Squarable Lunes </i>.
-   URL: <a href = "http://emoodle.emate.ucr.ac.cr/pluginfile.php/123266/mod_resource/content/1/Lunulas%20cuadrables.pdf">
-   http://emoodle.emate.ucr.ac.cr/pluginfile.php/123266/mod_resource/content/1/Lunulas%20cuadrables.pdf </a>. 
-   </li>
-
-   <li> Birkhoff and Kreyszig.
-   <i> The Establishment of Functional Analysis </i>.
-   URL: <a href = "https://www.sciencedirect.com/science/article/pii/0315086084900363"> https://www.sciencedirect.com/science/article/pii/0315086084900363</a>.
-   </li>
-
-    <li> Naumann.
-    <i> Remarks on the Prehistory of Sobolev Spaces </i>.
-    URL: <a href = "https://edoc.hu-berlin.de/handle/18452/3267">https://edoc.hu-berlin.de/handle/18452/3267</a>.
-    </li>
-
-    <li> Maurice Sion.
-    <i> History of Measure Theory in the Twentieth Century </i>.
-    </li>
-
-    <li>Shafer and Vovk.
-    <i> The Origins and Legacy of Kolmogorov's Grundbegriffe </i>.
-    URL: <a href = "https://arxiv.org/abs/1802.06071">https://arxiv.org/abs/1802.06071 </a>.
-    </li>
-
-    <li> Fleming.
-    <i> Geometric Measure Theory at Brown in the 1960s </i>
-    URL : <a href = "https://pdfs.semanticscholar.org/f0b2/28988a36fc0cfa9c81b714327713c6334cf0.pdf">
-    https://pdfs.semanticscholar.org/f0b2/28988a36fc0cfa9c81b714327713c6334cf0.pdf </a>.
-    </li>
-
-    <li> Stillwell.
-    <i> Poincare and the Early History of 3-Manifolds </i>.
-    URL: <a href = "http://www.ams.org/journals/bull/2012-49-04/S0273-0979-2012-01385-X/S0273-0979-2012-01385-X.pdf">
-    http://www.ams.org/journals/bull/2012-49-04/S0273-0979-2012-01385-X/S0273-0979-2012-01385-X.pdf </a>.
-    </li>
-
-    <li> McMullen.
-    <i> The Evolution of Geometric Structures on 3-Manifolds </i>.
-    <a href = "http://www.ams.org/journals/bull/2011-48-02/S0273-0979-2011-01329-5/"> http://www.ams.org/journals/bull/2011-48-02/S0273-0979-2011-01329-5/</a>.
-    </li>
-
-    <li> Volkert.
-    <i> Lens Spaces in Dimension 3: A History </i>.
-    <a href = "http://www.boma.mpim-bonn.mpg.de/data/38print.pdf"> http://www.boma.mpim-bonn.mpg.de/data/38print.pdf</a>.
-    </li>
-
-    <li> Quinn.
-    <i> The Triangulation of Manifolds </i>.
-    <a href = "https://arxiv.org/abs/1310.7644"> https://arxiv.org/abs/1310.7644</a>.
-    </li>
-
-    <li> Osserman.
-    <i> How the Gateway Arch Got its Shape </i>.
-    URL: <a href = "http://www.msri.org/people/staff/osserman/papers/NNJ_v12n2_Osserman_pp167-189.pdf">
-    http://www.msri.org/people/staff/osserman/papers/NNJ_v12n2_Osserman_pp167-189.pdf </a>.
-    </li>
-
-    <li> Kleiner.
-    <i> The Evolution of Group Theory: A Brief Survey </i>.
-    URL: <a href = "https://www.maa.org/programs/maa-awards/writing-awards/the-evolution-of-group-theory-a-brief-survey">
-    https://www.maa.org/programs/maa-awards/writing-awards/the-evolution-of-group-theory-a-brief-survey </a>.
-    </li>
-
-    <li> Kleiner.
-    <i> Evolution of the Function Concept: A Brief Survey </i>.
-    URL: <a href = "https://www.maa.org/programs/maa-awards/writing-awards/evolution-of-the-function-concept-a-brief-survey">
-    https://www.maa.org/programs/maa-awards/writing-awards/evolution-of-the-function-concept-a-brief-survey </a>.
-    </li>
-
-    <li> Gautschi.
-    <i> A Survey of Gauss-Christoffel Quadrature Formulae </i>.
-    URL: <a href = "https://pdfs.semanticscholar.org/1457/a643366642855c555bc0df4f2744316e0b55.pdf">
-    https://pdfs.semanticscholar.org/1457/a643366642855c555bc0df4f2744316e0b55.pdf </a>.
-    </li>
-
-    <li> Dolecki and Greco.
-    <i> Amazing Oblivion of Peano's Contributions to Mathematics </i>.
-    <a href = "http://dolecki.perso.math.cnrs.fr/Peano=vulgarization_1307.pdf"> http://dolecki.perso.math.cnrs.fr/Peano=vulgarization_1307.pdf</a>.
-    </li>
-
-    <li> Hawkins.
-    <i> Lebesgue's Theory of Integration </i>.
-    </li>
-    
-    <li> Boman and Rogers.
-    <i> How We Got From There to Here: A Story of Real Analaysis </i>.
-    URL: <a href = "http://textbooks.opensuny.org/how-we-got-from-there-to-here-a-story-of-real-analysis/">
-    http://textbooks.opensuny.org/how-we-got-from-there-to-here-a-story-of-real-analysis/ </a>.
-    </li>
-
+    {% endfor %}
 </ul>
- 
+
+
