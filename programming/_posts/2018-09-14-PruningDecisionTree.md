@@ -1,8 +1,8 @@
 ---
 layout : post
-title : Pruning an Sklearn Decision Tree 
+title : Cost-Complexity Pruning a Decision Tree Classifier 
 date : 2018-09-13
-tags: Python 
+tags: [Python, Sklearn] 
 ---
 
 ## [Download example.py Here]({{site . url}}/assets/2018-09-14-files/example.py)
