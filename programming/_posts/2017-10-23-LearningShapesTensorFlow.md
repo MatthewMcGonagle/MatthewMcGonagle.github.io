@@ -2,6 +2,7 @@
 layout: post
 title: "Learning Simple Shapes in Tensor Flow"
 date: 2017-10-23
+tags: [Python, TensorFlow]
 ---
 
 ## [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-23-LearnShapesTensorFlow.py)

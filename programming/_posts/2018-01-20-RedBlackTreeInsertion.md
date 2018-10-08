@@ -2,6 +2,7 @@
 layout: post
 title: Understanding Red Black Tree Insertion
 date: 2018-01-19
+tags: Theory
 ---
 
 In this post we will take a look at understanding insertion in red-black trees on an intuitive level. We will first take an intuitive look at how red-black trees are defined and then look at how to derive the steps to do insertion from scratch. 

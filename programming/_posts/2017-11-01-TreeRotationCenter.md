@@ -2,6 +2,7 @@
 layout: post
 title: Where is the Center of a Tree Rotation?
 date: 2017-11-01
+tags: Theory
 ---
 
 In this post we'll look at the location of the "center of rotation" for a binary tree rotation. I find that many of the pictures one finds when looking up information on tree rotations have a very suggestive arrow, but they don't do a very good job of indicating **where** the rotation is happening. For example, the pictures often look like this:

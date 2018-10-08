@@ -2,6 +2,7 @@
 layout: post
 title: 'Drawing a Binary Tree Using Gradient Descent and a Potential Function'
 date: 2017-11-03
+tags: Python
 ---
 
 ## [Download The Source Code for this Post]({{site . url}}/assets/2017-11-03-potentialTree.py)

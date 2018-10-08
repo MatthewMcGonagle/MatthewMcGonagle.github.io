@@ -1,7 +1,8 @@
 ---
 layout: post
-title: A Pitfall of Errors in Parsec Package for Haskell
+title: A Pitfall of Errors for Parsec Parser Combinators 
 date: 2017-12-08
+tags: [Haskell, Parsec]
 ---
 
 ## [Download the Source Code for this Post]({{site . url}}/assets/2017-12-08-ParsecPitfall.hs)

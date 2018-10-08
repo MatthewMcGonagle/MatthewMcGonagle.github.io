@@ -2,6 +2,7 @@
 layout : post
 title : "Learning Geometric Shapes with a Multi-layer Perceptron"
 date : 2017-10-17
+tags: [Python, Sklearn]
 ---
 
 ## [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-17-LearningShapesMLP.py)

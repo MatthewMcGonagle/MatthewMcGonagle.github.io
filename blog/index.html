@@ -10,7 +10,12 @@ title: Matthew McGonagle's Blog
     <ul class = "posts">
     
        {% for post in site.categories.programming %}
-            <li><span>{{ post.date | date_to_string }} </span> - <a href = "{{ post . url }}" title = "{{ post . title }}"> {{ post.title }} </a></li>
+            <li><span>{{ post.date | date_to_string }} </span> - 
+            <a href = "{{ post . url }}" title = "{{ post . title }}"> {{ post.title }} </a>
+                {% for tag in post.tags %} 
+                [{{tag}}] 
+             {% endfor %} 
+            </li>
         {% endfor %}
 
     </ul>

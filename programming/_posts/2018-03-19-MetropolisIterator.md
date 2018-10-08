@@ -1,7 +1,8 @@
 ---
 layout: post
 date: 2018-03-18
-title: Metropolis Sampling Using Python Iterators
+title: Metropolis Sampling Using Iterators
+tags: Python
 ---
 
 ## [Download the Source Code for this Post]({{site . url}}/assets/2018-03-19-MetropolisSamples.py)

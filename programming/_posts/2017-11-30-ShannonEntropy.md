@@ -2,6 +2,7 @@
 layout: post
 title: What is Shannon Entropy?
 date: 2017/11/30
+tags: Theory
 ---
 
 The purpose of this post is to record some of my musings on Shannon's viewpoint of entropy. This is based on two references:

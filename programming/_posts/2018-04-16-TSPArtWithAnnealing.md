@@ -2,6 +2,7 @@
 layout: post
 title: Travelling Salesman Art With Simulated Annealing
 date : 2018-04-15
+tags: Python
 ---
 
 ## [Download the Source Code For This Post]({{site . url}}/assets/2018-04-16-TSPArtWithAnnealing.py)

@@ -2,6 +2,7 @@
 layout: post
 date: 2018-06-15
 title: C Extension Module for Python, Quicksort
+tags: [C, Python]
 ---
 
 ## [Download `moduleCSort.c` Here]({{site . url}}/assets/2018-06-15-files/moduleCSort.c)

@@ -2,6 +2,7 @@
 layout : post 
 title : "Selecting Sub-squares with Numpy Indexing"
 date : 2017-10-13 
+tags: [Python, Numpy]
 ---
 
 ## [Download the Source Code for this Post]( {{ site . url }}/assets/2017-10-13-SubsquaresNumpy.py)

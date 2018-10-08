@@ -2,6 +2,7 @@
 layout: post
 date: 2018-02-21
 title: Regression for Randomly Choosing To Run A Poisson Process
+tags: [Python, Statistics] 
 ---
 
 ## [Download the Source Code for this Post]({{site . url}}/assets/2018-02-21-RandomlyChoosingPoisson.py)

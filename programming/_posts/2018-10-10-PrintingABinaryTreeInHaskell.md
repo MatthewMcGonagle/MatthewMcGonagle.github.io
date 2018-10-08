@@ -1,7 +1,8 @@
 ---
 layout: post
-title: "Printing a Binary Tree in Haskell"
+title: "Printing a Binary Tree Using the State Monad"
 date: 2017-10-10
+tag: Haskell
 ---
 
 ## [Download the Source Code for This Post]( {{ site . url }}/assets/2017-10-10-code.hs)

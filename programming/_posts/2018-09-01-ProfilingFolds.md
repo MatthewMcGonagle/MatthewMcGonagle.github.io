@@ -1,7 +1,8 @@
 ---
 layout : post
-title : Profiling Compositions of Folds in Haskell
+title : Profiling Compositions of Folds
 date : 2018-08-30
+tags: Haskell
 ---
 
 ## [Download MakeFolds.hs here]({{site . url}}/assets/2018-09-01-files/MakeFolds.hs).

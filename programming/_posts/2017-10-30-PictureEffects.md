@@ -1,7 +1,8 @@
 ---
 layout: post
-title: "Picture Effects in Tensor Flow"
+title: "Picture Effects Using Multi-Layer Perceptron"
 date: 2017-10-30
+tags: [Python, TensorFlow]
 ---
 
 ## [Download the Source Code for This Post]( {{site . url}}/assets/2017-10-30-CartoonifyPicture.py)

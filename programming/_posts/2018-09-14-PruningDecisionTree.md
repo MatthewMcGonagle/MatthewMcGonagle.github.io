@@ -1,7 +1,8 @@
 ---
 layout : post
-title : Pruning an Sklearn Decision Tree in Python
+title : Pruning an Sklearn Decision Tree 
 date : 2018-09-13
+tags: Python 
 ---
 
 ## [Download example.py Here]({{site . url}}/assets/2018-09-14-files/example.py)

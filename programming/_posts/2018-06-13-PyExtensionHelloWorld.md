@@ -2,6 +2,7 @@
 layout : post
 date : 2018-06-13
 title : Python Extension Modules, Hello World
+tags: [C, Python]
 ---
 
 ## [Download `setup.py` Here]({{site . url}}/assets/2018-06-13-code/setup.py)

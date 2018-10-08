@@ -2,6 +2,7 @@
 layout: post
 date: 2018-06-09
 title: Improved TSP Art With Modified Annealing
+tags: Python
 ---
 
 ## [Download the Source Code for This Post]({{site . url}}/assets/2018-06-09-TSPArtModifiedAnnealing.py)

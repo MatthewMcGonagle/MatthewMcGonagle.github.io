@@ -2,6 +2,7 @@
 layout : post
 title : Random Traversal of A Binary Tree
 date : 2017-11-21
+tags: Python
 ---
 
 ## [Download the Source Code for this Post]({{site . url}}/assets/2017-11-21-randomTraversal.py)
