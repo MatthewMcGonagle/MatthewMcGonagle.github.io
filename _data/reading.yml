@@ -400,3 +400,24 @@
   url: http://textbooks.opensuny.org/how-we-got-from-there-to-here-a-story-of-real-analysis/
   subject: history
   subject2: analysis 
+
+- author: Brockett
+  title: "The Early Days of Geommetric Nonlinear Control Theory"
+  url: http://www.princeton.edu/~biswadip/Teaching/RM12_Brockett--Early_Geom_NL_Control.pdf
+  type: survey
+  subject: math
+  subject2: control theory
+
+- author: Brockett
+  title: Nonlinear Control Theory and Differential Geometry
+  url: https://pdfs.semanticscholar.org/4741/67390c72d66d73ea4e04e777eb3ec23c1b95.pdf 
+  type: survey
+  subject: math
+  subject2: control theory
+
+- author: Pogliani and Berberan-Santos
+  title: Constantin Caratheodory and the Axiomatic Thermodynamics
+  url: http://web.ist.utl.pt/berberan/data/68.pdf  
+  type: survey
+  subject: history
+  subject2: geometry
