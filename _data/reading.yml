@@ -287,7 +287,7 @@
 - author: Edwards
   title: The Historical Development of Calculus 
   subject: history
-  subject2: calculuc
+  subject2: calculus
 
 - author: Hawkins
   title: The Theory of Matrices in the 19th Century 
@@ -421,3 +421,16 @@
   type: survey
   subject: history
   subject2: geometry
+
+- author: "Paradis, Pla, and Viader"
+  title: "Fermat's Treatise on Quadrature: A New Reading"
+  url: http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.583.4720&rep=rep1&type=pdf
+  type: survey
+  subject: history 
+  subject2: calculus 
+
+- author: Stillwell
+  title: Mathematics and Its History
+  type: survey
+  subject: history
+  subject2: math
