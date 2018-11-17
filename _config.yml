@@ -5,3 +5,5 @@ highlighter: rouge
 kramdown:
     input: GFM
     syntax_highlighter: rouge
+
+includes_dir: assets
