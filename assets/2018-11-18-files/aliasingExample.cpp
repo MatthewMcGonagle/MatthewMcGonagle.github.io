@@ -1,4 +1,6 @@
 /**
+   aliasingExample.cpp
+
    Restrict possible outputs of Foo class tempalte to a finite number by using a non-type parameter, in particular 
    use values of a special enumerative type. 
 */

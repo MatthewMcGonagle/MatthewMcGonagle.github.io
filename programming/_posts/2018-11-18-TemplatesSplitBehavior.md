@@ -90,3 +90,31 @@ is minimal compared to copying all of `Foo`.
 {% highlight cpp %}
 {% include 2018-11-18-files/inheritance.cpp %}
 {% endhighlight %}
+
+# Using Friend Classes
+
+Another option is to use a friend class to implement the functions with different behavior. Now we use
+a class template `_Bar` to hold the different versions of `bar()`. The catch is that we need to pass
+an explicit pointer or reference to the class calling `_Bar::bar()`; so really, the parameter format is 
+`Bar<dataType, qualifier>::bar(Foo<dataType, qualifier>*)`. 
+
+Then, inside the class template `Foo` we can make a general member function `Foo::bar()` that will call 
+the appropriate `_Bar<dataType, qualifier>::bar(Foo<dataType, qualifier> *)`. Of course, we will need
+to make `_Bar` a friend of `Foo`. If we wish to restrict any other classes from calling `_Bar` then we
+can make everything inside `_Bar` private and also make `Foo` a friend of `_Bar`. 
+
+{% highlight cpp%}
+{% include 2018-11-18-files/oneSpecial.cpp %}
+{% endhighlight %}
+
+# Using Aliasing For a Finite Number of Possibilities
+
+What if we aren't interested in creating behavior for all possible outputs? For example how can achieve
+standard behavior for `int` and `double`; special behavior for `int`; and no other behavior? A quick trick
+is to use an enumerative type to determine the behavior; this allows us to get two different behaviors for
+`int`. However, then we are left with the problem of generating the type of `_myVar` using a non-type 4
+template parameter. This can be accomplished using aliasing. 
+
+{% highlight cpp %}
+{% include 2018-11-18-files/aliasingExample.cpp %}
+{% endhighlight %}

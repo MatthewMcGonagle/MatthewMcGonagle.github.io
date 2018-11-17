@@ -1,4 +1,6 @@
 /**
+    oneSpecial.cpp
+
     Use a friend class template and template specialization to implement a class template that takes 
     a datatype and a qualifier; the qualifier comes in two states: standard or special. The class 
     template should have the same interface but two different behaviors for a member function 
@@ -15,7 +17,7 @@
 enum Qualifier {standard, special};
 
 // Need to declare the class template to use with its friend.
-template <typename dataType, Qualifier qual> class _Bar;
+template <typename dataType, Qualifier qualifier> class _Bar;
 
 /**
     The class template Foo has friend class template _Bar.
@@ -23,13 +25,13 @@ template <typename dataType, Qualifier qual> class _Bar;
 
     @tparam dataType The type of _myVar that the class holds. This will be printed
                      out using bar().
-    @tparam qual The qualifier to specify whether to use standard behavior or special
+    @tparam qualifier The qualifier to specify whether to use standard behavior or special
                  behavior for Foo::Bar.
 */
-template <typename dataType, Qualifier qual = standard>
+template <typename dataType, Qualifier qualifier = standard>
 class Foo {
 
-    friend class _Bar<dataType, qual>;
+    friend class _Bar<dataType, qualifier>;
 
     public:
     Foo(dataType myVar_) : _myVar(myVar_) {}
@@ -37,7 +39,7 @@ class Foo {
     /** 
         The behavior of bar() is defined by the version of bar() given inside the _Bar template.
     */   
-    void bar() { _Bar<dataType, qual>::bar(this); }
+    void bar() { _Bar<dataType, qualifier>::bar(this); }
 
     /**
         Calls bar() n times, outputting the count each time.
@@ -57,28 +59,28 @@ class Foo {
     Structure template that creates the function bar(). It is a friend of Foo so that
     it can access the members of Foo.
 
-    The general template is for the standard behavior given by passing qual = standard.
+    The general template is for the standard behavior given by passing qualifier = standard.
     @tparam dataType The datatype of Foo::_myVar that will be printed.
-    @tparam qual Whether to use the standard behavior or the special behavior.
+    @tparam qualifier Whether to use the standard behavior or the special behavior.
 */
-template <typename dataType, Qualifier qual>
+template <typename dataType, Qualifier qualifier>
 class _Bar{
 
-    friend class Foo<dataType, qual>;
+    friend class Foo<dataType, qualifier>;
 
     private:
     /**
         Standard behavior for bar().        
-        @param my Pointer to the instance of Foo<dataType, qual> that called bar(), e.g. the 
+        @param my Pointer to the instance of Foo<dataType, qualifier> that called bar(), e.g. the 
                   Foo object's this pointer.
     */
-    static void bar(Foo<dataType, qual>* my) {
+    static void bar(Foo<dataType, qualifier>* my) {
         std::cout << "Standard x = " << my->_myVar <<std::endl;
     }
 };
 
 /**
-    This specialization for qual = special gives the special behavior of bar().
+    This specialization for qualifier = special gives the special behavior of bar().
 
     @tparam dataType The type of Foo::_myVar that will be printed out.
 */
@@ -91,7 +93,7 @@ class _Bar<dataType, special> {
 
     /**
         Special behavior for bar().
-        @param my Pointer to the instance of Foo<dataType, qual> that called bar(), e.g. the
+        @param my Pointer to the instance of Foo<dataType, qualifier> that called bar(), e.g. the
                   Foo object's this pointer.
     */
     static void bar(Foo<dataType, special>* my) {

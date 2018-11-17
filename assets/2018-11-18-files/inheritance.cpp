@@ -1,4 +1,5 @@
 /**
+    inheritance.cpp
 
     Use inheritance and template specialization to implement a class template that takes a datatype and a qualifier; 
     the qualifier comes in two states: standard or special. The class template should have the same interface 
