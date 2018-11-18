@@ -10,6 +10,12 @@ tags: C++ Templates MetaProgramming
 {% endcapture %}
 
 ## [Download inheritance.cpp Here]({{site . url}}/assets/2018-11-18-files/inheritance.cpp)
+## [Download oneSpecial.cpp Here]({{site . url}}/assets/2018-11-18-files/oneSpecial.cpp)
+## [Download aliasingExample.cpp Here]({{site . url}}/assets/2018-11-18-files/aliasingExample.cpp)
+## [Download templateTemplate.cpp Here]({{site . url}}/assets/2018-11-18-files/templateTemplate.cpp)
+## [Download noCompile.cpp Here]({{site . url}}/assets/2018-11-18-files/noCompile.cpp)
+## [Download templateTemplateNoCompile.cpp Here]({{site . url}}/assets/2018-11-18-files/templateTemplateNoCompile.cpp)
+
 
 In this post we'll look at several ways to use template specialization (including partial specialization)
 to give templates different behaviors depending on their inputs. I was inspired to look consider this while
@@ -150,3 +156,11 @@ templateTemplateNoCompile.cpp:68:26: error: no members matching 'NoBar<int>::bar
      using Bar<dataType>::bar;
                           ^
 ``` 
+
+## [Download inheritance.cpp Here]({{site . url}}/assets/2018-11-18-files/inheritance.cpp)
+## [Download oneSpecial.cpp Here]({{site . url}}/assets/2018-11-18-files/oneSpecial.cpp)
+## [Download aliasingExample.cpp Here]({{site . url}}/assets/2018-11-18-files/aliasingExample.cpp)
+## [Download templateTemplate.cpp Here]({{site . url}}/assets/2018-11-18-files/templateTemplate.cpp)
+## [Download noCompile.cpp Here]({{site . url}}/assets/2018-11-18-files/noCompile.cpp)
+## [Download templateTemplateNoCompile.cpp Here]({{site . url}}/assets/2018-11-18-files/templateTemplateNoCompile.cpp)
+
