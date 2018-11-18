@@ -69,7 +69,7 @@ class _Bar<dataType, special> {
 
 /**
     The class template Foo defaults to have the standard qualifier. The
-    member function nBar() will make calls to the particular version of
+    member function bar() will make calls to the particular version of
     bar() created by the super-class template _Bar.
 
     @tparam dataType The datatype of _Bar::_myVar.
@@ -77,17 +77,17 @@ class _Bar<dataType, special> {
                  to use special behavior. Default: standard.
 */
 
-template <typename dataType, Qualifier qual = standard>
-class Foo : public _Bar<dataType, qual> {
+template <typename dataType, Qualifier qualifier = standard>
+class Foo : public _Bar<dataType, qualifier> {
 
     public:
     Foo(dataType myVar_) {
-        // Note the need for _Bar<dataType, qual>:: to find the variable.
-        _Bar<dataType, qual>::_myVar = myVar_;
+        // Note the need for _Bar<dataType, qualifier>:: to find the variable.
+        _Bar<dataType, qualifier>::_myVar = myVar_;
     } 
 
     // Need to tell compiler to look for the other overloaded version of bar(). 
-    using _Bar<dataType, qual>::bar; 
+    using _Bar<dataType, qualifier>::bar; 
 
     /**
         Calls bar n times, each time printing out the count.

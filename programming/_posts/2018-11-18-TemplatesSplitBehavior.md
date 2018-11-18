@@ -1,9 +1,10 @@
 ---
 layout: post
-date: 2018-11-16
+date: 2018-11-18
 title: Templates with Special and Standard Behaviors 
 tags: C++ Templates MetaProgramming
 ---
+
 {% capture inheritanceContent %}
     {% include 2018-11-18-files/inheritance.cpp %}
 {% endcapture %}
@@ -118,3 +119,34 @@ template parameter. This can be accomplished using aliasing.
 {% highlight cpp %}
 {% include 2018-11-18-files/aliasingExample.cpp %}
 {% endhighlight %}
+
+# Using Template Template Parameters
+
+The final possibility we list is using a template parameter that is itself a template (a so called template
+template parameter). This example uses inheritance, but now we pass a class template to generate the
+super class. However, the super class must implement the member function `bar()` and hold a variable
+`_myVar`. If we pass a class template that fails to do so, then we will generate compiler errors. So in a
+sense this method is less safe than the methods shown above since it is possible for the user to 
+generate code that won't compile. However, this can be avoided by proper documentation. 
+
+{% highlight cpp %}
+{% include 2018-11-18-files/templateTemplate.cpp %}
+{% endhighlight %}
+
+Let's take a look at an example where compilation will fail if we don't implement the super class template
+correctly. The problem with the following code is that the class template `NoBar` doesn't implement the
+member function `bar()`.
+
+{% highlight cpp %}
+{% include 2018-11-18-files/templateTemplateNoCompile.cpp %}
+{% endhighlight %}
+
+When we try to compile this with `g++ templateTemplateNoCompile.cpp -std=c++11`, we get the following
+error messages:
+```
+templateTemplateNoCompile.cpp: In instantiation of 'class Foo<int, NoBar>':
+templateTemplateNoCompile.cpp:87:31:   required from here
+templateTemplateNoCompile.cpp:68:26: error: no members matching 'NoBar<int>::bar' in 'class NoBar<int>'
+     using Bar<dataType>::bar;
+                          ^
+``` 
