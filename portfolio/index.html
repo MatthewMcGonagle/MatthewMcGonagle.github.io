@@ -6,7 +6,117 @@ title: Matthew McGonagle's Portfolio
 <h1> {{page . title}} </h1>
 
 <table>
+
     <tr>
+    <th> Contributor to penguinV </th>
+    <td> <table>
+         <tr>
+         <td> Repository </td>
+         <td> <a href = "https://github.com/ihhub/penguinV">https://github.com/ihhub/penguinV </a></td>
+         </tr>
+
+         <tr>
+         <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+         </tr>
+
+         <tr>
+         <td> Language </td>
+         <td> C++ </td>
+         </tr>
+
+         <tr>
+         <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+         </tr>
+
+         <tr>
+         <td> Purpose </td>
+         <td> An image processing library focusing on ease of use and heterogeneous systems (e.g. CUDA).</td>
+         </tr>
+
+         <tr>
+         <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+         </tr>
+
+
+         <tr>
+         <td> Description </td>
+         <td> My contributions to this project include:
+
+              <ul>
+              <li> <a href = "https://github.com/ihhub/penguinV/pull/168">Pull Request #168: Python </a>. 
+                   <br>
+                   Used SWIG to create Python wrappers for library image classes. 
+              </li>
+
+              <li> <a href = "https://github.com/ihhub/penguinV/pull/279"> Pull Request #279: Merge FFT classes for CPU and CUDA</a>.
+                   <br>
+                   Reduced code duplication by refactoring code for Fast Fourier Transforms to use OOP principles. Before,
+                   code existed as almost equivalent copies: one version for using third party kiss_fft functions and 
+                   the other for using CUDA fft functions. 
+              </li>
+              </ul>
+         </td>
+         </tr>
+
+         </table> 
+    </td>
+    </tr>
+
+    <tr>
+    <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+    </tr>
+
+    <tr>
+    <th> TSP_PictureMaker </th>
+    <td> <table>
+         <tr>
+         <td> Repository </td>
+         <td> <a href = "https://github.com/MatthewMcGonagle/TSP_PictureMaker"> https://github.com/MatthewMcGonagle/TSP_PictureMaker </a> </td>
+         </tr>    
+
+         <tr>
+         <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+         </tr>
+
+         <tr>
+         <td> Purpose </td>
+         <td> Python module for drawing pictures using a single closed curve with a small number of self-intersections by finding approximate solutions to the Travelling Salesman Problem.</td>
+         </tr>
+
+         <tr>
+         <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+         </tr>
+
+         <tr>
+         <td> Description </td>
+         <td> This module turns an image into a drawing using a single curve with a minimal amount of self-intersections by doing the following:
+              <ol>
+              <li>
+              Convert the image to gray scale.
+              </li>
+              <li>
+              Use dithering to turn the image into a black and white image. The resulting black pixels give the vertices that the curve will visit.
+              </li>
+
+              <li>
+              Use multi-stage simulated annealing to find an approximate solution to the Travelling Salesman Problem for the extracted vertices. This
+              approximate solution gives us the curve we use to make the drawing.
+              </li>
+              </ol>
+
+              Below is an example of the type of drawing that can be made:
+              <img src = "https://raw.githubusercontent.com/MatthewMcGonagle/TSP_PictureMaker/master/docs/finalCycle.png" alt = "Example of TSP_PictureMaker Drawing">
+         </td>
+         </tr>
+         </table> 
+    </td>
+    </tr>
+    <tr>
+
+    <tr>
+    <td colspan = "100%"; style = "border-bottom: 1px solid black"></td>
+    </tr>
+
     <th> CVWriter </th>
     <td> <table>
         <tr>
