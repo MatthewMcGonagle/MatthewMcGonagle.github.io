@@ -49,10 +49,11 @@
                  Library that parses a file with a particular XML-like formatting that contains information to put into a CV. The format is discussed in the README.md located in the repository. 
                                  After parsing, this information can be converted into two different file formats: a .html Jekyll compatible file or a .tex LaTeX file. 
                                  <ul> 
-                                 <li>The .html file is meant to be processed by Jekyll to create a web-page CV. I use this to make <a href = "{{site . url}}/cv/"> the webpage version of my CV </a>. </li> 
+                                 <li>The .html file is meant to be processed by Jekyll to create a web-page CV. I use this to make 
+                                     <a href = "https://matthewmcgonagle.github.io/cv/"> the webpage version of my CV </a>. </li> 
                     
                                  <li>The .tex LaTeX file is meant to be processed using <code>pdflatex</code> to create a .pdf version of the CV. 
-                                     I use this to make <a href = "{{site . url}}/cv/MatthewMcGonagleCV.pdf">the pdf version of my CV</a>. </li>
+                                     I use this to make <a href = "https://matthewmcgonagle.github.io/cv/MatthewMcGonagleCV.pdf">the pdf version of my CV</a>. </li>
                                  </ul> 
 
 - project: Quadratic Field Extension
