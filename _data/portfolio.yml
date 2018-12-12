@@ -1,0 +1,152 @@
+- project: Contributor to penguinV
+  repository: "https://github.com/ihhub/penguinV" 
+  language: C++
+  purpose: An image processing library focusing on ease of use and heterogeneous systems (e.g. CUDA).
+  description: |
+              My contributions to this project include:
+                        <ul>
+                        <li> <a href = "https://github.com/ihhub/penguinV/pull/168">Pull Request #168: Python </a>. 
+                             <br>
+                             Used SWIG to create Python wrappers for library image classes. 
+                        </li>
+                        <li> <a href = "https://github.com/ihhub/penguinV/pull/279"> Pull Request #279: Merge FFT classes for CPU and CUDA</a>.
+                             <br>
+                             Reduced code duplication by refactoring code for Fast Fourier Transforms to use OOP principles. Before,
+                             code existed as almost equivalent copies: one version for using third party kiss_fft functions and 
+                             the other for using CUDA fft functions. 
+                        </li>
+                        </ul>
+
+- project: TSP_PictureMaker
+  repository: "https://github.com/MatthewMcGonagle/TSP_PictureMaker"
+  language: Python
+  purpose: Python module for drawing pictures using a single closed curve with a small number of self-intersections by finding approximate solutions to the Travelling Salesman Problem.
+  description: |
+                 This module turns an image into a drawing using a single curve with a minimal amount of self-intersections by doing the following:
+                              <ol>
+                              <li>
+                              Convert the image to gray scale.
+                              </li>
+                              <li>
+                              Use dithering to turn the image into a black and white image. The resulting black pixels give the vertices that the curve will visit.
+                              </li>
+                
+                              <li>
+                              Use multi-stage simulated annealing to find an approximate solution to the Travelling Salesman Problem for the extracted vertices. This
+                              approximate solution gives us the curve we use to make the drawing.
+                              </li>
+                              </ol>
+                
+                              Below is an example of the type of drawing that can be made:
+                              <img src = "https://raw.githubusercontent.com/MatthewMcGonagle/TSP_PictureMaker/master/docs/finalCycle.png" alt = "Example of TSP_PictureMaker Drawing">
+
+- project: CVWriter
+  webpage: "https://matthewmcgonagle.github.io/CVWriter/"
+  repository: "https://github.com/MatthewMcGonagle/CVWriter"
+  language: Haskell
+  purpose: Create two output formats for a CV based on one input file of CV information.
+  description: |
+                 Library that parses a file with a particular XML-like formatting that contains information to put into a CV. The format is discussed in the README.md located in the repository. 
+                                 After parsing, this information can be converted into two different file formats: a .html Jekyll compatible file or a .tex LaTeX file. 
+                                 <ul> 
+                                 <li>The .html file is meant to be processed by Jekyll to create a web-page CV. I use this to make <a href = "{{site . url}}/cv/"> the webpage version of my CV </a>. </li> 
+                    
+                                 <li>The .tex LaTeX file is meant to be processed using <code>pdflatex</code> to create a .pdf version of the CV. 
+                                     I use this to make <a href = "{{site . url}}/cv/MatthewMcGonagleCV.pdf">the pdf version of my CV</a>. </li>
+                                 </ul> 
+
+- project: Quadratic Field Extension
+  webpage: "https://matthewmcgonagle.github.io/QuadraticFieldExtension/"
+  repository: "https://github.com/MatthewMcGonagle/QuadraticFieldExtension"
+  language: C++
+  purpose: |
+                Do infinite precision arithmetic for numbers that are made of fractions and any number of square roots. 
+                                        For example, numbers such as <code>1 + sqrt(1/2 + sqrt(2))</code>, where <code>sqrt()</code> is short for the square root function.
+
+  description: |
+        Handles arithmetic for numbers created from fractions by applying any number of square roots. For example, numbers such as 
+                     <code>1 + sqrt(2)</code> or <code>1/3 + 2 * sqrt(1/2 + sqrt(2))</code>, where <code>sqrt()</code> is the square root function. </br></br>
+                     
+                     Library allows one to keep adding square roots of previously added numbers to perform operations. For example, the class starts off with 
+                     handling only fractions. One could then add <code>sqrt(2)</code> to the numbers the class can handle; note that <code>sqrt(2)</code> is 
+                     NOT a fraction (this is a math fact). Now the class can handle numbers like <code> 1/3 + 2/3 * sqrt(2) </code>. </br></br>
+                     
+                     You can then increase the numbers handled by the class by adding a new square root. For example, you could add <code>sqrt(1 + sqrt(2))</code>. 
+                     Now the class can handle numbers such as <code> 1 + 3 * sqrt(1 + sqrt(2)) + 3/5 * sqrt(2) * sqrt(1 + sqrt(2))</code>. Note that the root we 
+                     added, <code>sqrt(1 + sqrt(2))</code> isn't expressible in terms of the numbers previously handled by the class (again, another math fact). </br></br>
+                      
+                     The class can also determine if the square root of one the numbers it can handle can be expressed as a number it can already handle. 
+                     For example, <code>sqrt(6 + 2 * sqrt(2)) = 2 + sqrt(2)</code>, so we don't need to add more numbers to the class to deal with 
+                     <code>sqrt(6 + 2 * sqrt(2))</code>. When the class can find a square root in terms of numbers it already knows, then it is capable of 
+                     telling you the square root. 
+             
+- project: Hilbert Draw
+  webpage: "https://matthewmcgonagle.github.io/HilbertDraw/" 
+  repository: "https://github.com/MatthewMcGonagle/HilbertDraw"
+  language: Python
+  purpose: Convert a picture to a representation made of different levels of Hilbert pseudo-curves.
+  description: |
+      The Hilbert curve is a space filling curve, i.e. a continuous curve that fills an entire square. The Hilbert curve is constructed using 
+                     different levels of Hilbert pseudo-curves, which have a fractal-like self-similar nature. </br></br>
+                     
+                     The library turns a picture (e.g. a .png file) into a representation using one continuous non-self intersecting curve 
+                     whose sections are different levels of Hilbert pseudo-curves. This works best for pictures of cartoon like subject that 
+                     don't have too much detail. This best seen using an example picture. </br></br> 
+
+                     For example, consider the following (manually edited) cartoon-like picture of the mathematician David Hilbert and its 
+                     conversion using the library: </br></br>
+
+                    <img src = "https://raw.githubusercontent.com/MatthewMcGonagle/HilbertDraw/master/hilbertcartoon.png" 
+                         alt = "Cartoon Picture of David Hilbert from the repository of the project." width = "49%" height = "400">
+
+                    <img src = "https://raw.githubusercontent.com/MatthewMcGonagle/HilbertDraw/master/Outputbw.png" 
+                         alt = "Conversion of cartoon Hilbert image." width = "49%" height = "400"> </br></br>
+
+                    The images have been resized for putting in this table. 
+                    <a href = "https://raw.githubusercontent.com/MatthewMcGonagle/HilbertDraw/master/hilbertcartoon.png"> The fullsize cartoon image </a> 
+                    and the <a href = "https://raw.githubusercontent.com/MatthewMcGonagle/HilbertDraw/master/Outputbw.png"> the fullsize conversion </a> 
+                    are available inside the repository.
+
+- project: Programming Exercises
+  webpage: "https://matthewmcgonagle.github.io/ProgrammingExercises/" 
+  repository: "https://github.com/MatthewMcGonagle/ProgrammingExercises"
+  language: C++ and Haskell
+  purpose: Collection of solutions to programming exercises.
+  description: |
+        Self-contained solutions to programming exercises. In particular, there are a lot of solutions to
+                   problems from <a href = "https://leetcode.com/">https://leetcode.com/</a>; these solutions contain tests that are executable 
+                   from the code in the repository. That is, even though LeetCode only requires implementation of class member functions, the 
+                   solutions contains enough code to actually create an executable for testing code before submission. 
+
+- project: Blog
+  webpage: "https://matthewmcgonagle.github.io/blog/"
+  purpose:  Short articles on programming, math, and data science. 
+  description: |
+        Noteworthy Posts:
+        <ul> 
+                <li> 30 Oct 2017 - <a href = "https://matthewmcgonagle.github.io/blog/2017/10/30/PictureEffects">Picture Effects in Tensor Flow </a> </br> 
+                     Treat a picture as a function of two variables x and y. Then try to learn this function using a neural network in 
+                     <code>tensorflow</code> to create a picture effect. For example, the original picture of David Hilbert is on the left; 
+                     the picture effect is on the right: </br>
+                <img src = "https://matthewmcgonagle.github.io/assets/HilbertPic.jpg" alt = "Pic of David Hilbert" height = "300"> 
+                <img src = "https://matthewmcgonagle.github.io/assets/2017-10-30-graphs/regularityStrat.png" alt = "Picture Effect Using TensorFlow">
+                </li>
+
+                <li> 21 Nov 2017 - <a href = "https://matthewmcgonagle.github.io/blog/2017/11/21/randomTraversal">Random Traversal of a Binary Tree</a></br>
+                     Uses numerical simulation to verify theoretical statistics of traversing a binary tree where at each node we independently 
+                     and randomly choose between preorder traversal, inorder traversal, or postorder traversal. Here is an example of the 
+                     agreement between the simulation and the theoretical:</br>
+                     <img src = "https://matthewmcgonagle.github.io/assets/2017-11-21-graphs/level2.svg" alt = "Graph of Agreement Between Theory and Simulation" height = "300"> 
+                </li>
+
+                <li> 08 Dec 2017 - <a href = "https://matthewmcgonagle.github.io/blog/2017/12/08/ParsecPitfall">A Pitfall of Errors in Parsec Package for Haskell</a></br>
+                     Discussion of parsing error messages when using the Parsec library and how to avoid a mistake that will cause your parsing error 
+                     messages to be misleading.
+                </li>
+                <li> 03 Nov 2017 - <a href = "https://matthewmcgonagle.github.io/blog/2017/11/03/potentialTree">Drawing a Binary Tree Using Gradient Descent and a Potential Function</a></br>
+                     Use gradient descent to take find an optimal way to space out nodes of a large binary tree so it is drawn neatly and clearly. 
+                     The final form is given below (although it is a little squeezed horizontally, the graph was made for a space wider than this column):</br>
+                     <img src = "https://matthewmcgonagle.github.io/assets/2017-11-03-graphs/final.svg" alt = "Final Drawing of Binary Tree" width = "99%" height = "300">
+                </li> 
+          </ul>
+
