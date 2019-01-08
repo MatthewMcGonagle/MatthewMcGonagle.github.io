@@ -434,3 +434,23 @@
   type: survey
   subject: history
   subject2: math
+
+- author: Kreyszig
+  title: "On the Calculus of Variations and Its Major Influences on the Mathematics of the First Half of the Century. Parts 1 and 2" 
+  type: survey
+  subject: history
+  subject2: analysis 
+
+- author: "Shenitzer and Steprans"
+  title: The Evolution of Integration
+  url: https://pdfs.semanticscholar.org/3100/f2e84d35442b6c78aa8fc63607e696a54365.pdf
+  type: survey
+  subject: history
+  subject2: analysis
+
+- author: Sussmann and Willems
+  title: "30 Years of Optimal Control: From the Brachystochrone to the Maximum Principle"
+  url: http://www.idsc.ethz.ch/content/dam/ethz/special-interest/mavt/dynamic-systems-n-control/idsc-dam/Lectures/Optimal-Control/Additional%20Material/additional-material.pdf
+  type: survey
+  subject: history
+  subject2: control theory
