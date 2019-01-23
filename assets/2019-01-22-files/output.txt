@@ -1,0 +1,57 @@
+Generating Data
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 1000 entries, 0 to 999
+Data columns (total 3 columns):
+0    1000 non-null float64
+1    1000 non-null float64
+z    1000 non-null float64
+dtypes: float64(3)
+memory usage: 23.5 KB
+None
+at first cuts are pandas intervalindex.
+              0Bin              1Bin
+0  (-0.476, 0.148]  (-1.012, -0.387]
+1   (-1.1, -0.476]    (0.237, 0.861]
+2   (0.148, 0.773]    (0.237, 0.861]
+3   (0.773, 1.397]    (0.237, 0.861]
+4   (0.773, 1.397]  (-1.012, -0.387]
+<class 'pandas.core.frame.DataFrame'>
+RangeIndex: 1000 entries, 0 to 999
+Data columns (total 2 columns):
+0Bin    1000 non-null category
+1Bin    1000 non-null category
+dtypes: category(2)
+memory usage: 2.3 KB
+None
+          0         1        ...                    0Bin              1Bin
+0 -0.192134 -0.784593        ...         (-0.476, 0.148]  (-1.012, -0.387]
+1 -0.995348  0.400177        ...          (-1.1, -0.476]    (0.237, 0.861]
+2  0.651921  0.387027        ...          (0.148, 0.773]    (0.237, 0.861]
+3  0.863363  0.343350        ...          (0.773, 1.397]    (0.237, 0.861]
+4  0.971348 -0.933158        ...          (0.773, 1.397]  (-1.012, -0.387]
+
+[5 rows x 5 columns]
+                              0      ...                  z
+0Bin           (-2.979, -2.349]      ...      (2.646, 3.27]
+1Bin                                 ...                   
+(2.735, 3.359]              NaN      ...                NaN
+(2.11, 2.735]               NaN      ...                NaN
+(1.486, 2.11]               NaN      ...           0.971420
+(0.861, 1.486]              NaN      ...           1.590939
+(0.237, 0.861]        -2.973171      ...           2.311033
+
+[5 rows x 30 columns]
+0Bin              (-2.979, -2.349]      ...        (2.646, 3.27]
+1Bin                                    ...                     
+(2.735, 3.359]                 NaN      ...                  NaN
+(2.11, 2.735]                  NaN      ...                  NaN
+(1.486, 2.11]                  NaN      ...             0.971420
+(0.861, 1.486]                 NaN      ...             1.590939
+(0.237, 0.861]           -3.355331      ...             2.311033
+(-0.387, 0.237]          -2.616789      ...             2.746465
+(-1.012, -0.387]         -1.733825      ...                  NaN
+(-1.636, -1.012]               NaN      ...             4.001416
+(-2.26, -1.636]                NaN      ...                  NaN
+(-2.891, -2.26]                NaN      ...                  NaN
+
+[10 rows x 10 columns]
