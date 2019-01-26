@@ -1,3 +1,16 @@
+# fromFile.p
+# Make 2d surface graph and 2d heatmap graph
+# parameters
+# ----------
+# filename The input file to use for the graph. It should be an array to triples
+#          in the form of (x-coordinate, y-coordinate, z-value).
+#
+# outname  The output file name.
+#  
+# dimX The dimension of the x-coordinate.
+#
+# dimY The dimension of the y-coordinate.
+
 set terminal svg size 400,200 dynamic
 
 set title outname." Heat Plot"

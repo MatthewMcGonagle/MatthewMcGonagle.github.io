@@ -1,3 +1,7 @@
+# makeGraphs.sh
+# Use GNUPlot to make graphs for existing data files from Jacobi iteration.
+# Parameter $1 The side length of the square PDE discretization square grid.
+
 if [ "$1" == "" ]
 then
     dimX=20
