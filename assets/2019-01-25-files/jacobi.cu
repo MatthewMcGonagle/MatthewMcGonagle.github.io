@@ -1,7 +1,10 @@
+/*! jacobi.cu
+ */
+
 #include "jacobi.cuh"
 
 __global__
-void jacobiIteration(int dimX, int dimY, float * in, float * out)
+void doJacobiIteration(int dimX, int dimY, float * in, float * out)
 {
     const int i = blockIdx.x * blockDim.x + threadIdx.x,
               j = blockIdx.y * blockDim.y + threadIdx.y;
@@ -17,6 +20,9 @@ void jacobiIteration(int dimX, int dimY, float * in, float * out)
 
     out += offset; 
     in += offset;
+
+    // Jacobi iteration for harmonic means the ouput is average of neighbor points in grid.
+
     *out = *(in - 1) * 0.25 +
            *(in + 1) * 0.25 + 
            *(in - dimY) * 0.25 + 
@@ -149,6 +155,9 @@ float * getRelativeErrors(const float * errors, const float * trueValues, const 
         {
             absError = abs(*errors);
             absTrue = abs(*trueValues);
+
+            // Use a cutoff as a work around to dividing by 0.
+
             if (absTrue < cutOff)
                 absTrue = cutOff;
             *newError = std::log(absError / absTrue) / log10; 
@@ -159,21 +168,21 @@ float * getRelativeErrors(const float * errors, const float * trueValues, const 
 }
 
 __host__
-float getAverageError(const float * values, const float * trueValues, const int dimX, const int dimY )
+float getAverageError(const float * values, const float * trueValues, const int dimensions[2]) //dimX, const int dimY )
 {
     // Now get the average error.
         double error = 0; 
         int offset;
-        for (int i = 0; i < dimX; i++)
+        for (int i = 0; i < dimensions[0]; i++)
         {
-            offset = i * dimY;
-            for (int j = 0; j < dimY; j++, offset++)
+            offset = i * dimensions[1];
+            for (int j = 0; j < dimensions[1]; j++, offset++)
             {
                 error += abs(values[offset] - trueValues[offset]);
             }
         } 
     
-        error /= dimX * dimY;
+        error /= dimensions[0] * dimensions[1];
         return static_cast<float>(error);
 }
 

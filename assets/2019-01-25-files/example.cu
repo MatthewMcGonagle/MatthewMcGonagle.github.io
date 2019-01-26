@@ -1,3 +1,10 @@
+/*! example.cu
+ *
+ * Example to compute Jacobi iterations for specific size of grid discretization.
+ *
+ * \author Matthew McGonagle
+ */
+
 #include <iostream>
 #include "jacobi.cuh"
 #include <cuda_runtime.h>
@@ -56,7 +63,7 @@ int main(int argc, char * argv[])
     trueValues = makeTrueValues( dimensions, lowerLeft, upperRight, & getHarmonic );
 
     std::cout << "Before Average Error = " 
-              << getAverageError(values, trueValues, dimensions[0], dimensions[1]) 
+              << getAverageError(values, trueValues, dimensions) //dimensions[0], dimensions[1]) 
               << std::endl;
 
     // Need to copy values from host to CUDA device.
@@ -76,7 +83,7 @@ int main(int argc, char * argv[])
     for( int i = 0; i < nIterations; i++)
     {
         // Call CUDA device kernel to a Jacobi iteration. 
-        jacobiIteration<<< gridSize, blockSize >>>(dimensions[0], dimensions[1], in, out);
+        doJacobiIteration<<< gridSize, blockSize >>>(dimensions[0], dimensions[1], in, out);
         cudaDeviceSynchronize();
         if(cudaGetLastError() != cudaSuccess)
         {
@@ -103,12 +110,12 @@ int main(int argc, char * argv[])
     errors = getErrors(values, trueValues, dimensions);
     saveToFile( errors, dimensions, lowerLeft, upperRight, "data/errors.dat");
     std::cout << "After Average Error = " 
-              << getAverageError(values, trueValues, dimensions[0], dimensions[1]) 
+              << getAverageError(values, trueValues, dimensions)//[0], dimensions[1]) 
               << std::endl;
 
     std::cout << "Now getting relative errors" << std::endl;
     relErrors = getRelativeErrors(errors, trueValues, dimensions);
-    saveToFile( relErrors, dimensions, lowerLeft, upperRight, "datalog10RelErrors.dat");
+    saveToFile( relErrors, dimensions, lowerLeft, upperRight, "data/log10RelErrors.dat");
 
     // Clean up memory.
 
