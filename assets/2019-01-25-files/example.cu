@@ -12,15 +12,15 @@
 #include <cmath>
 #include <string>
 
-//! Type to hold pointer to function for giving boundary values.
-typedef float (*boundary)(float, float);
-
 //! Harmonic function of x and y is used to compute true values and the boundary values. 
 __host__
 float getHarmonic(float x, float y) 
 {
-    //! Real Part ((z - 0.5)^3) = (x - 0.5)^3 - 2 x (y - 0.5)^2 .
-    return pow(x - 0.5, 3) - 2 * (x-0.5) * pow(y - 0.5, 2); 
+    //! Real Part ((z - 0.5 - 0.5i)^5) = (x - 0.5)^5 - 10 (x - 0.5)^3 (y - 0.5)^2 + 5 (x - 0.5) (y - 0.5)^4.
+
+    x -= 0.5;
+    y -= 0.5;
+    return pow(x, 5) - 10 * pow(x, 3) * pow(y, 2) + 5 * pow(x, 1) * pow(y, 4);
 }
 
 /*! Compute order of N^2 Jacobi iterations for harmonic solution on xy unit square for boundary values where
@@ -48,6 +48,7 @@ int main(int argc, char * argv[])
         memSize = dimensions[0] * dimensions[1] * sizeof(float);
     const float lowerLeft[2] = {0, 0},  // Lower left coordinate of rectangular domain.
                 upperRight[2] = {1, 1}; // Upper right coordinate of rectangular domain.
+    //! We use flat arrays, because CUDA uses flat arrays.
     float * values, * trueValues, * in, * out, * errors, * relErrors;
     const dim3 blockSize( nThreads , nThreads), // The size of CUDA block of threads.
                gridSize( (dimensions[0] + nThreads - 1) / nThreads, (dimensions[1] + nThreads - 1) / nThreads);
@@ -110,7 +111,7 @@ int main(int argc, char * argv[])
     errors = getErrors(values, trueValues, dimensions);
     saveToFile( errors, dimensions, lowerLeft, upperRight, "data/errors.dat");
     std::cout << "After Average Error = " 
-              << getAverageError(values, trueValues, dimensions)//[0], dimensions[1]) 
+              << getAverageError(values, trueValues, dimensions)
               << std::endl;
 
     std::cout << "Now getting relative errors" << std::endl;

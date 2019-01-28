@@ -9,7 +9,7 @@
 #include <fstream>
 
 //! Type for pointer to function for computing boundary values.
-typedef float (*boundary)(float, float);
+typedef float (*harmonic)(float, float);
 
 /*! Compute a single Jacboi iteration for a single point on the PDE discretization grid.
  *
@@ -42,7 +42,7 @@ void copyToDevice(float * values, const int dimensions[2], float ** in, float **
  * \param f The function to give the boundary values.
  */
 __host__
-void setBoundaryValues(float * values, const int dimensions[2], const float lowerLeft[2], const float upperRight[2], boundary f);
+void setBoundaryValues(float * values, const int dimensions[2], const float lowerLeft[2], const float upperRight[2], harmonic f);
 
 /*! Set the initial values for the iteration process (including boundary values).
  *
@@ -52,7 +52,7 @@ void setBoundaryValues(float * values, const int dimensions[2], const float lowe
  * \param f The function for the boundary values.
  */
 __host__
-float * makeInitialValues(const int dimensions[2], const float lowerLeft[2], const float upperRight[2], boundary f);
+float * makeInitialValues(const int dimensions[2], const float lowerLeft[2], const float upperRight[2], harmonic f);
 
 /*! Set the true values of the solution.
  *
@@ -62,7 +62,7 @@ float * makeInitialValues(const int dimensions[2], const float lowerLeft[2], con
  * \param f The true values function.
  */
 __host__
-float * makeTrueValues(const int dimensions[2], const float lowerLeft[2], const float upperRight[2], boundary f);
+float * makeTrueValues(const int dimensions[2], const float lowerLeft[2], const float upperRight[2], harmonic f);
 
 /*! Get the errors between the approximate solution and the true values.
  * 
@@ -73,15 +73,16 @@ float * makeTrueValues(const int dimensions[2], const float lowerLeft[2], const 
 __host__
 float * getErrors(const float * values, const float * trueValues, const int dimensions[2]);
 
-/*! Get relative errors between the approximation and true harmonic function.
+/*! Get the logarithm of the relative errors between the approximation and true harmonic function.
  * 
  * \param errors The non-relative errors.
  * \param trueValues The true values of the harmonic function.
  * \param dimensions The xy-dimensions of the PDE discretization grid.
- * \param cutOff We round up absolute trueValues that are smaller than the cutOff to the cutOff.
+ * \param cutOff We round up absolute trueValues that are smaller than the cutOff to the cutOff. We also
+                 round up to cutOff to avoid taking the logarithm of 0.
  */
 __host__
-float * getRelativeErrors(const float * errors, const float * trueValues, const int dimensions[2], float cutOff = 0.0001);
+float * getRelativeErrors(const float * errors, const float * trueValues, const int dimensions[2], float cutOff = 0.00001);
 
 /*! Get the average absolute error.
  * 

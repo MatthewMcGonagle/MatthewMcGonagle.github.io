@@ -49,7 +49,7 @@ void copyToDevice(float * values, const int dimensions[2], float ** in, float **
 }
 
 __host__
-void setBoundaryValues(float * values, const int dimensions[2], const float lowerLeft[2], const float upperRight[2], boundary f)
+void setBoundaryValues(float * values, const int dimensions[2], const float lowerLeft[2], const float upperRight[2], harmonic f)
 {
     float stride[2], pos;
     int i, last[2] = {dimensions[0] - 1, dimensions[1] - 1};
@@ -81,7 +81,7 @@ void setBoundaryValues(float * values, const int dimensions[2], const float lowe
 }
 
 __host__
-float * makeInitialValues( const int dimensions[2], const float lowerLeft[2], const float upperRight[2], boundary f )
+float * makeInitialValues( const int dimensions[2], const float lowerLeft[2], const float upperRight[2], harmonic f )
 {
     float * values = new float[dimensions[0] * dimensions[1]],
           * rowPos = values,
@@ -102,7 +102,7 @@ float * makeInitialValues( const int dimensions[2], const float lowerLeft[2], co
 }
 
 __host__
-float * makeTrueValues(const int dimensions[2], const float lowerLeft[2], const float upperRight[2], boundary f)
+float * makeTrueValues(const int dimensions[2], const float lowerLeft[2], const float upperRight[2], harmonic f)
 {
     float *values = new float[dimensions[0] * dimensions[1]],
           *rowPosition = values,
@@ -157,10 +157,14 @@ float * getRelativeErrors(const float * errors, const float * trueValues, const 
             absTrue = abs(*trueValues);
 
             // Use a cutoff as a work around to dividing by 0.
-
             if (absTrue < cutOff)
                 absTrue = cutOff;
-            *newError = std::log(absError / absTrue) / log10; 
+
+            // Now use cutoff to work around logarithm of 0.
+            if (absError / absTrue < cutOff)
+                *newError = std::log(cutOff) / log10;
+            else
+                *newError = std::log(absError / absTrue) / log10; 
         }
     }  
 
