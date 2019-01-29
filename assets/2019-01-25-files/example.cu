@@ -53,6 +53,7 @@ int main(int argc, char * argv[])
                gridSize( (dimensions[0] + nThreads - 1) / nThreads, (dimensions[1] + nThreads - 1) / nThreads);
                /*  The number of blocks in CUDA execution grid; make sure there is atleast enough 
                 *  threads to have one for each point in our differential equation discretization grid.
+                *  There be extra threads that are unnecessary.
                 */
 
     std::cout << "Making initial values and true values" << std::endl;
