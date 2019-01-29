@@ -8,6 +8,15 @@ tags: C++ CUDA GPU NumericalAnalysis
 
 {% capture source %}{{site . url}}/{{page . source}}{% endcapture %}
 
+{% capture makeContent %}
+{% include 2019-01-25-files/makefile %}
+{% endcapture %}
+
+{% capture exampleContent %}
+{% include 2019-01-25-files/example.cu %}
+{% endcapture %}
+{% assign exampleLines = exampleContent | newline_to_br | split: '<br />' %} 
+
 ## [Download example.cu Here]({{ source }}/example.cu)
 ## [Download jacobi.cuh Here]({{ source }}/jacobi.cuh)
 ## [Download jacobi.cu Here]({{ source }}/jacobi.cu)
@@ -35,14 +44,10 @@ For this post we will be making use of software inaddition to compiling C++.
     * [CUDA compiler (NVCC)](https://developer.nvidia.com/cuda-llvm-compiler).
     * Something to run GNUMake (e.g. on windows, a [MinGW Shell](http://www.mingw.org/wiki/getting_started)).
 * For graphing our results:
-    * [GNUPlot](http://www.gnuplot.info/) to make graphs.
+    * [GNUPlot](http://www.gnuplot.info/) to make graphs. We will need to be able to run it from a terminal.
     * Something to run Bash scripts (e.g. on windows, a [MinGW Shell](http://www.mingw.org/wiki/getting_started)).
 
-# Building the Code
-
-{% capture makeContent %}
-{% include 2019-01-25-files/makefile %}
-{% endcapture %}
+# Building and Running the Code
 
 We can simply use our `makefile` to build the CUDA C++ code.
 {% highlight makefile %}
@@ -61,6 +66,95 @@ Our directory structure will be:
     * `makeGraphs.sh` 
 
 To use it we simply run `make` from a terminal from the main directory.
+
+To use CUDA to find the approximate function on a 20x20 grid, we simply need to run the following
+from the main directory.
+``` terminal
+example.exe 20
+```
+Then, to make the graphs, we need to run the Bash script:
+```
+sh makeGraphs.sh 20
+```
+
+# Reviewing `example.cu`
+
+Now let's review `example.cu`. First let's include headers we will need.
+
+{% highlight cpp %}
+{% for line in exampleLines offset: 1 limit: 13 %}{{ line }}{% endfor %}
+{% endhighlight %}
+
+Next, let's define the harmonic function that we will use to assign our boundary values and check
+the validity of our results.
+{% highlight cpp %}
+{% for line in exampleLines offset: 14 limit: 11 %}{{ line }}{% endfor %}
+{% endhighlight %}
+
+Next, let's deal with the parameters sent to `main()`.
+{% highlight cpp %}
+{% for line in exampleLines offset: 25 limit: 18 %}{{ line }}{% endfor %}
+{% endhighlight %}
+
+Next, let's define the variables we will need.
+{% highlight cpp %}
+{% for line in exampleLines offset: 44 limit: 14 %}{{ line }}{% endfor %}
+{% endhighlight %}
+
+Next, let's setup the intial values (including boundary values), find the true values, and find the
+initial average error.
+{% highlight cpp %}
+{% for line in exampleLines offset: 59 limit: 10 %}{{ line }}{% endfor %}
+{% endhighlight %}
+
+Next, we need to copy the initial values to the CUDA device.
+{% highlight cpp %}
+{% for line in exampleLines offset: 70 limit: 10 %}{{ line }}{% endfor %}
+{% endhighlight %}
+
+Next, we use the host device to tell the CUDA device to do each iteration. We simply synchronize between
+each iteration.
+{% highlight cpp %}
+{% for line in exampleLines offset: 81 limit: 15 %}{{ line }}{% endfor %}
+{% endhighlight %}
+
+Next, let's get the results and save the relevant data to file.
+{% highlight cpp %}
+{% for line in exampleLines offset: 97 limit: 23 %}{{ line }}{% endfor %}
+{% endhighlight %}
+
+Finally let's clean up and exit.
+{% highlight cpp %}
+{% for line in exampleLines offset: 121 limit: 11 %}{{ line }}{% endfor %}
+{% endhighlight %}
+
+# Graphing the Results
+
+We will use the GNUPlot script `fromFile.p` and the Bash script `makeGraphs.sh`. First, let's take a look
+at the GNUPlot script.
+{% highlight gnuplot %}
+{% include 2019-01-25-files/fromFile.p %}
+{% endhighlight %}
+
+Next, we use a Bash script to run the GNUPlot script on each data file.  
+{% highlight gnuplot %}
+{% include 2019-01-25-files/makeGraphs.sh %}
+{% endhighlight %}
+This makes graphs including those at the beginning of this post.
+
+# Reviewing `jacobi.cuh`
+
+Next, let's take a look at the functions we used in `jacobi.cuh`.
+{% highlight cpp %}
+{% include 2019-01-25-files/jacobi.cuh %}
+{% endhighlight %}
+
+# Reviewing `jacobi.cu`
+
+Next, let's see how the functions are implemented.
+{% highlight cpp %}
+{% include 2019-01-25-files/jacobi.cu %}
+{% endhighlight %}
 
 ## [Download example.cu Here]({{ source }}/example.cu)
 ## [Download jacobi.cuh Here]({{ source }}/jacobi.cuh)
