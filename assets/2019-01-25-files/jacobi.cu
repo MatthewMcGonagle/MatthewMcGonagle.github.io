@@ -2,6 +2,8 @@
  */
 
 #include "jacobi.cuh"
+#include <iostream>
+#include <fstream>
 
 __global__
 void doJacobiIteration(int dimX, int dimY, float * in, float * out)

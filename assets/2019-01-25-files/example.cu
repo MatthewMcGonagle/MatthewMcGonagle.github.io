@@ -8,7 +8,6 @@
 #include <iostream>
 #include "jacobi.cuh"
 #include <cuda_runtime.h>
-#include <algorithm>
 #include <cmath>
 #include <string>
 

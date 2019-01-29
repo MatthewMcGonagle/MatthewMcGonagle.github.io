@@ -5,8 +5,7 @@
  * \author Matthew McGonagle 
  */
 
-#include <iostream>
-#include <fstream>
+#pragma once
 
 //! Type for pointer to function for computing boundary values.
 typedef float (*harmonic)(float, float);
