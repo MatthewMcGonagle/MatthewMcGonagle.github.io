@@ -72,6 +72,19 @@ from the main directory.
 ``` terminal
 example.exe 20
 ```
+We get the following output:
+```
+Making initial values and true values
+Before Average Error = 0.00788951
+Copying to Device
+Doing Jacobi Iterations
+Copying result to values
+Copying to file 'values.dat'
+Now getting errors
+After Average Error = 0.000176011
+Now getting relative errors
+```
+
 Then, to make the graphs, we need to run the Bash script:
 ```
 sh makeGraphs.sh 20
@@ -162,5 +175,4 @@ Next, let's see how the functions are implemented.
 ## [Download fromFile.p Here]({{ source }}/fromFile.p)
 ## [Download makeGraphs.sh Here]({{ source }}/makeGraphs.sh) 
 ## [Download makefile Here]({{ source }}/makefile)
-
 
