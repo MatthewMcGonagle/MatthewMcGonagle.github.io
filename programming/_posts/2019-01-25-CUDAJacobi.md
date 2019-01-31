@@ -17,12 +17,7 @@ tags: C++ CUDA GPU NumericalAnalysis
 {% endcapture %}
 {% assign exampleLines = exampleContent | newline_to_br | split: '<br />' %} 
 
-## [Download example.cu Here]({{ source }}/example.cu)
-## [Download jacobi.cuh Here]({{ source }}/jacobi.cuh)
-## [Download jacobi.cu Here]({{ source }}/jacobi.cu)
-## [Download fromFile.p Here]({{ source }}/fromFile.p)
-## [Download makeGraphs.sh Here]({{ source }}/makeGraphs.sh) 
-## [Download makefile Here]({{ source }}/makefile)
+## [Download Source Files Here (tar.gz)]({{ site . url}}/assets/tarballs/2019-01-25-CUDAJacobi.tar.gz)
 
 In this post we will look at using CUDA programming to get a GPU to compute Jacobi iterations for approximations
 to harmonic functions satisfying Dirichlet boundary conditions (i.e. specifying the values of the function along
@@ -169,10 +164,5 @@ Next, let's see how the functions are implemented.
 {% include 2019-01-25-files/jacobi.cu %}
 {% endhighlight %}
 
-## [Download example.cu Here]({{ source }}/example.cu)
-## [Download jacobi.cuh Here]({{ source }}/jacobi.cuh)
-## [Download jacobi.cu Here]({{ source }}/jacobi.cu)
-## [Download fromFile.p Here]({{ source }}/fromFile.p)
-## [Download makeGraphs.sh Here]({{ source }}/makeGraphs.sh) 
-## [Download makefile Here]({{ source }}/makefile)
+## [Download Source Files Here (tar.gz)]({{ site . url}}/assets/tarballs/2019-01-25-CUDAJacobi.tar.gz)
 
