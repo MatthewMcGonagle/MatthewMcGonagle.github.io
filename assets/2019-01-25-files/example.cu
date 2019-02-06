@@ -122,10 +122,10 @@ int main(int argc, char * argv[])
 
     cudaFree(in); // First clean up on CUDA device.
     cudaFree(out);
-    delete values; // Now clean up on host.
-    delete errors;
-    delete relErrors;
-    delete trueValues;
+    delete[] values; // Now clean up on host.
+    delete[] errors;
+    delete[] relErrors;
+    delete[] trueValues;
 
     return 0;
 }
