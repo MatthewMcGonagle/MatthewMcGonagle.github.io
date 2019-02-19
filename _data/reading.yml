@@ -454,3 +454,94 @@
   type: survey
   subject: history
   subject2: control theory
+
+- author: "Ambrosio, Luigi"
+  title: Lecture Notes on Elliptic Partial Differential Equations
+  url: http://cvgmt.sns.it/media/doc/paper/1280/PDEAAA.pdf
+  type: textbook 
+  subject: analysis 
+  subject2: pde 
+
+- author: "Fienberg, Stephen"
+  title: "A Brief History of Statistics in Three and One-Half Chapters: A Review Essay"
+  url: https://projecteuclid.org/euclid.ss/1177011360
+  type: survey
+  subject: history
+  subject2: statistics
+
+- author: "Cabre, Xavier"
+  title: "Topics in Regularity and Qualitative Properties of Solutions of Nonlinear Elliptic Equations"
+  url: http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.34.5204
+  type: survey
+  subject: math 
+  subject2: pde
+
+- author: "Gluck, Herman"
+  title: "Manifold with Preassigned Curvature - A Survey"
+  url: https://projecteuclid.org/euclid.bams/1183536408
+  type: survey
+  subject: math
+  subject2: geometry
+
+- author: "Guan, Pengfei"
+  title: Topics in Geometric Fully Nonlinear Equations
+  url: http://www.math.mcgill.ca/guan/zheda0508.pdf
+  type: textbook
+  subject: geometry 
+  subject2: pde 
+
+- author: "Hunter, John"
+  title: An Introduction to Incompressible Euler Equations
+  url: https://www.math.ucdavis.edu/~hunter/notes/euler.pdf
+  type: survey
+  subject: math
+  subject2: pde
+
+- author: "Kazdan, Jerry"
+  title: "Solving Equations, An Elegant Legacy"
+  url: https://www.math.upenn.edu/~kazdan/solving/solvingL11pt.pdf
+  type: survey
+  subject: math
+  subject2: pde
+
+- author: "Nirenberg"
+  title: Variational and Topological Methods in Nonlinear Problems
+  url: https://projecteuclid.org/euclid.bams/1183548116
+  type: survey
+  subject: math
+  subject2: pde
+
+- author: "Nolen, James"
+  title: Partial Differential Equations and Diffusion Processes
+  url: https://www.semanticscholar.org/paper/Partial-Differential-Equations-and-Diffusion-Nolen/433bda14d4e1b7a7dfb015b76470da53b2dc727d
+  type: textbook
+  subject: analysis 
+  subject2: pde 
+
+- author: "Pitman and Yor"
+  title: A Guide to Brownian Motion and Related Stochastic Processes
+  url: https://arxiv.org/abs/1802.09679
+  type: textbook
+  subject: analysis
+  subject2: probability
+
+- author: "Yan, Baisheng"
+  title: Introduction to Variational Methods in Partial Differential Equations and Applications
+  url: https://users.math.msu.edu/users/yan/yan-lecture.pdf
+  type: textbook
+  subject: analysis
+  subject2: pde
+
+- author: "Klainerman, Sergiu"
+  title: PDE as a Unified Subject
+  url: https://web.math.princeton.edu/~seri/homepage/papers/telaviv.pdf
+  type: survey
+  subject: math
+  subject2: pde
+
+- author: "Kassmann, Moritz"
+  title: "Harnack Inequalities: An Introduction"
+  url: https://www.emis.de/journals/HOA/BVP/Volume2007/081415.pdf
+  type: survey
+  subject: math
+  subject2: pde
