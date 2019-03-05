@@ -15,9 +15,14 @@
                              code existed as almost equivalent copies: one version for using third party kiss_fft functions and 
                              the other for using CUDA fft functions. 
                         </li>
+                        <li> <a href = "https://github.com/ihhub/penguinV/pull/290"> Pull Request #290: Add Rotate() function into Cuda nameSpace </a>.
+                             <br>
+                             Added a CUDA version of rotation function that does rotation in parallel using CUDA device. 
+                        </li>
                         </ul>
 
 - project: TSP_PictureMaker
+  webpage: "https://matthewmcgonagle.github.io/TSP_PictureMaker/"
   repository: "https://github.com/MatthewMcGonagle/TSP_PictureMaker"
   language: Python
   purpose: Python module for drawing pictures using a single closed curve with a small number of self-intersections by finding approximate solutions to the Travelling Salesman Problem.
