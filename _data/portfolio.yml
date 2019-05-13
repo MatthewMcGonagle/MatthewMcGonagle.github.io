@@ -45,6 +45,41 @@
                               Below is an example of the type of drawing that can be made:
                               <img src = "https://raw.githubusercontent.com/MatthewMcGonagle/TSP_PictureMaker/master/docs/finalCycle.png" alt = "Example of TSP_PictureMaker Drawing">
 
+- project: Kaggle Santander Customer Transaction Prediction
+  repository: "https://github.com/MatthewMcGonagle/kaggle_competitions/tree/master/santander_2019" 
+  language: Python
+  purpose: Predict the probability that a customer transaction will be repeated based on 200 un-labeled features.
+  description: |
+                 We predict a probability for the binary classification problem of no repeat (class 0) and repeat (class 1).
+                 There are many more samples in class 0 than class 1, so we score using Area Under the Receiver Operating Characteristic Curve metric
+                 (instead of accuracy). 
+                
+                 <h4> Model Steps </h4> 
+                 <ol>
+                 <li> Due to data size, use out-of-core training to train custom dimension reduction transformers
+                      using mini-batches of the data. The transformers pick out optimal directions based on the
+                      ratio of in-class variances for each class. They also use the difference between the in-class means.
+
+                      Here is a graph of the reduced features for a training fold of the cross-validation:
+
+                      <img alt = "Graph of Reduced Features for Training Fold" 
+                       src = "https://raw.githubusercontent.com/MatthewMcGonagle/kaggle_competitions/master/santander_2019/graphs/2d_distribution.svg?sanitize=true">
+
+                 <li> Use cross-validation to pick out a final predictor. We found that simple Linear Discriminant Analysis serves
+                      as a good predictor on the final reduces features. Here are the graphs of the cross-validated ROC curves:
+
+                      <img alt = "Graph of Cross-validated ROC Curves" 
+                       src = "https://raw.githubusercontent.com/MatthewMcGonagle/kaggle_competitions/master/santander_2019/graphs/cv_roc_curves.svg?sanitize=true">
+                      <br>
+
+                      The mean cross-validated area under the ROC curve was about 0.85 out of a maximum score of 1.0. </li>
+
+                 <li> Use JSON encoding/decoding to create model persistence to allow us to make predictions on test data set in
+                      in another Jupyter Notebook. </li>
+
+                 <li> Decode the JSON version of the model to make transform and make predictions of the kaggle test data set. </li>
+                 </ol> 
+
 - project: CVWriter
   webpage: "https://matthewmcgonagle.github.io/CVWriter/"
   repository: "https://github.com/MatthewMcGonagle/CVWriter"
