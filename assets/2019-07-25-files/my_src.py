@@ -86,7 +86,7 @@ def plot_cycle(cycle, mark_begin_end = False):
     plt.xlabel('x')
     plt.ylabel('y')
     if mark_begin_end:
-        plt.legend(['In Array', 'Begin to End of Array'])
+        plt.legend(['In Array', 'Connects Endpoints Array'])
 
 def flip_segment_order(cycle, i, j):
     '''

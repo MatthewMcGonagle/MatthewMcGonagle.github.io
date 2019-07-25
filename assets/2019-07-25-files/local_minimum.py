@@ -11,7 +11,7 @@ import my_src
 local_min, shorter = my_src.make_local_minimum(heights = [1, 2.5], separation = 6, return_shorter = True)
 lengths = {'local_min' : my_src.find_length(local_min),
            'shorter' : my_src.find_length(shorter)}
-print(lengths)
+print('lengths = ', lengths)
 
 # Plot the local minimum cycle.
 my_src.plot_cycle(local_min)
@@ -41,16 +41,17 @@ for i in range(0, len(local_min) - 1):
         # Get a plot of what one of the moves looks like.
         if i == 0 and j == 4:
             my_src.plot_cycle(new_cycle)
-            plt.title('Random Example Move for i = ' + str(i) + ', j = ' + str(j))
+            plt.title('Random Example Move for i = ' + str(i) + ', j = ' + str(j) +
+                      ', Length = ' + '{:.2f}'.format(new_length))
             plt.tight_layout()
             plt.savefig('local_move.svg')
             plt.close()
 
         # Make a plot if the length of the cycle is the same as the local min cycle.
         if new_length == lengths['local_min']:
-            print('Move for i = ', i, 'j = ', j, 'has the same length as the local cycle.')
+            print('Move for i = ', i, ', j = ', j, 'has the same length as the local minimum cycle.')
             my_src.plot_cycle(new_cycle, mark_begin_end = True)
-            plt.title('Move for i = ' + str(i) + ' j = ' + str(j) + ', Length is Same as Local Min') 
+            plt.title('Move for i = ' + str(i) + ', j = ' + str(j) + ', Length is Same as Local Min') 
             plt.tight_layout()
             plt.savefig('same_' + str(i) + '_' + str(j) + '.svg')
             plt.close()
